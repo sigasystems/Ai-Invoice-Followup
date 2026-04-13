@@ -4,20 +4,16 @@ import * as React from 'react';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { PageHeader } from '@/components/shared/page-header';
 import { 
-  Bell, 
-  Mail, 
-  MessageSquare, 
-  PhoneCall, 
   ShieldCheck, 
-  Smartphone, 
   Zap, 
   Clock,
-  Settings,
-  User,
   CreditCard,
-  Target,
   BrainCircuit,
-  Save
+  Save,
+  Loader2,
+  Plus,
+  Trash2,
+  MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -34,185 +30,289 @@ import {
 import { toast } from 'sonner';
 
 export default function SettingsPage() {
-  const [tone, setTone] = React.useState('Auto');
-  
-  const handleSave = () => {
-    toast.success('Settings updated successfully!');
+  const [settings, setSettings] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [saving, setSaving] = React.useState(false);
+
+  React.useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const res = await fetch('/api/settings');
+        const data = await res.json();
+        setSettings(data);
+      } catch (err) {
+        toast.error('Failed to load settings');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSettings();
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings),
+      });
+      if (!res.ok) throw new Error();
+      toast.success('Settings updated successfully!');
+    } catch (err) {
+      toast.error('Failed to save settings');
+    } finally {
+      setSaving(false);
+    }
   };
+
+  const updateField = (field: string, value: any) => {
+    setSettings((prev: any) => ({ ...prev, [field]: value }));
+  };
+
+  const addLadderStep = () => {
+    const newStep = { delayDays: 1, tone: 'Neutral', label: 'New Reminder' };
+    setSettings((prev: any) => ({
+      ...prev,
+      escalationLadder: [...(prev.escalationLadder || []), newStep]
+    }));
+  };
+
+  const removeLadderStep = (index: number) => {
+    setSettings((prev: any) => ({
+      ...prev,
+      escalationLadder: prev.escalationLadder.filter((_: any, i: number) => i !== index)
+    }));
+  };
+
+  const updateLadderStep = (index: number, field: string, value: any) => {
+    const newLadder = [...settings.escalationLadder];
+    newLadder[index] = { ...newLadder[index], [field]: value };
+    updateField('escalationLadder', newLadder);
+  };
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center p-20">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
       <PageHeader 
         title="Settings" 
-        description="Configure your automation rules and communication tone."
+        description="Configure your automation rules and collection escalation ladder."
       >
-        <Button onClick={handleSave} className="rounded-xl h-10 px-6 font-semibold shadow-md flex items-center gap-2">
-           <Save className="w-4 h-4" />
-           Save Changes
+        <Button 
+          onClick={handleSave} 
+          disabled={saving}
+          className="rounded-xl h-10 px-6 font-semibold shadow-md flex items-center gap-2"
+        >
+           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+           {saving ? 'Saving...' : 'Save Changes'}
         </Button>
       </PageHeader>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-         {/* Navigation Tabs */}
          <div className="lg:col-span-1 space-y-2">
-            <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-primary bg-primary/5 font-semibold transition-all">
+            <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-primary bg-primary/5 font-semibold">
                <Zap className="h-4 w-4 mr-3" />
-               Automation Rules
+               Escalation Ladder
             </Button>
-            <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-medium hover:bg-neutral-100 transition-all">
+            <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-medium hover:bg-neutral-100">
                <ShieldCheck className="h-4 w-4 mr-3" />
                Channels & Methods
             </Button>
-            <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-medium hover:bg-neutral-100 transition-all">
-               <ShieldCheck className="h-4 w-4 mr-3" />
-               Privacy & Compliance
-            </Button>
-            <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-medium hover:bg-neutral-100 transition-all">
+            <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-medium hover:bg-neutral-100">
                <BrainCircuit className="h-4 w-4 mr-3" />
                n8n Integration
             </Button>
-            <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-medium hover:bg-neutral-100 transition-all">
+            <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-medium hover:bg-neutral-100">
                <CreditCard className="h-4 w-4 mr-3" />
                Billing & Plans
             </Button>
          </div>
 
-         {/* Content Area */}
          <div className="lg:col-span-3 space-y-8">
-            <Card className="rounded-3xl border border-neutral-100 shadow-sm overflow-hidden bg-white">
+            <Card className="rounded-3xl border border-border shadow-sm overflow-hidden bg-card">
                <CardHeader className="p-8 pb-4">
-                  <div className="flex items-center gap-3 mb-2">
-                     <BrainCircuit className="w-6 h-6 text-primary" />
-                     <CardTitle className="text-xl font-bold">Follow-up AI Rules</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                       <Zap className="w-6 h-6 text-primary" />
+                       <div>
+                         <CardTitle className="text-xl font-bold">Custom Escalation Ladder</CardTitle>
+                         <CardDescription className="text-sm font-medium">Define exactly when and with what tone reminders are sent.</CardDescription>
+                       </div>
+                    </div>
+                    <Button onClick={addLadderStep} variant="outline" size="sm" className="rounded-xl h-9">
+                      <Plus className="w-4 h-4 mr-2" /> Add Step
+                    </Button>
                   </div>
-                  <CardDescription className="text-sm font-medium">Define when and how PayPilot should intervene.</CardDescription>
                </CardHeader>
-               <CardContent className="p-8 pt-4 space-y-8">
-                  <div className="space-y-6">
-                     <div className="flex items-center justify-between p-4 rounded-2xl bg-neutral-50/50 border border-neutral-100 group transition-all">
-                        <div className="space-y-1">
-                           <Label className="text-base font-semibold group-hover:text-primary transition-colors">Before due reminder</Label>
-                           <p className="text-xs text-muted-foreground font-normal">Send a friendly nudge 2 days before due date.</p>
-                        </div>
-                        <Checkbox className="h-5 w-5 rounded-md border-neutral-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary" defaultChecked />
-                     </div>
-                     
-                     <div className="space-y-4">
-                        <div className="flex items-center gap-2 mb-2">
-                           <Clock className="w-4 h-4 text-primary" />
-                           <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Post-Due Sequence</span>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                           <div className="flex items-center gap-3 px-4 py-3 border border-neutral-100 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow">
-                              <Checkbox id="day1" defaultChecked />
-                              <Label htmlFor="day1" className="text-sm font-semibold flex-1">Day 1 Reminder</Label>
-                              <span className="text-[10px] uppercase font-bold text-muted-foreground px-2 py-0.5 rounded-lg bg-neutral-50">Mild</span>
-                           </div>
-                           <div className="flex items-center gap-3 px-4 py-3 border border-neutral-100 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow">
-                              <Checkbox id="day3" defaultChecked />
-                              <Label htmlFor="day3" className="text-sm font-semibold flex-1">Day 3 Reminder</Label>
-                              <span className="text-[10px] uppercase font-bold text-muted-foreground px-2 py-0.5 rounded-lg bg-neutral-50">Neutral</span>
-                           </div>
-                           <div className="flex items-center gap-3 px-4 py-3 border border-neutral-100 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow">
-                              <Checkbox id="day7" defaultChecked />
-                              <Label htmlFor="day7" className="text-sm font-semibold flex-1">Day 7 Follow-up</Label>
-                              <span className="text-[10px] uppercase font-bold text-indigo-600 px-2 py-0.5 rounded-lg bg-indigo-50">Firm</span>
-                           </div>
-                           <div className="flex items-center gap-3 px-4 py-3 border border-neutral-100 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow">
-                              <Checkbox id="day15" defaultChecked />
-                              <Label htmlFor="day15" className="text-sm font-semibold flex-1">Day 15 Escalation</Label>
-                              <span className="text-[10px] uppercase font-bold text-rose-600 px-2 py-0.5 rounded-lg bg-rose-50">Urgent</span>
-                           </div>
-                        </div>
-                     </div>
+               <CardContent className="p-8 pt-4 space-y-6">
+                  {settings?.escalationLadder && settings.escalationLadder.map((step: any, index: number) => (
+                    <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-2xl bg-muted border border-border group">
+                      <div className="flex-1 space-y-2 w-full">
+                        <Label className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
+                          <Clock className="w-3 h-3" /> Step {index + 1} Label
+                        </Label>
+                        <Input 
+                          value={step.label} 
+                          onChange={(e) => updateLadderStep(index, 'label', e.target.value)}
+                          placeholder="e.g. Day 1 Reminder"
+                          className="rounded-xl h-10 bg-background border-border" 
+                        />
+                      </div>
+                      <div className="w-full sm:w-24 space-y-2">
+                        <Label className="text-xs font-bold text-muted-foreground uppercase">Days Post</Label>
+                        <Input 
+                          type="number"
+                          value={step.delayDays ?? 0} 
+                          onChange={(e) => updateLadderStep(index, 'delayDays', parseInt(e.target.value) || 0)}
+                          className="rounded-xl h-10 bg-background border-border" 
+                        />
+                      </div>
+                      <div className="w-full sm:w-32 space-y-2">
+                        <Label className="text-xs font-bold text-muted-foreground uppercase">Tone</Label>
+                        <Select 
+                          value={step.tone} 
+                          onValueChange={(val) => updateLadderStep(index, 'tone', val)}
+                        >
+                          <SelectTrigger className="rounded-xl h-10 bg-background border-border">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-xl">
+                            <SelectItem value="Mild">Mild</SelectItem>
+                            <SelectItem value="Neutral">Neutral</SelectItem>
+                            <SelectItem value="Firm">Firm</SelectItem>
+                            <SelectItem value="Urgent">Urgent</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="sm:pt-6">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl"
+                          onClick={() => removeLadderStep(index)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {(!settings?.escalationLadder || settings.escalationLadder.length === 0) && (
+                    <div className="text-center py-10 border-2 border-dashed border-neutral-100 rounded-3xl">
+                      <p className="text-sm text-muted-foreground">No escalation steps defined. Click "Add Step" to start.</p>
+                    </div>
+                  )}
 
-                     <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/[0.03] border border-primary/10 transition-all">
-                        <div className="space-y-1">
-                           <Label className="text-base font-bold text-neutral-900 flex items-center gap-2">
-                             Smart Escalation
-                             <div className="h-5 w-10 bg-gradient-to-r from-primary to-indigo-500 rounded-full flex items-center justify-center text-[8px] text-white uppercase font-black">Pro</div>
-                           </Label>
-                           <p className="text-xs text-muted-foreground font-normal italic"> Automatically switch to owner's contact for persistent overdue cases.</p>
-                        </div>
-                        <Checkbox defaultChecked />
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/[0.05] border border-primary/20">
+                       <div className="space-y-1">
+                          <Label className="text-sm font-bold text-neutral-900">Smart Escalation</Label>
+                          <p className="text-[10px] text-muted-foreground font-normal italic">Auto-switch to owner contact.</p>
+                       </div>
+                       <Checkbox 
+                         checked={settings?.smartEscalation || false} 
+                         onCheckedChange={(val) => updateField('smartEscalation', val)}
+                       />
                      </div>
-                  </div>
+                     <div className="flex items-center justify-between p-4 rounded-2xl bg-indigo-50/30 border border-indigo-100/50">
+                       <div className="space-y-1">
+                          <Label className="text-sm font-bold text-neutral-900">Pre-Due Alerts</Label>
+                          <p className="text-[10px] text-muted-foreground font-normal italic">Send courtesy reminder 2 days before.</p>
+                       </div>
+                       <Checkbox 
+                         checked={settings?.beforeDueReminder || false} 
+                         onCheckedChange={(val) => updateField('beforeDueReminder', val)}
+                       />
+                     </div>
+                   </div>
                </CardContent>
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-               {/* Privacy and GDPR Section */}
-               <Card className="rounded-3xl border border-neutral-100 shadow-sm overflow-hidden bg-white">
-                  <CardHeader className="p-6">
-                     <div className="flex items-center gap-3 mb-1">
+               <Card className="rounded-3xl border border-border shadow-sm overflow-hidden bg-card">
+                  <CardHeader className="p-6 pb-2">
+                     <div className="flex items-center gap-3">
                         <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                        <CardTitle className="text-lg font-bold">Privacy & GDPR Compliance</CardTitle>
+                        <CardTitle className="text-lg font-bold">Compliance</CardTitle>
                      </div>
-                     <CardDescription className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Manage data retention and customer consent.</CardDescription>
                   </CardHeader>
-                  <CardContent className="p-6 pt-0 space-y-4">
-                     <div className="flex items-center justify-between p-4 rounded-xl bg-neutral-50/50 border border-neutral-100">
-                        <div className="space-y-0.5">
-                           <Label className="text-sm font-semibold">Consent Verification</Label>
-                           <p className="text-[11px] text-muted-foreground">Require customer opt-in before sending WhatsApp messages.</p>
-                        </div>
-                        <Checkbox defaultChecked />
-                     </div>
-                     <div className="flex items-center justify-between p-4 rounded-xl bg-neutral-50/50 border border-neutral-100">
-                        <div className="space-y-0.5">
-                           <Label className="text-sm font-semibold">Automatic Data Deletion</Label>
-                           <p className="text-[11px] text-muted-foreground">Wipe invoice data 3 years after payment completion.</p>
-                        </div>
-                        <Checkbox defaultChecked />
-                     </div>
-                     <div className="p-4 rounded-xl bg-rose-50 border border-rose-100">
-                        <p className="text-[11px] text-rose-700 font-medium">⚠️ Important: This feature is mandatory under GDPR for customers in the European Union. Ensure your privacy policy is linked accurately.</p>
-                     </div>
-                  </CardContent>
+                   <CardContent className="p-6 pt-4 space-y-4">
+                      <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+                         <div className="space-y-0.5">
+                            <span className="text-sm font-semibold block">Consent Verification</span>
+                            <span className="text-[10px] text-muted-foreground">Verify manual consent for all contacts</span>
+                         </div>
+                         <Checkbox 
+                           checked={settings?.consentVerified || false} 
+                           onCheckedChange={(val) => updateField('consentVerified', val)}
+                         />
+                      </div>
+                      <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+                         <div className="space-y-0.5">
+                            <span className="text-sm font-semibold block">Data Deletion Policy</span>
+                            <span className="text-[10px] text-muted-foreground">Auto-purge PII after 90 days of inactivity</span>
+                         </div>
+                         <Checkbox 
+                           checked={settings?.dataDeletion || false} 
+                           onCheckedChange={(val) => updateField('dataDeletion', val)}
+                         />
+                      </div>
+                      <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+                         <div className="space-y-0.5">
+                            <span className="text-sm font-semibold block">Sentiment Logs</span>
+                            <span className="text-[10px] text-muted-foreground">Store AI analysis of customer replies</span>
+                         </div>
+                         <Checkbox 
+                           checked={settings?.logSentiment || false} 
+                           onCheckedChange={(val) => updateField('logSentiment', val)}
+                         />
+                      </div>
+                   </CardContent>
                </Card>
 
-               {/* n8n Integration Section */}
-               <Card className="rounded-3xl border border-neutral-100 shadow-sm overflow-hidden bg-white">
-                  <CardHeader className="p-6">
-                     <div className="flex items-center gap-3 mb-1">
+               <Card className="rounded-3xl border border-border shadow-sm overflow-hidden bg-card">
+                  <CardHeader className="p-6 pb-2">
+                     <div className="flex items-center gap-3">
                         <BrainCircuit className="w-5 h-5 text-primary" />
-                        <CardTitle className="text-lg font-bold">n8n Automation Flow</CardTitle>
+                        <CardTitle className="text-lg font-bold">n8n Config</CardTitle>
                      </div>
-                     <CardDescription className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Connect your dashboard to the n8n flow you created.</CardDescription>
                   </CardHeader>
-                  <CardContent className="p-6 pt-0 space-y-4">
-                     <div className="space-y-4 pt-2">
-                        <div className="space-y-2">
-                           <Label className="text-xs font-bold text-muted-foreground ml-1 uppercase">Fetch Data (Read Webhook)</Label>
-                           <Input 
-                             defaultValue="https://n8n.your-site.com/webhook/read-sheet" 
-                             className="rounded-xl h-12 bg-neutral-50 border-none font-mono text-xs focus:ring-primary shadow-sm" 
-                           />
-                           <p className="text-[10px] text-muted-foreground px-1">This webhook should return the JSON array from your Google Sheet.</p>
-                        </div>
-                        <div className="space-y-2 border-t border-neutral-50 pt-4">
-                           <Label className="text-xs font-bold text-muted-foreground ml-1 uppercase">Write Actions (Reminder Webhook)</Label>
-                           <Input 
-                             defaultValue="https://n8n.your-site.com/webhook/send-reminder" 
-                             className="rounded-xl h-12 bg-neutral-50 border-none font-mono text-xs focus:ring-primary shadow-sm" 
-                           />
-                           <p className="text-[10px] text-muted-foreground px-1">Triggered when you send reminders from the dashboard.</p>
-                        </div>
+                  <CardContent className="p-6 pt-4 space-y-4">
+                     <div className="space-y-2">
+                        <Label className="text-[10px] font-bold text-muted-foreground uppercase">Read Webhook</Label>
+                        <Input 
+                          value={settings?.readWebhook || ''} 
+                          onChange={(e) => updateField('readWebhook', e.target.value)}
+                          className="rounded-xl h-10 bg-muted border-none font-mono text-[10px]" 
+                        />
                      </div>
-                     <div className="flex items-center justify-between py-2 border-b border-neutral-50">
-                        <div className="flex items-center gap-3">
-                           <Zap className="w-4 h-4 text-muted-foreground" />
-                           <span className="text-sm font-semibold">Sync Dashboard Activity</span>
-                        </div>
-                        <Checkbox defaultChecked />
-                     </div>
-                     <div className="flex items-center justify-between py-2 border-b border-neutral-50">
-                        <div className="flex items-center gap-3">
-                           <Save className="w-4 h-4 text-muted-foreground" />
-                           <span className="text-sm font-semibold">Log AI Sentiment to Customers</span>
-                        </div>
-                        <Checkbox defaultChecked />
-                     </div>
+                      <div className="space-y-2">
+                         <Label className="text-[10px] font-bold text-muted-foreground uppercase">Write Webhook</Label>
+                         <Input 
+                           value={settings?.writeWebhook || ''} 
+                           onChange={(e) => updateField('writeWebhook', e.target.value)}
+                           className="rounded-xl h-10 bg-neutral-50 border-none font-mono text-[10px]" 
+                         />
+                      </div>
+                      <div className="pt-4 border-t border-border flex items-center justify-between">
+                         <div className="space-y-0.5">
+                            <span className="text-xs font-bold">Background Sync</span>
+                            <span className="text-[9px] text-muted-foreground block">Keep activities in sync with n8n</span>
+                         </div>
+                         <Checkbox 
+                           checked={settings?.syncActivity || false} 
+                           onCheckedChange={(val) => updateField('syncActivity', val)}
+                         />
+                      </div>
                   </CardContent>
                </Card>
             </div>

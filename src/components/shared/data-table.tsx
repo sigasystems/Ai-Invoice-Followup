@@ -84,11 +84,9 @@ export function DataTable<TData, TValue>({
           />
         )}
         <DropdownMenu>
-          <DropdownMenuTrigger >
-            <Button variant="outline" size="sm" className="ml-auto h-9 rounded-xl flex gap-2">
-              <Settings2 className="w-4 h-4" />
-              View
-            </Button>
+          <DropdownMenuTrigger render={<Button variant="outline" size="sm" className="ml-auto h-9 rounded-xl flex gap-2" />}>
+            <Settings2 className="w-4 h-4" />
+            View
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="rounded-xl border-neutral-100 shadow-md">
             {table

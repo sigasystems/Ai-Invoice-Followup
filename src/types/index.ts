@@ -25,8 +25,13 @@ export interface Invoice {
   status: InvoiceStatus;
   daysOverdue: number;
   createdAt: string;
+  startFollowups: boolean;
   prediction?: 'Likely' | 'At Risk' | 'Delayed';
   paymentPlan?: PaymentPlan;
+  reminder_stage?: number;
+  tone?: string;
+  reminder_stages?: number[];
+  tones?: string[];
 }
 
 export interface Customer {

@@ -9,7 +9,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
-    <div className="flex min-h-screen bg-neutral-50/50 selection:bg-primary/20 selection:text-primary">
+    <div className="flex min-h-screen bg-background selection:bg-primary/20 selection:text-primary">
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex fixed inset-y-0 left-0 z-40">
         <Sidebar />

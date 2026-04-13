@@ -11,6 +11,7 @@ export const mockInvoices: Invoice[] = [
     daysOverdue: 0,
     createdAt: '2026-03-20',
     prediction: 'Likely',
+    startFollowups: false,
   },
   {
     id: 'INV-002',
@@ -22,6 +23,7 @@ export const mockInvoices: Invoice[] = [
     daysOverdue: 12,
     createdAt: '2026-03-01',
     prediction: 'At Risk',
+    startFollowups: true,
   },
   {
     id: 'INV-003',
@@ -32,6 +34,7 @@ export const mockInvoices: Invoice[] = [
     status: 'Pending',
     daysOverdue: 1,
     createdAt: '2026-03-22',
+    startFollowups: false,
   },
   {
     id: 'INV-004',
@@ -43,6 +46,7 @@ export const mockInvoices: Invoice[] = [
     daysOverdue: 9,
     createdAt: '2026-03-10',
     prediction: 'Delayed',
+    startFollowups: true,
   },
   {
     id: 'INV-005',
@@ -53,6 +57,7 @@ export const mockInvoices: Invoice[] = [
     status: 'Pending',
     daysOverdue: 0,
     createdAt: '2026-03-25',
+    startFollowups: false,
   },
   {
     id: 'INV-006',
@@ -64,6 +69,7 @@ export const mockInvoices: Invoice[] = [
     daysOverdue: 11,
     createdAt: '2026-03-05',
     prediction: 'Delayed',
+    startFollowups: true,
   },
   {
     id: 'INV-007',
@@ -74,6 +80,7 @@ export const mockInvoices: Invoice[] = [
     status: 'Pending',
     daysOverdue: 0,
     createdAt: '2026-03-20',
+    startFollowups: false,
   },
   {
     id: 'INV-008',
@@ -84,6 +91,7 @@ export const mockInvoices: Invoice[] = [
     status: 'Paid',
     daysOverdue: 0,
     createdAt: '2026-03-01',
+    startFollowups: false,
   },
   {
     id: 'INV-009',
@@ -94,6 +102,7 @@ export const mockInvoices: Invoice[] = [
     status: 'Pending',
     daysOverdue: 0,
     createdAt: '2026-03-28',
+    startFollowups: false,
   },
   {
     id: 'INV-010',
@@ -105,6 +114,7 @@ export const mockInvoices: Invoice[] = [
     daysOverdue: 13,
     createdAt: '2026-02-28',
     prediction: 'Delayed',
+    startFollowups: true,
   },
   {
     id: 'INV-011',
@@ -115,6 +125,7 @@ export const mockInvoices: Invoice[] = [
     status: 'Pending',
     daysOverdue: 0,
     createdAt: '2026-03-18',
+    startFollowups: false,
   },
   {
     id: 'INV-012',
@@ -126,6 +137,7 @@ export const mockInvoices: Invoice[] = [
     daysOverdue: 0,
     createdAt: '2026-03-30',
     prediction: 'Likely',
+    startFollowups: false,
   },
 ];
 

@@ -140,11 +140,9 @@ export default function CustomersPage() {
       cell: ({ row }) => {
         return (
           <DropdownMenu>
-            <DropdownMenuTrigger >
-              <Button variant="ghost" className="h-8 w-8 p-0 rounded-lg hover:bg-neutral-100">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
+            <DropdownMenuTrigger render={<Button variant="ghost" className="h-8 w-8 p-0 rounded-lg hover:bg-neutral-100" />}>
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-xl border-neutral-100 shadow-xl p-1 w-48">
               <DropdownMenuGroup>

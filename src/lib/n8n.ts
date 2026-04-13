@@ -1,32 +1,34 @@
 import { toast } from 'sonner';
 
 /**
- * Utility for triggering n8n workflows from the frontend.
- * In a real production app, these should ideally go through a backend/API route 
- * for security (API key hiding, rate limiting), but for integration:
+ * Utility for triggering n8n workflows through the local bridge.
+ * This ensures the Webhook URL is dynamically pulled from your Settings page.
  */
-export async function triggerN8nWorkflow(webhookId: string, payload: any) {
-  const N8N_URL = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL || 'https://your-n8n-instance.com/webhook';
-  
+export async function triggerN8nWorkflow(action: string, payload: any) {
   try {
-    const response = await fetch(`${N8N_URL}/${webhookId}`, {
+    const response = await fetch('/api/automation/trigger', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        ...payload,
-        timestamp: new Date().toISOString(),
-        source: 'PayPilot Dashboard',
+        action,
+        payload,
       }),
     });
 
-    if (!response.ok) throw new Error('n8n workflow failed to start');
+    const data = await response.json();
 
-    return await response.json();
+    if (!response.ok) {
+       toast.error(data.error || 'Automation failed');
+       return null;
+    }
+
+    toast.success('Automation triggered successfully');
+    return data;
   } catch (error) {
-    console.error('n8n Error:', error);
-    toast.error('Automation failed. Check n8n connectivity.');
+    console.error('Bridge Error:', error);
+    toast.error('Could not reach automation bridge');
     return null;
   }
 }
