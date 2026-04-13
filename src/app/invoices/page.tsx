@@ -137,11 +137,11 @@ export default function InvoicesPage() {
       accessorKey: 'startFollowups',
       header: 'Automation',
       cell: ({ row }) => {
-        const offset = row.original.startFollowups || 0;
+        const offset = typeof row.original.startFollowups === 'number' ? row.original.startFollowups : 0;
         const dueDate = new Date(row.original.dueDate);
         const startDate = new Date(dueDate);
         startDate.setDate(dueDate.getDate() + offset);
-        
+
         const isPast = startDate <= new Date();
         const formattedDate = startDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
 
