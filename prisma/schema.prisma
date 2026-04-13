@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 }
 
 enum InvoiceStatus {
@@ -35,18 +35,18 @@ model Invoice {
   last_reminder_sent DateTime?
   tone               String?
   notes              String?
-  
-  // Storing history in arrays as requested
-  reminder_stages    Int[]
-  tones              String[]
 
-  customerId         String
-  customer           Customer      @relation(fields: [customerId], references: [id])
-  
-  replies            Reply[]
-  
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  // Storing history in arrays as requested
+  reminder_stages Int[]
+  tones           String[]
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  replies Reply[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Reply {
@@ -56,23 +56,22 @@ model Reply {
   content    String
   receivedAt DateTime @default(now())
   sentiment  String?
-  
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model GlobalSetting {
-  id                String   @id @default("global_config")
-  beforeDueReminder Boolean  @default(true)
-  escalationLadder  Json?    // Array of { delayDays: number, tone: string, label: string }
-  smartEscalation   Boolean  @default(true)
-  consentVerified   Boolean  @default(true)
-  dataDeletion      Boolean  @default(true)
-  readWebhook       String?  @default("https://n8n.your-site.com/webhook/read-sheet")
-  writeWebhook      String?  @default("https://n8n.your-site.com/webhook/send-reminder")
-  syncActivity      Boolean  @default(true)
-  logSentiment      Boolean  @default(true)
-  
-  updatedAt         DateTime @updatedAt
-}
+  id                String  @id @default("global_config")
+  beforeDueReminder Boolean @default(true)
+  escalationLadder  Json? // Array of { delayDays: number, tone: string, label: string }
+  smartEscalation   Boolean @default(true)
+  consentVerified   Boolean @default(true)
+  dataDeletion      Boolean @default(true)
+  readWebhook       String? @default("https://n8n.your-site.com/webhook/read-sheet")
+  writeWebhook      String? @default("https://n8n.your-site.com/webhook/send-reminder")
+  syncActivity      Boolean @default(true)
+  logSentiment      Boolean @default(true)
 
+  updatedAt DateTime @updatedAt
+}
