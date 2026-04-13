@@ -25,14 +25,14 @@ export async function GET() {
       })
     ]);
 
-    const formattedInvoices = invoices.length > 0 ? invoices.map((inv) => ({
+    const formattedInvoices = invoices.length > 0 ? invoices.map((inv: any) => ({
       id: inv.invoice_number,
       customerName: inv.customer.name,
       customerEmail: inv.customer.email,
       amount: inv.amount,
       dueDate: inv.dueDate.toISOString().split('T')[0],
       status: (inv.status.charAt(0).toUpperCase() + inv.status.slice(1).toLowerCase()) as any,
-      daysOverdue: inv.status === 'OVERDUE' ? 
+      daysOverdue: inv.status === 'OVERDUE' ?
         Math.max(0, Math.floor((new Date().getTime() - inv.dueDate.getTime()) / (1000 * 60 * 60 * 24))) : 0,
       createdAt: inv.issueDate.toISOString().split('T')[0],
       startFollowups: inv.startFollowups,
