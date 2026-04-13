@@ -1,3 +1,4 @@
+export const runtime = 'nodejs';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
@@ -9,7 +10,7 @@ export async function GET() {
 
     if (!setting) {
       setting = await prisma.globalSetting.create({
-        data: { 
+        data: {
           id: 'global_config',
           escalationLadder: [
             { delayDays: 1, tone: 'Mild', label: 'Day 1 Reminder' },
@@ -51,7 +52,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    
+
     // Remove id and updatedAt from body to prevent Prisma errors
     const { id, updatedAt, ...configData } = body;
 
