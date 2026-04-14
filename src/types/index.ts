@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export type InvoiceStatus = 'Paid' | 'Pending' | 'Overdue' | 'In Plan';
 
 export interface Installment {
@@ -17,6 +19,7 @@ export interface PaymentPlan {
 }
 
 export interface Invoice {
+  invoice_number: ReactNode;
   id: string;
   customerName: string;
   customerEmail: string;
@@ -25,7 +28,7 @@ export interface Invoice {
   status: InvoiceStatus;
   daysOverdue: number;
   createdAt: string;
-  startFollowups: boolean;
+  startFollowups: number;
   prediction?: 'Likely' | 'At Risk' | 'Delayed';
   paymentPlan?: PaymentPlan;
   reminder_stage?: number;

@@ -39,6 +39,7 @@ export async function POST(request: Request) {
         source: 'PayPilot_Core'
       }),
     });
+    console.log("Webhook url...",webhookUrl);
 
     if (!response.ok) {
        throw new Error(`n8n responded with ${response.status}`);

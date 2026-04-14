@@ -54,7 +54,7 @@ export function Sidebar() {
           );
         })}
       </nav>
-      <div className="p-4 mt-auto">
+      {/* <div className="p-4 mt-auto">
         <div className="p-4 rounded-2xl bg-muted/50 border border-border">
            <h4 className="text-xs font-semibold text-foreground mb-1">Trial Version</h4>
            <p className="text-[11px] text-muted-foreground mb-3">14 days left in your trial.</p>
@@ -62,6 +62,15 @@ export function Sidebar() {
               Upgrade Plan
            </button>
         </div>
+      </div> */}
+      <div className="p-4 mt-auto">
+        {/* <div className="p-4 rounded-2xl bg-muted/50 border border-border"> */}
+           {/* <h4 className="text-xs font-semibold text-foreground mb-1">Logout</h4>
+           <p className="text-[11px] text-muted-foreground mb-3"> Click here to logout </p> */}
+           <button className="w-full py-2 bg-background border border-border text-xs font-semibold rounded-lg shadow-sm hover:bg-accent transition-colors">
+             Logout
+           </button>
+        {/* </div> */}
       </div>
     </div>
   );

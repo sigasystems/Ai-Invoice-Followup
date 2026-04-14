@@ -43,6 +43,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { addDays, parseISO, isBefore, startOfDay } from 'date-fns';
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = React.useState<Invoice[]>([]);
@@ -62,6 +63,48 @@ export default function InvoicesPage() {
     loadData();
   }, []);
 
+  const updateInvoice = async (invoiceId: string, updates: any) => {
+    try {
+      const res = await fetch(`/api/invoices/${invoiceId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.details || 'Failed to update invoice');
+      }
+
+      // ✅ AUTOMATIC N8N TRIGGER on status/follow-up change
+      const invoice = invoices.find(i => i.id === invoiceId);
+      if (invoice) {
+        // Calculate new followup start date if offset changed
+        const newOffset = updates.startFollowups ?? invoice.startFollowups;
+        const dueDate = parseISO(invoice.dueDate);
+        const startDate = addDays(dueDate, Number(newOffset));
+        const formattedStartDate = startDate.toISOString().split('T')[0];
+
+        await triggerN8nWorkflow('UPDATE_INVOICE', {
+          id: invoiceId,
+          invoice_number: invoice.invoice_number,
+          client_email: invoice.customerEmail,
+          followup_start_date: formattedStartDate,
+          ...updates
+        });
+      }
+
+      toast.success(`Updated and synced with n8n`);
+
+      // Update local state to reflect change immediately
+      setInvoices(prev => prev.map(inv =>
+        inv.id === invoiceId ? { ...inv, ...updates } : inv
+      ));
+    } catch (err: any) {
+      toast.error(`Update Failed: ${err.message}`);
+    }
+  };
+
   React.useEffect(() => {
     if (activeTab === 'All') {
       setFilteredInvoices(invoices);
@@ -76,10 +119,10 @@ export default function InvoicesPage() {
       header: 'ID',
       cell: ({ row }) => (
         <a
-          href={`/invoices/${row.getValue('id')}`}
-          className="font-mono text-xs font-bold text-primary hover:underline hover:text-primary transition-colors"
+          href={`/invoices/${row.original.id}`}
+          className="font-mono text-[10px] font-bold text-primary hover:underline hover:text-primary transition-colors"
         >
-          {row.getValue('id')}
+          {row.original.invoice_number}
         </a>
       ),
     },
@@ -115,49 +158,57 @@ export default function InvoicesPage() {
         <span className="text-muted-foreground font-medium">{new Date(row.getValue('dueDate')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
       ),
     },
-    {
-      accessorKey: 'prediction',
-      header: 'AI Predict',
-      cell: ({ row }) => {
-        const pred = row.getValue('prediction') as string;
-        const colors = {
-          Likely: 'text-emerald-600 bg-emerald-50 border-emerald-100',
-          'At Risk': 'text-amber-600 bg-amber-50 border-amber-100',
-          Delayed: 'text-rose-600 bg-rose-50 border-rose-100',
-        };
-        if (!pred) return <span className="text-muted-foreground text-xs font-semibold px-2">N/A</span>;
-        return (
-          <span className={cn("text-[10px] font-bold px-2 py-1 rounded-lg border", colors[pred as keyof typeof colors])}>
-            {pred.toUpperCase()}
-          </span>
-        );
-      },
-    },
+    // {
+    //   accessorKey: 'prediction',
+    //   header: 'AI Predict',
+    //   cell: ({ row }) => {
+    //     const pred = row.getValue('prediction') as string;
+    //     const colors = {
+    //       Likely: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
+    //       'At Risk': 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+    //       Delayed: 'text-rose-500 bg-rose-500/10 border-rose-500/20',
+    //     };
+    //     if (!pred) return <span className="text-muted-foreground text-xs font-semibold px-2">N/A</span>;
+    //     return (
+    //       <span className={cn("text-[10px] font-bold px-2 py-1 rounded-lg border", colors[pred as keyof typeof colors])}>
+    //         {pred.toUpperCase()}
+    //       </span>
+    //     );
+    //   },
+    // },
     {
       accessorKey: 'startFollowups',
-      header: 'Automation',
+      header: 'Follow-up',
       cell: ({ row }) => {
-        const offset = typeof row.original.startFollowups === 'number' ? row.original.startFollowups : 0;
-        const dueDate = new Date(row.original.dueDate);
-        const startDate = new Date(dueDate);
-        startDate.setDate(dueDate.getDate() + offset);
+        const offset = Number(row.original.startFollowups) || 0;
+        const dueDateString = row.original.dueDate;
 
-        const isPast = startDate <= new Date();
+        if (!dueDateString) return <span className="text-muted-foreground text-[10px]">No Date</span>;
+
+        // ✅ Robust calculation: STRICTLY [Due Date] + [Offset]
+        const dueDate = parseISO(dueDateString);
+        const startDate = addDays(dueDate, offset);
+
+        const today = startOfDay(new Date());
+        const isPastOrToday = isBefore(startDate, today) || startDate.getTime() === today.getTime();
         const formattedDate = startDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
 
         return (
-          <div className="flex items-center gap-2 group cursor-help" title={`Follow-up starts ${offset} day(s) after due date`}>
+          <div className="flex items-center gap-2 " title={`Follow-up configured for ${offset} days after due date`}>
             <div className={cn(
               "p-1.5 rounded-xl transition-all duration-300",
-              isPast ? "bg-primary/10 text-primary shadow-sm shadow-primary/20" : "bg-amber-50 text-amber-600 border border-amber-100/50"
+              isPastOrToday ? "bg-emerald-500/10 text-emerald-500 shadow-sm" : "bg-indigo-500/10 text-indigo-500 border border-indigo-500/20"
             )}>
-              <Zap className={cn("w-3.5 h-3.5", isPast && "animate-pulse")} />
+              <Zap className={cn("w-3.5 h-3.5", isPastOrToday && "animate-pulse")} />
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase leading-none mb-0.5">
-                {isPast ? 'Active' : 'Scheduled'}
+              <span className={cn(
+                "text-[10px] font-black uppercase tracking-tight leading-none mb-0.5",
+                isPastOrToday ? "text-emerald-600" : "text-indigo-600"
+              )}>
+                {isPastOrToday ? 'Active' : `Scheduled (+${offset}d)`}
               </span>
-              <span className="text-[9px] font-bold text-muted-foreground leading-none">
+              <span className="text-[11px] font-bold text-foreground leading-tight">
                 Starts {formattedDate}
               </span>
             </div>
@@ -190,8 +241,25 @@ export default function InvoicesPage() {
       accessorKey: 'daysOverdue',
       header: 'Days Overdue',
       cell: ({ row }) => {
-        const days = row.getValue('daysOverdue') as number;
-        return <span className={days > 0 ? "text-rose-600 font-bold" : "text-muted-foreground"}>{days > 0 ? `${days}d` : '-'}</span>;
+        const dueDate = new Date(row.original.dueDate + 'T00:00:00');
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // normalize
+
+        const diffTime = today.getTime() - dueDate.getTime();
+        const days = Math.floor(diffTime / 86400000);
+
+        return (
+          <span
+            className={
+              days > 0
+                ? "text-rose-600 font-bold"
+                : "text-muted-foreground"
+            }
+          >
+            {days > 0 ? `${days}d` : '-'}
+          </span>
+        );
       },
     },
     {
@@ -223,31 +291,54 @@ export default function InvoicesPage() {
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="rounded-xl border-neutral-100 shadow-xl p-1 w-48">
+            <DropdownMenuContent align="end" className="rounded-xl border-border shadow-xl p-1 w-48 bg-popover text-popover-foreground">
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="text-[11px] font-semibold text-muted-foreground uppercase px-2 py-1">Actions</DropdownMenuLabel>
                 <DropdownMenuItem
+                  onClick={() => window.location.href = `/invoices/${row.original.id}`}
                   className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-primary/5 focus:text-primary transition-colors flex items-center gap-2">
                   <Eye className="w-4 h-4" /> View Details
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-primary/5 focus:text-primary transition-colors flex items-center gap-2"
-                  onClick={() => {
-                    const inv = row.original;
-                    triggerN8nWorkflow('trigger-reminder', {
-                      invoice_id: inv.id,
-                      client_name: inv.customerName,
-                      client_email: inv.customerEmail,
-                      amount: inv.amount,
-                      due_date: inv.dueDate,
-                      status: inv.status,
-                      notes: 'Manual reminder sent from dashboard'
-                    });
-                    toast.success(`Success! Reminder for ${inv.customerName} pushed to n8n.`);
-                  }}
-                >
-                  <Send className="w-4 h-4" /> Send Reminder
-                </DropdownMenuItem>
+                {row.original.status !== 'Paid' && (
+                  <DropdownMenuItem
+                    className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-primary/5 focus:text-primary transition-colors flex items-center gap-2"
+                    onClick={() => {
+                      const inv = row.original;
+                      triggerN8nWorkflow('trigger-reminder', {
+                        invoice_id: inv.id,
+                        client_name: inv.customerName,
+                        client_email: inv.customerEmail,
+                        amount: inv.amount,
+                        due_date: inv.dueDate,
+                        status: inv.status,
+                        notes: 'Manual reminder sent from dashboard'
+                      });
+                      toast.success(`Success! Reminder for ${inv.customerName} pushed to n8n.`);
+                    }}
+                  >
+                    <Send className="w-4 h-4" /> Send Reminder
+                  </DropdownMenuItem>
+                )}
+                {row.original.status !== 'Paid' && (
+                  <DropdownMenuItem
+                    className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-primary/5 focus:text-primary transition-colors flex items-center gap-2"
+                    onClick={() => {
+                      const newDays = prompt("Adjust Follow-up Offset (Days from Due Date):", String(row.original.startFollowups));
+                      if (newDays !== null) {
+                        updateInvoice(row.original.id, { startFollowups: parseInt(newDays) || 0 });
+                      }
+                    }}
+                  >
+                    <Filter className="w-4 h-4" /> Adjust Automation
+                  </DropdownMenuItem>
+                )}
+                {row.original.status !== 'Paid' && (
+                  <DropdownMenuItem
+                    onClick={() => updateInvoice(row.original.id, { status: 'Paid' })}
+                    className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-emerald-50 focus:text-emerald-600 transition-colors flex items-center gap-2 text-emerald-600">
+                    <Zap className="w-4 h-4" /> Mark as Paid
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuGroup>
               <DropdownMenuSeparator className="bg-border" />
               <DropdownMenuGroup>
@@ -262,10 +353,53 @@ export default function InvoicesPage() {
     },
   ];
 
-  const handleCreateInvoice = (e: React.FormEvent) => {
+  const handleCreateInvoice = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast.success('Invoice created successfully!');
-    setIsCreateModalOpen(false);
+    const formData = new FormData(e.currentTarget);
+
+    const payload = {
+      invoice_number: formData.get('invoice_number'),
+      client_name: formData.get('customer_name'),
+      client_email: formData.get('customer_email'),
+      amount: formData.get('amount'),
+      due_date: formData.get('due_date'),
+      start_followups: formData.get('start_followups'),
+      notes: formData.get('notes'),
+    };
+
+    try {
+      setLoading(true);
+      const res = await fetch('/api/invoices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error('Failed to create invoice');
+
+      // Calculate absolute followup start date for n8n
+      const dueDate = parseISO(payload.due_date as string);
+      const startOffset = Number(payload.start_followups) || 0;
+      const startDate = addDays(dueDate, startOffset);
+      const formattedStartDate = startDate.toISOString().split('T')[0];
+
+      // ✅ AUTOMATIC N8N TRIGGER on creation
+      await triggerN8nWorkflow('CREATE_INVOICE', {
+        ...payload,
+        followup_start_date: formattedStartDate
+      });
+
+      toast.success('Invoice created and synced with n8n!');
+      setIsCreateModalOpen(false);
+
+      // Refresh the list
+      const data = await fetchInvoices();
+      setInvoices(data);
+    } catch (err: any) {
+      toast.error(`Creation failed: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -282,10 +416,17 @@ export default function InvoicesPage() {
             onClick={() => {
               async function refresh() {
                 setLoading(true);
+                
+                // 1. Trigger n8n to sync from Google Sheets
+                await triggerN8nWorkflow('TRIGGER_SHEET_SYNC', {
+                  requested_at: new Date().toISOString()
+                });
+
+                // 2. Fetch updated data from DB
                 const data = await fetchInvoices();
                 setInvoices(data);
                 setLoading(false);
-                toast.success('Synced with Google Sheets!');
+                toast.success('Sync triggered and dashboard updated!');
               }
               refresh();
             }}
@@ -302,35 +443,57 @@ export default function InvoicesPage() {
               <Plus className="w-4 h-4 mr-2" />
               New Invoice
             </DialogTrigger>
-            <DialogContent className="rounded-2xl max-w-md border-none shadow-2xl p-6">
-              <DialogHeader className="space-y-1 mb-6">
-                <DialogTitle className="text-xl font-semibold">Create New Invoice</DialogTitle>
-                <DialogDescription className="text-sm text-muted-foreground">Fill in the details to generate a new invoice.</DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleCreateInvoice} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="customer" className="text-sm font-semibold">Customer Name</Label>
-                  <Input id="customer" placeholder="Enter customer name" className="rounded-xl h-12 bg-muted focus:bg-background" required />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="amount" className="text-sm font-semibold">Amount (₹)</Label>
-                    <Input id="amount" type="number" placeholder="0.00" className="rounded-xl h-12 bg-muted focus:bg-background" required />
+            <DialogContent className="rounded-2xl max-w-lg border-border bg-card shadow-2xl p-0 overflow-hidden">
+              <div className="p-8 bg-linaer-to-br from-primary/5 via-transparent to-transparent">
+                <DialogHeader className="space-y-1 mb-8 text-left">
+                  <DialogTitle className="text-2xl font-bold tracking-tight">Create New Invoice</DialogTitle>
+                  <DialogDescription className="text-muted-foreground font-medium">Capture details for your records and set automation.</DialogDescription>
+                </DialogHeader>
+
+                <form onSubmit={handleCreateInvoice} className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="invoice_number" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Invoice ID</Label>
+                      <Input id="invoice_number" name="invoice_number" placeholder="INV-2024-001" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="amount" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Amount (₹)</Label>
+                      <Input id="amount" name="amount" type="number" placeholder="0.00" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
+                    </div>
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="due" className="text-sm font-semibold">Due Date</Label>
-                    <Input id="due" type="date" className="rounded-xl h-12 bg-muted focus:bg-background" required />
+                    <Label htmlFor="customer_name" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Customer Name</Label>
+                    <Input id="customer_name" name="customer_name" placeholder="John Doe Services" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="notes" className="text-sm font-semibold">Notes (Optional)</Label>
-                  <Input id="notes" placeholder="Invoice details..." className="rounded-xl h-12 bg-muted focus:bg-background" />
-                </div>
-                <DialogFooter className="pt-2">
-                  <Button type="button" variant="ghost" onClick={() => setIsCreateModalOpen(false)} className="rounded-xl h-12 flex-1">Cancel</Button>
-                  <Button type="submit" className="rounded-xl h-12 flex-1">Generate Invoice</Button>
-                </DialogFooter>
-              </form>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="customer_email" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Customer Email</Label>
+                    <Input id="customer_email" name="customer_email" type="email" placeholder="client@example.com" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="due_date" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Due Date</Label>
+                      <Input id="due_date" name="due_date" type="date" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="start_followups" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Follow-up Days</Label>
+                      <Input id="start_followups" name="start_followups" type="number" defaultValue="7" placeholder="e.g. 7" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="notes" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Notes (Optional)</Label>
+                    <Input id="notes" name="notes" placeholder="e.g. Monthly maintenance retainer" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" />
+                  </div>
+
+                  <DialogFooter className="pt-4 flex flex-col-reverse sm:flex-row gap-3">
+                    <Button type="button" variant="ghost" onClick={() => setIsCreateModalOpen(false)} className="rounded-xl h-12 flex-1 font-bold text-muted-foreground hover:bg-muted">Cancel</Button>
+                    <Button type="submit" className="rounded-xl h-12 flex-1 font-bold shadow-lg shadow-primary/20">Generate Invoice</Button>
+                  </DialogFooter>
+                </form>
+              </div>
             </DialogContent>
           </Dialog>
         </div>

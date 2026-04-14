@@ -55,12 +55,12 @@ export function Topbar() {
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button variant="ghost" className="p-1 pl-2 gap-2 h-auto rounded-xl hover:bg-neutral-50" />}>
             <div className="hidden sm:flex flex-col items-end text-right">
-              <span className="text-sm font-semibold text-neutral-900">John Doe</span>
+              <span className="text-sm font-semibold text-neutral-900">Lalit Khairnar</span>
               <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Admin</span>
             </div>
             <Avatar className="h-9 w-9 rounded-xl border border-neutral-100 ring-2 ring-transparent group-hover:ring-neutral-100 transition-all">
               <AvatarImage src="/avatar.png" alt="User" />
-              <AvatarFallback className="bg-primary/5 text-primary font-bold text-xs">JD</AvatarFallback>
+              <AvatarFallback className="bg-primary/5 text-primary font-bold text-xs">LK</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 border-neutral-100 shadow-xl mt-2">

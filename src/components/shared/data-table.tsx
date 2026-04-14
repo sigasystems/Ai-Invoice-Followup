@@ -109,7 +109,7 @@ export function DataTable<TData, TValue>({
       </div>
       <div className="rounded-2xl border border-neutral-100 bg-white overflow-hidden shadow-sm">
         <Table>
-          <TableHeader className="bg-neutral-50/50">
+          <TableHeader className="bg-neutral-50/50 p-2.5">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent border-neutral-100">
                 {headerGroup.headers.map((header) => {
@@ -136,7 +136,7 @@ export function DataTable<TData, TValue>({
                   className="border-neutral-100 hover:bg-neutral-50/50 transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-3.5 text-sm">
+                    <TableCell key={cell.id} className="py-3.5 text-sm p-2.5">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}

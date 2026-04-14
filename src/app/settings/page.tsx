@@ -33,6 +33,7 @@ export default function SettingsPage() {
   const [settings, setSettings] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
+  console.log("settings...", settings);
 
   React.useEffect(() => {
     async function fetchSettings() {
@@ -119,19 +120,19 @@ export default function SettingsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <div className="lg:col-span-1 space-y-2">
-          <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-primary bg-primary/5 font-semibold">
+          <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-primary bg-primary/10 font-bold">
             <Zap className="h-4 w-4 mr-3" />
             Escalation Ladder
           </Button>
-          <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-medium hover:bg-neutral-100">
+          <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-semibold hover:bg-muted transition-colors">
             <ShieldCheck className="h-4 w-4 mr-3" />
             Channels & Methods
           </Button>
-          <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-medium hover:bg-neutral-100">
+          <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-semibold hover:bg-muted transition-colors">
             <BrainCircuit className="h-4 w-4 mr-3" />
             n8n Integration
           </Button>
-          <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-medium hover:bg-neutral-100">
+          <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-semibold hover:bg-muted transition-colors">
             <CreditCard className="h-4 w-4 mr-3" />
             Billing & Plans
           </Button>
@@ -148,7 +149,7 @@ export default function SettingsPage() {
                     <CardDescription className="text-sm font-medium">Define exactly when and with what tone reminders are sent.</CardDescription>
                   </div>
                 </div>
-                <Button onClick={addLadderStep} variant="outline" size="sm" className="rounded-xl h-9">
+                <Button onClick={addLadderStep} variant="outline" size="sm" className="rounded-xl h-9 border-border hover:bg-muted">
                   <Plus className="w-4 h-4 mr-2" /> Add Step
                 </Button>
               </div>
@@ -164,7 +165,7 @@ export default function SettingsPage() {
                       value={step.label}
                       onChange={(e) => updateLadderStep(index, 'label', e.target.value)}
                       placeholder="e.g. Day 1 Reminder"
-                      className="rounded-xl h-10 bg-background border-border"
+                      className="rounded-xl h-10 bg-background border-border focus:ring-primary"
                     />
                   </div>
                   <div className="w-full sm:w-24 space-y-2">
@@ -173,7 +174,7 @@ export default function SettingsPage() {
                       type="number"
                       value={step.delayDays ?? 0}
                       onChange={(e) => updateLadderStep(index, 'delayDays', parseInt(e.target.value) || 0)}
-                      className="rounded-xl h-10 bg-background border-border"
+                      className="rounded-xl h-10 bg-background border-border focus:ring-primary"
                     />
                   </div>
                   <div className="w-full sm:w-32 space-y-2">
@@ -182,7 +183,7 @@ export default function SettingsPage() {
                       value={step.tone}
                       onValueChange={(val) => updateLadderStep(index, 'tone', val)}
                     >
-                      <SelectTrigger className="rounded-xl h-10 bg-background border-border">
+                      <SelectTrigger className="rounded-xl h-10 bg-background border-border focus:ring-primary">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl">
@@ -197,7 +198,7 @@ export default function SettingsPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl"
+                      className="text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 rounded-xl"
                       onClick={() => removeLadderStep(index)}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -207,15 +208,15 @@ export default function SettingsPage() {
               ))}
 
               {(!settings?.escalationLadder || settings.escalationLadder.length === 0) && (
-                <div className="text-center py-10 border-2 border-dashed border-neutral-100 rounded-3xl">
-                  <p className="text-sm text-muted-foreground">No escalation steps defined. Click "Add Step" to start.</p>
+                <div className="text-center py-10 border-2 border-dashed border-border rounded-3xl bg-muted/30">
+                  <p className="text-sm text-muted-foreground font-medium">No escalation steps defined. Click "Add Step" to start.</p>
                 </div>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/5 border border-primary/20">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/10 border border-primary/20">
                   <div className="space-y-1">
-                    <Label className="text-sm font-bold text-neutral-900">Smart Escalation</Label>
+                    <Label className="text-sm font-bold text-foreground">Smart Escalation</Label>
                     <p className="text-[10px] text-muted-foreground font-normal italic">Auto-switch to owner contact.</p>
                   </div>
                   <Checkbox
@@ -223,9 +224,9 @@ export default function SettingsPage() {
                     onCheckedChange={(val) => updateField('smartEscalation', val)}
                   />
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-indigo-50/30 border border-indigo-100/50">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
                   <div className="space-y-1">
-                    <Label className="text-sm font-bold text-neutral-900">Pre-Due Alerts</Label>
+                    <Label className="text-sm font-bold text-foreground">Pre-Due Alerts</Label>
                     <p className="text-[10px] text-muted-foreground font-normal italic">Send courtesy reminder 2 days before.</p>
                   </div>
                   <Checkbox
@@ -237,18 +238,18 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="rounded-3xl border border-border shadow-sm overflow-hidden bg-card">
+          <div >
+            {/* <Card className="rounded-3xl border border-border shadow-sm overflow-hidden bg-card">
               <CardHeader className="p-6 pb-2">
                 <div className="flex items-center gap-3">
-                  <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                  <ShieldCheck className="w-5 h-5 text-emerald-500" />
                   <CardTitle className="text-lg font-bold">Compliance</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="p-6 pt-4 space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+                <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50 border border-border/50">
                   <div className="space-y-0.5">
-                    <span className="text-sm font-semibold block">Consent Verification</span>
+                    <span className="text-sm font-semibold block text-foreground">Consent Verification</span>
                     <span className="text-[10px] text-muted-foreground">Verify manual consent for all contacts</span>
                   </div>
                   <Checkbox
@@ -256,9 +257,9 @@ export default function SettingsPage() {
                     onCheckedChange={(val) => updateField('consentVerified', val)}
                   />
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+                <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50 border border-border/50">
                   <div className="space-y-0.5">
-                    <span className="text-sm font-semibold block">Data Deletion Policy</span>
+                    <span className="text-sm font-semibold block text-foreground">Data Deletion Policy</span>
                     <span className="text-[10px] text-muted-foreground">Auto-purge PII after 90 days of inactivity</span>
                   </div>
                   <Checkbox
@@ -266,9 +267,9 @@ export default function SettingsPage() {
                     onCheckedChange={(val) => updateField('dataDeletion', val)}
                   />
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+                <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50 border border-border/50">
                   <div className="space-y-0.5">
-                    <span className="text-sm font-semibold block">Sentiment Logs</span>
+                    <span className="text-sm font-semibold block text-foreground">Sentiment Logs</span>
                     <span className="text-[10px] text-muted-foreground">Store AI analysis of customer replies</span>
                   </div>
                   <Checkbox
@@ -277,7 +278,7 @@ export default function SettingsPage() {
                   />
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
 
             <Card className="rounded-3xl border border-border shadow-sm overflow-hidden bg-card">
               <CardHeader className="p-6 pb-2">
@@ -292,21 +293,21 @@ export default function SettingsPage() {
                   <Input
                     value={settings?.readWebhook || ''}
                     onChange={(e) => updateField('readWebhook', e.target.value)}
-                    className="rounded-xl h-10 bg-muted border-none font-mono text-[10px]"
+                    className="rounded-xl h-10 bg-muted border-border font-mono text-[10px] focus:ring-primary"
                   />
                 </div>
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <Label className="text-[10px] font-bold text-muted-foreground uppercase">Write Webhook</Label>
                   <Input
                     value={settings?.writeWebhook || ''}
                     onChange={(e) => updateField('writeWebhook', e.target.value)}
-                    className="rounded-xl h-10 bg-neutral-50 border-none font-mono text-[10px]"
+                    className="rounded-xl h-10 bg-muted border-border font-mono text-[10px] focus:ring-primary"
                   />
-                </div>
+                </div> */}
                 <div className="pt-4 border-t border-border flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <span className="text-xs font-bold">Background Sync</span>
-                    <span className="text-[9px] text-muted-foreground block">Keep activities in sync with n8n</span>
+                    <span className="text-xs font-bold text-foreground">Background Sync</span>
+                    <span className="text-[10px] text-muted-foreground block">Keep activities in sync with n8n</span>
                   </div>
                   <Checkbox
                     checked={settings?.syncActivity || false}
