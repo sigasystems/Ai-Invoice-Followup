@@ -194,17 +194,17 @@ export default function InvoicesPage() {
         const formattedDate = startDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
 
         return (
-          <div className="flex items-center gap-2 " title={`Follow-up configured for ${offset} days after due date`}>
+          <div className="flex items-center gap-2" title={`Follow-up configured for ${offset} days after due date`}>
             <div className={cn(
               "p-1.5 rounded-xl transition-all duration-300",
-              isPastOrToday ? "bg-emerald-500/10 text-emerald-500 shadow-sm" : "bg-indigo-500/10 text-indigo-500 border border-indigo-500/20"
+              isPastOrToday ? "bg-emerald-500/10 text-emerald-500" : "bg-indigo-500/10 text-indigo-500 border border-indigo-500/10"
             )}>
               <Zap className={cn("w-3.5 h-3.5", isPastOrToday && "animate-pulse")} />
             </div>
             <div className="flex flex-col">
               <span className={cn(
                 "text-[10px] font-black uppercase tracking-tight leading-none mb-0.5",
-                isPastOrToday ? "text-emerald-600" : "text-indigo-600"
+                isPastOrToday ? "text-emerald-500" : "text-indigo-500"
               )}>
                 {isPastOrToday ? 'Active' : `Scheduled (+${offset}d)`}
               </span>
@@ -335,7 +335,7 @@ export default function InvoicesPage() {
                 {row.original.status !== 'Paid' && (
                   <DropdownMenuItem
                     onClick={() => updateInvoice(row.original.id, { status: 'Paid' })}
-                    className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-emerald-50 focus:text-emerald-600 transition-colors flex items-center gap-2 text-emerald-600">
+                    className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-emerald-500/10 focus:text-emerald-500 transition-colors flex items-center gap-2 text-emerald-500">
                     <Zap className="w-4 h-4" /> Mark as Paid
                   </DropdownMenuItem>
                 )}
@@ -416,7 +416,7 @@ export default function InvoicesPage() {
             onClick={() => {
               async function refresh() {
                 setLoading(true);
-                
+
                 // 1. Trigger n8n to sync from Google Sheets
                 await triggerN8nWorkflow('TRIGGER_SHEET_SYNC', {
                   requested_at: new Date().toISOString()
@@ -444,9 +444,9 @@ export default function InvoicesPage() {
               New Invoice
             </DialogTrigger>
             <DialogContent className="rounded-2xl max-w-lg border-border bg-card shadow-2xl p-0 overflow-hidden">
-              <div className="p-8 bg-linaer-to-br from-primary/5 via-transparent to-transparent">
+              <div className="p-8 bg-linear-to-br from-primary/5 via-transparent to-transparent">
                 <DialogHeader className="space-y-1 mb-8 text-left">
-                  <DialogTitle className="text-2xl font-bold tracking-tight">Create New Invoice</DialogTitle>
+                  <DialogTitle className="text-2xl font-bold tracking-tight text-foreground">Create New Invoice</DialogTitle>
                   <DialogDescription className="text-muted-foreground font-medium">Capture details for your records and set automation.</DialogDescription>
                 </DialogHeader>
 
@@ -520,14 +520,16 @@ export default function InvoicesPage() {
       {loading ? (
         <div className="flex flex-col items-center justify-center p-20 space-y-4">
           <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-medium text-muted-foreground animate-pulse">Fetching live sheet data...</p>
+          <p className="text-sm font-bold text-muted-foreground animate-pulse">Syncing live dashboard...</p>
         </div>
       ) : (
-        <DataTable
-          columns={columns}
-          data={filteredInvoices}
-          filterKey="customerName"
-        />
+        <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+          <DataTable
+            columns={columns}
+            data={filteredInvoices}
+            filterKey="customerName"
+          />
+        </div>
       )}
     </DashboardLayout>
   );

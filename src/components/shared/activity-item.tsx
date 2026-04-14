@@ -28,7 +28,7 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
       </div>
       <div className="flex-auto py-0.5">
         <div className="flex items-center justify-between gap-x-4">
-          <div className="text-sm font-medium leading-6 text-neutral-900">
+          <div className="text-sm font-medium leading-6">
             {activity.customerName}
           </div>
           <time

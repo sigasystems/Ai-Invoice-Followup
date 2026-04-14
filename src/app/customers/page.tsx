@@ -73,7 +73,7 @@ export default function CustomersPage() {
     {
       accessorKey: 'phone',
       header: 'Contact',
-      cell: ({ row }) => <span className="text-neutral-600 font-medium tabular-nums">{row.getValue('phone')}</span>,
+      cell: ({ row }) => <span className=" font-medium tabular-nums">{row.getValue('phone')}</span>,
     },
     {
       accessorKey: 'onTimeRate',

@@ -28,9 +28,11 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronLeft, ChevronRight, Settings2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Settings2, Search, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DataTableProps<TData, TValue> {
@@ -71,50 +73,60 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className={cn("space-y-4 ", className)} >
-      <div className="flex items-center justify-between">
+    <div className={cn("space-y-6 ", className)} >
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         {filterKey && (
-          <Input
-            placeholder={`Filter ${filterKey}...`}
-            value={(table.getColumn(filterKey)?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn(filterKey)?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm rounded-xl h-9"
-          />
+          <div className="relative w-full sm:max-w-md group">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <Search className="w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            </div>
+            <Input
+              placeholder={`Search by ${filterKey}...`}
+              value={(table.getColumn(filterKey)?.getFilterValue() as string) ?? ""}
+              onChange={(event) =>
+                table.getColumn(filterKey)?.setFilterValue(event.target.value)
+              }
+              className="pl-10 rounded-2xl h-11 bg-muted/40 border-border focus:bg-background transition-all shadow-sm focus:shadow-md"
+            />
+          </div>
         )}
-        <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="outline" size="sm" className="ml-auto h-9 rounded-xl flex gap-2" />}>
-            <Settings2 className="w-4 h-4" />
-            View
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="rounded-xl border-neutral-100 shadow-md">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize font-medium text-xs rounded-lg"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <DropdownMenu>
+            <DropdownMenuTrigger render={<Button variant="outline" size="sm" className="h-11 rounded-2xl flex gap-2 font-bold px-5 bg-card hover:bg-muted/60 transition-all border-border" />}>
+              <Settings2 className="w-4 h-4" />
+              Columns
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="rounded-2xl border-border shadow-2xl p-2 w-48 bg-card">
+              <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-muted-foreground px-2 py-1.5">Toggle Columns</DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-border" />
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize font-semibold text-xs rounded-xl focus:bg-primary/5 focus:text-primary transition-colors cursor-pointer"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                    >
+                      {column.id.replace(/_/g, ' ')}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
-      <div className="rounded-2xl border border-neutral-100 bg-white overflow-hidden shadow-sm">
+
+      <div className="rounded-[2rem] border border-border bg-card/40 backdrop-blur-sm overflow-hidden shadow-2xl shadow-neutral-500/5">
         <Table>
-          <TableHeader className="bg-neutral-50/50 p-2.5">
+          <TableHeader className="bg-muted/40 border-b border-border">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent border-neutral-100">
+              <TableRow key={headerGroup.id} className="hover:bg-transparent border-none">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className="text-muted-foreground font-medium text-xs h-10 py-2">
+                    <TableHead key={header.id} className="text-muted-foreground font-black text-[10px] uppercase tracking-[0.15em] h-12 py-3 px-6 select-none">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -133,10 +145,10 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="border-neutral-100 hover:bg-neutral-50/50 transition-colors"
+                  className="border-b border-border/50 last:border-0 hover:bg-primary/[0.02] transition-all duration-300 group"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-3.5 text-sm p-2.5">
+                    <TableCell key={cell.id} className="py-5 px-6 text-sm font-medium transition-transform duration-300">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -144,42 +156,69 @@ export function DataTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-48 text-center text-muted-foreground">
-                  No results found.
+                <TableCell colSpan={columns.length} className="h-64 text-center">
+                  <div className="flex flex-col items-center justify-center space-y-3">
+                    <div className="p-4 bg-muted rounded-full">
+                      <Search className="w-6 h-6 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-foreground">No matches found</h3>
+                      <p className="text-xs text-muted-foreground">Try adjusting your search or filters.</p>
+                    </div>
+                  </div>
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between px-2 pt-2">
-        <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
-          Showing {table.getState().pagination.pageIndex + 1} of {table.getPageCount()} Pages
+
+      <div className="flex flex-col sm:flex-row items-center justify-between px-2 gap-4">
+        <div className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-60">
+          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount() || 1}
         </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-[11px] font-bold text-muted-foreground mr-2">
-            {table.getFilteredRowModel().rows.length} Total Records
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            className="h-8 w-8 rounded-lg p-0 hover:bg-primary/5 hover:text-primary border-neutral-200"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            className="h-8 w-8 rounded-lg p-0 hover:bg-primary/5 hover:text-primary border-neutral-200"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </Button>
+        
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-bold text-muted-foreground">Rows per page:</span>
+            <select
+              value={table.getState().pagination.pageSize}
+              onChange={e => {
+                table.setPageSize(Number(e.target.value))
+              }}
+              className="bg-transparent text-[11px] font-bold text-primary focus:outline-none cursor-pointer hover:underline underline-offset-4"
+            >
+              {[10, 20, 30, 40, 50].map(pageSize => (
+                <option key={pageSize} value={pageSize} className="bg-card text-foreground">
+                  {pageSize}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              className="h-10 w-10 rounded-xl p-0 hover:bg-primary/5 hover:text-primary border-border transition-all shadow-sm active:scale-95 disabled:opacity-30"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className="h-10 w-10 rounded-xl p-0 hover:bg-primary/5 hover:text-primary border-border transition-all shadow-sm active:scale-95 disabled:opacity-30"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
