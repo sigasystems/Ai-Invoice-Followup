@@ -1,6 +1,6 @@
 import { Activity } from '@/types';
 import { StatusBadge } from './status-badge';
-import { Mail, MessageSquare, PhoneCall, Clock } from 'lucide-react';
+import { Mail, MessageSquare, PhoneCall, Clock, ShieldAlert, MailCheck, UserCheck } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -9,10 +9,13 @@ interface ActivityItemProps {
   isLast?: boolean;
 }
 
-const channelIcons = {
+const channelIcons: Record<string, any> = {
   Email: Mail,
   WhatsApp: MessageSquare,
   SMS: PhoneCall,
+  'Manager Escalation': ShieldAlert,
+  'Draft Created': MailCheck,
+  'Human Review': UserCheck
 };
 
 export function ActivityItem({ activity, isLast }: ActivityItemProps) {
@@ -42,8 +45,20 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
           <p className="text-sm leading-6 text-muted-foreground">{activity.message}</p>
           <StatusBadge status={activity.status} className="border-none bg-transparent h-auto py-0 px-0 shadow-none text-[10px]" />
         </div>
-        <div className="mt-1 flex items-center gap-x-2">
-           <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Channel: {activity.channel}</span>
+        <div className="mt-1 flex flex-wrap items-center gap-2">
+            <span className="text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-black border border-border">
+              {activity.channel}
+            </span>
+            {activity.channel === 'Manager Escalation' && (
+              <span className="text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-600 font-black border border-rose-500/10">
+                Critical Alert
+              </span>
+            )}
+            {activity.channel === 'Draft Created' && (
+              <span className="text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-600 font-black border border-orange-500/10">
+                Awaiting Approval
+              </span>
+            )}
         </div>
       </div>
     </div>

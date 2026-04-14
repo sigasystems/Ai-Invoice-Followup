@@ -59,7 +59,7 @@ export function Topbar() {
               <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Admin</span>
             </div>
             <Avatar className="h-9 w-9 rounded-xl border border-neutral-100 ring-2 ring-transparent group-hover:ring-neutral-100 transition-all">
-              <AvatarImage src="/avatar.png" alt="User" />
+              <AvatarImage src="https://ui-avatars.com/api/?name=Lalit+Khairnar&background=6366f1&color=fff" alt="User" />
               <AvatarFallback className="bg-primary/5 text-primary font-bold text-xs">LK</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>

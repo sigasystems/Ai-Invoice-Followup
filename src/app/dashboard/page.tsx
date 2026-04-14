@@ -7,15 +7,20 @@ import { ActivityItem } from '@/components/shared/activity-item';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import {
-  IndianRupee,
+  Mail,
+  Zap,
   TrendingUp,
   AlertCircle,
   Clock,
+  IndianRupee,
   Download,
   BrainCircuit,
   ArrowRight,
-  Zap
+  Bell,
+  CheckCircle2,
+  Timer
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import * as React from 'react';
 import { Invoice } from '@/types';
 import {
@@ -36,12 +41,15 @@ export default function DashboardPage() {
   const [activities, setActivities] = React.useState<any[]>([]);
   const [settings, setSettings] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
+    setMounted(true);
     async function loadData() {
       setLoading(true);
       try {
         const res = await fetch('/api/dashboard');
+        console.log(res);
         const data = await res.json();
         setInvoices(data.invoices || []);
         setActivities(data.activities || []);
@@ -64,6 +72,7 @@ export default function DashboardPage() {
   }, 0);
   
   const overdueCount = invoices.filter(inv => inv.status === 'Overdue').length;
+  const pendingDraftsCount = invoices.filter(inv => inv.hasPendingDraft).length;
   const recoveryRate = invoices.length > 0 
     ? ((invoices.filter(i => i.status === 'Paid').length / invoices.length) * 100).toFixed(1) 
     : "0.0";
@@ -93,6 +102,8 @@ export default function DashboardPage() {
     { name: '15+ Days', value: invoices.filter(i => i.daysOverdue > 15).reduce((a, b) => a + b.amount, 0), color: '#f43f5e' },
   ];
 
+  if (!mounted) return null;
+
   return (
     <DashboardLayout>
       <PageHeader
@@ -107,13 +118,54 @@ export default function DashboardPage() {
         </div>
       </PageHeader>
 
+      {/* Action Center / Smart Notifications */}
+      {(pendingDraftsCount > 0 || overdueCount > 0) && (
+        <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-4 duration-700">
+          {pendingDraftsCount > 0 && (
+            <div className="flex items-center gap-4 p-4 rounded-3xl bg-orange-500/5 border border-orange-500/10 shadow-sm group hover:bg-orange-500/10 transition-all cursor-pointer" onClick={() => window.location.href = '/invoices'}>
+              <div className="h-12 w-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-500">
+                <Mail className="w-6 h-6 animate-bounce" />
+              </div>
+              <div className="flex-1">
+                <h5 className="text-[11px] font-black uppercase tracking-widest text-orange-600 mb-0.5">Drafts Awaiting Approval</h5>
+                <p className="text-sm font-bold text-foreground line-clamp-1">Review {pendingDraftsCount} AI-generated follow-ups in Gmail.</p>
+              </div>
+              <Button size="icon" variant="ghost" className="rounded-xl text-orange-500 hover:bg-orange-500/20">
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </div>
+          )}
+          
+          {overdueCount > 0 && (
+            <div className="flex items-center gap-4 p-4 rounded-3xl bg-primary/5 border border-primary/10 shadow-sm group hover:bg-primary/10 transition-all cursor-pointer">
+              <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                <Zap className="w-6 h-6" />
+              </div>
+              <div className="flex-1">
+                <h5 className="text-[11px] font-black uppercase tracking-widest text-primary mb-0.5">Automation Active</h5>
+                <p className="text-sm font-bold text-foreground line-clamp-1">{overdueCount} critical invoices are now in the escalation ladder.</p>
+              </div>
+              <div className="px-3 py-1 bg-primary text-white text-[9px] font-black uppercase rounded-lg">
+                LIVE
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Metrics Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         <MetricCard
           title="Live Outstanding"
           value={`₹${totalOutstanding.toLocaleString('en-IN')}`}
           icon={IndianRupee}
           trend={{ value: 'Database Sync', isPositive: false }}
+        />
+        <MetricCard
+          title="AI Drafts"
+          value={pendingDraftsCount.toString()}
+          icon={Mail}
+          trend={{ value: 'Action Required', isPositive: false }}
         />
         <MetricCard
           title="Monthly Collections"
@@ -192,7 +244,7 @@ export default function DashboardPage() {
             <CardDescription className="text-xs font-semibold">Value weighted receivables aging.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-62.5 w-full">
+            <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={agingData} layout="vertical" margin={{ left: -20, right: 20 }}>
                   <XAxis type="number" hide />
@@ -301,18 +353,29 @@ export default function DashboardPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-neutral-600">Escalation Sequence</span>
-              <div className="flex gap-1">
+            <div className="space-y-3">
+              <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Escalation Ladder</span>
+              <div className="space-y-2">
                 {settings?.escalationLadder?.map((step: any, idx: number) => (
-                  <div
-                    key={idx}
-                    className="w-2.5 h-2.5 rounded-full bg-primary/40 hover:bg-primary transition-colors cursor-help"
-                    title={`${step.label}: Day ${step.delayDays} (${step.tone})`}
-                  />
+                  <div key={idx} className="flex items-center justify-between p-3 rounded-2xl bg-muted/30 border border-border group hover:bg-muted/50 transition-all">
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-black text-foreground leading-none mb-1">{step.label}</span>
+                      <span className="text-[10px] font-bold text-muted-foreground leading-none">Day {step.delayDays} Post-Due</span>
+                    </div>
+                    <div className={cn(
+                      "px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest",
+                      step.tone === 'Urgent' ? "bg-rose-500/10 text-rose-500" : 
+                      step.tone === 'Firm' ? "bg-amber-500/10 text-amber-500" : 
+                      "bg-emerald-500/10 text-emerald-500"
+                    )}>
+                      {step.tone}
+                    </div>
+                  </div>
                 ))}
                 {(!settings?.escalationLadder || settings.escalationLadder.length === 0) && (
-                  <span className="text-[10px] text-muted-foreground font-medium">None set</span>
+                  <div className="p-4 rounded-2xl border border-dashed border-border text-center">
+                    <span className="text-[10px] text-muted-foreground font-black uppercase opacity-40">No Steps Configured</span>
+                  </div>
                 )}
               </div>
             </div>

@@ -65,6 +65,8 @@ export async function POST(request: Request) {
           status,
           notes,
           startFollowups,
+          hasPendingDraft: item.has_pending_draft ?? item.hasPendingDraft ?? undefined,
+          gmailDraftId: item.gmail_draft_id ?? item.gmailDraftId ?? undefined,
           customerId: customer.id
         },
         create: {
@@ -75,6 +77,8 @@ export async function POST(request: Request) {
           status,
           notes,
           startFollowups,
+          hasPendingDraft: item.has_pending_draft ?? item.hasPendingDraft ?? false,
+          gmailDraftId: item.gmail_draft_id ?? item.gmailDraftId ?? null,
           customerId: customer.id
         },
       });

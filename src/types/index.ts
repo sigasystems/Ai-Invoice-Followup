@@ -19,7 +19,9 @@ export interface PaymentPlan {
 }
 
 export interface Invoice {
-  invoice_number: ReactNode;
+  gmailDraftId: string | null;
+  hasPendingDraft: boolean;
+  invoice_number: string;
   id: string;
   customerName: string;
   customerEmail: string;
@@ -57,8 +59,8 @@ export interface Activity {
   id: string;
   customerId: string;
   customerName: string;
-  channel: 'Email' | 'WhatsApp' | 'SMS';
-  status: 'Sent' | 'Delivered' | 'Failed';
+  channel: 'Email' | 'WhatsApp' | 'SMS' | 'Manager Escalation' | 'Draft Created' | 'Human Review';
+  status: 'Sent' | 'Delivered' | 'Failed' | 'Pending Approval' | 'Escalated';
   timestamp: string;
   message?: string;
 }

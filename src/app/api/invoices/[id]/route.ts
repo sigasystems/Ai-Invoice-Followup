@@ -9,7 +9,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { status, startFollowups } = body;
+    const { status, startFollowups, hasPendingDraft, gmailDraftId } = body;
 
     // Build update data object
     const updateData: any = {};
@@ -34,6 +34,14 @@ export async function PATCH(
 
     if (startFollowups !== undefined) {
       updateData.startFollowups = parseInt(String(startFollowups)) || 0;
+    }
+
+    if (hasPendingDraft !== undefined) {
+      updateData.hasPendingDraft = Boolean(hasPendingDraft);
+    }
+
+    if (gmailDraftId !== undefined) {
+      updateData.gmailDraftId = String(gmailDraftId);
     }
 
     if (Object.keys(updateData).length === 0) {

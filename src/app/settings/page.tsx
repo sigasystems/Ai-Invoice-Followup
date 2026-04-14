@@ -213,8 +213,18 @@ export default function SettingsPage() {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/10 border border-primary/20">
+                  <div className="space-y-1">
+                    <Label className="text-sm font-bold text-foreground">Draft Mode</Label>
+                    <p className="text-[10px] text-muted-foreground font-normal italic">Save drafts in Gmail instead of sending.</p>
+                  </div>
+                  <Checkbox
+                    checked={settings?.createDraftsOnly || false}
+                    onCheckedChange={(val) => updateField('createDraftsOnly', val)}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
                   <div className="space-y-1">
                     <Label className="text-sm font-bold text-foreground">Smart Escalation</Label>
                     <p className="text-[10px] text-muted-foreground font-normal italic">Auto-switch to owner contact.</p>
@@ -227,7 +237,7 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
                   <div className="space-y-1">
                     <Label className="text-sm font-bold text-foreground">Pre-Due Alerts</Label>
-                    <p className="text-[10px] text-muted-foreground font-normal italic">Send courtesy reminder 2 days before.</p>
+                    <p className="text-[10px] text-muted-foreground font-normal italic">Send courtesy reminder early.</p>
                   </div>
                   <Checkbox
                     checked={settings?.beforeDueReminder || false}

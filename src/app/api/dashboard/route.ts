@@ -58,6 +58,8 @@ export async function GET() {
       tone: inv.tone || 'Neutral',
       reminder_stages: inv.reminder_stages,
       tones: inv.tones,
+      hasPendingDraft: inv.hasPendingDraft,
+      gmailDraftId: inv.gmailDraftId,
     }));
 
     // ✅ Format Dynamic Customers with real calculations
