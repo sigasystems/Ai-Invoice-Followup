@@ -16,9 +16,6 @@ import {
   Download,
   BrainCircuit,
   ArrowRight,
-  Bell,
-  CheckCircle2,
-  Timer
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import * as React from 'react';

@@ -44,7 +44,7 @@ export async function GET() {
       createdAt: inv.issueDate.toISOString().split('T')[0],
       startFollowups: inv.startFollowups,
       reminder_stage: inv.reminder_stage,
-      tone: inv.tone || 'Neutral',
+      tone: (inv.tones && inv.tones.length > 0) ? inv.tones[inv.tones.length - 1] : 'Neutral',
       reminder_stages: inv.reminder_stages,
       tones: inv.tones,
       hasPendingDraft: inv.hasPendingDraft,
