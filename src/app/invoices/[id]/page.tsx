@@ -108,47 +108,148 @@ export default function InvoiceDetailPage() {
           </Card>
 
           {/* Activity Timeline */}
-          <Card className="rounded-3xl border-none shadow-xl shadow-primary/5 bg-white overflow-hidden">
-             <CardHeader className="p-8 pb-4">
-                <div className="flex items-center gap-3">
-                   <History className="w-5 h-5 text-primary" />
-                   <CardTitle className="text-lg font-bold">Audit Trail & Activity</CardTitle>
-                </div>
-             </CardHeader>
-             <CardContent className="p-8 pt-4">
-                <div className="space-y-8 relative">
-                   <div className="absolute left-2.5 top-2 bottom-2 w-0.5 bg-neutral-100" />
-                   
-                   <div className="relative pl-10">
-                      <div className="absolute left-0 top-1 w-5 h-5 rounded-full bg-emerald-500 border-4 border-white shadow-sm" />
-                      <p className="text-xs font-bold text-neutral-900 mb-1">Invoice Created</p>
-                      <p className="text-xs text-muted-foreground">System-generated invoice forwarded to {invoice.customerName}.</p>
-                      <span className="text-[10px] font-medium text-muted-foreground mt-2 block">{new Date(invoice.createdAt).toLocaleString()}</span>
-                   </div>
+          
+<Card className="rounded-3xl border-none shadow-xl shadow-primary/5 bg-white overflow-hidden">
+  <CardHeader className="p-8 pb-4">
+    <div className="flex items-center gap-3">
+      <History className="w-5 h-5 text-primary" />
+      <CardTitle className="text-lg font-bold">Automation Timeline</CardTitle>
+    </div>
+  </CardHeader>
 
-                   <div className="relative pl-10">
-                      <div className="absolute left-0 top-1 w-5 h-5 rounded-full bg-amber-500 border-4 border-white shadow-sm" />
-                      <p className="text-xs font-bold text-neutral-900 mb-1">Reminder Triggered</p>
-                      <p className="text-xs text-muted-foreground">Automated neutral reminder sent via Email.</p>
-                      <span className="text-[10px] font-medium text-muted-foreground mt-2 block">2 days ago</span>
-                   </div>
+  <CardContent className="p-8 pt-4">
+    <div className="space-y-6 relative">
+      <div className="absolute left-2.5 top-2 bottom-2 w-0.5 bg-neutral-100" />
 
-                   {invoice.status === 'Overdue' && (
-                      <div className="relative pl-10">
-                        <div className="absolute left-0 top-1 w-5 h-5 rounded-full bg-rose-500 border-4 border-white shadow-sm" />
-                        <p className="text-xs font-bold text-rose-600 mb-1">Detected Delinquency</p>
-                        <p className="text-xs text-muted-foreground">Invoice exceeded due date. Escalating to Stage 2 flow.</p>
-                        <span className="text-[10px] font-medium text-muted-foreground mt-2 block">Today, 10:45 AM</span>
-                      </div>
-                   )}
-                </div>
-             </CardContent>
-          </Card>
+      {/* 1. Invoice Created */}
+      <div className="relative pl-10">
+        <div className="absolute left-0 top-1 w-5 h-5 rounded-full bg-emerald-500 border-4 border-white shadow-sm" />
+        <p className="text-xs font-bold">Invoice Created</p>
+        <p className="text-xs text-muted-foreground">
+          Invoice generated for {invoice.customerName}
+        </p>
+        <span className="text-[10px] text-muted-foreground">
+          {new Date(invoice.createdAt).toLocaleString()}
+        </span>
+      </div>
+
+      {/* 2. FOLLOW-UP HISTORY */}
+      {(invoice.reminder_dates || []).map((date: string, i: number) => {
+        const stage = invoice.reminder_stages?.[i];
+        const tone = invoice.tones?.[i];
+
+        return (
+          <div key={i} className="relative pl-10">
+            <div className="absolute left-0 top-1 w-5 h-5 rounded-full bg-primary border-4 border-white shadow-sm" />
+
+            <p className="text-xs font-bold">
+              Reminder Sent — Stage {stage}
+            </p>
+
+            <p className="text-xs text-muted-foreground">
+              Tone: <span className="font-semibold">{tone}</span>
+            </p>
+
+            <span className="text-[10px] text-muted-foreground">
+              {new Date(date).toLocaleString()}
+            </span>
+          </div>
+        );
+      })}
+
+      {/* 3. NEXT REMINDER (SMART) */}
+      {!invoice.paid && (() => {
+        const ladder = invoice.config?.escalationLadder || [];
+
+        const lastStage = invoice.reminder_stages?.length
+          ? invoice.reminder_stages[invoice.reminder_stages.length - 1]
+          : 0;
+
+        const nextStage = ladder[lastStage];
+
+        if (!nextStage) return null;
+
+        const due = new Date(invoice.dueDate);
+        const startDays = invoice.startFollowups || 0;
+
+        const startDate = new Date(due);
+        startDate.setDate(startDate.getDate() + startDays);
+
+        const nextDate = new Date(startDate);
+        nextDate.setDate(nextDate.getDate() + nextStage.delayDays);
+
+        return (
+          <div className="relative pl-10">
+            <div className="absolute left-0 top-1 w-5 h-5 rounded-full bg-amber-500 border-4 border-white shadow-sm animate-pulse" />
+
+            <p className="text-xs font-bold text-amber-600">
+              Next Scheduled Reminder
+            </p>
+
+            <p className="text-xs text-muted-foreground">
+              {nextStage.label} — {nextStage.tone} tone
+            </p>
+
+            <span className="text-[10px] text-muted-foreground">
+              {nextDate.toLocaleDateString()}
+            </span>
+          </div>
+        );
+      })()}
+    </div>
+  </CardContent>
+</Card>
+
+
+<Card className="rounded-3xl border-none shadow-xl bg-white p-6">
+  <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">
+    Automation Intelligence
+  </h4>
+
+  <div className="space-y-4 text-sm">
+    <div className="flex justify-between">
+      <span className="text-muted-foreground">Total Reminders</span>
+      <span className="font-bold">
+        {invoice.reminder_stages?.length || 0}
+      </span>
+    </div>
+
+    <div className="flex justify-between">
+      <span className="text-muted-foreground">Last Reminder</span>
+      <span className="font-bold">
+        {invoice.last_reminder_sent
+          ? new Date(invoice.last_reminder_sent).toLocaleDateString()
+          : "—"}
+      </span>
+    </div>
+
+    <div className="flex justify-between">
+      <span className="text-muted-foreground">Current Tone</span>
+      <span className="font-bold capitalize">
+        {invoice.tone || "Neutral"}
+      </span>
+    </div>
+
+    <div className="flex justify-between">
+      <span className="text-muted-foreground">Follow-up Mode</span>
+      <span className="font-bold">
+        {invoice.startFollowups > 0
+          ? `Starts after ${invoice.startFollowups} days`
+          : "Immediate"}
+      </span>
+    </div>
+  </div>
+</Card>
+
+
         </div>
+
+
+
 
         <div className="space-y-8">
            {/* Actions Card */}
-           <Card className="rounded-3xl border-none shadow-xl shadow-primary/5 bg-white overflow-hidden">
+           {/* <Card className="rounded-3xl border-none shadow-xl shadow-primary/5 bg-white overflow-hidden">
               <CardHeader className="p-6">
                  <CardTitle className="text-base font-bold">Manual Intervention</CardTitle>
                  <CardDescription className="text-xs font-medium">Force a communication override.</CardDescription>
@@ -167,7 +268,7 @@ export default function InvoiceDetailPage() {
                     Download PDF
                  </Button>
               </CardContent>
-           </Card>
+           </Card> */}
 
            {/* AI Prediction */}
            <Card className="rounded-3xl border-none shadow-xl bg-gradient-to-br from-indigo-600 to-primary text-white p-6 relative overflow-hidden">

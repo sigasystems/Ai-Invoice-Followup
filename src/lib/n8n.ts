@@ -20,7 +20,11 @@ export async function triggerN8nWorkflow(action: string, payload: any) {
     const data = await response.json();
 
     if (!response.ok) {
-       toast.error(data.error || 'Automation failed');
+       const errorMessage = data.details || data.error || 'Automation failed';
+       toast.error(errorMessage, {
+         description: data.hint || 'Check your n8n configuration in Settings.',
+         duration: 6000,
+       });
        return null;
     }
 

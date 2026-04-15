@@ -19,6 +19,10 @@ export interface PaymentPlan {
 }
 
 export interface Invoice {
+  last_reminder_sent: any;
+  paid: any;
+  config: any;
+  reminder_dates: never[];
   gmailDraftId: string | null;
   hasPendingDraft: boolean;
   invoice_number: string;
@@ -53,6 +57,12 @@ export interface Customer {
   predictedPayDate?: string;
   aiInsight?: string;
   notes?: string;
+  // Collection journey
+  maxReminderStage: number;   // Highest stage ever reached across all invoices
+  avgReminderStage: number;   // Average stage across invoices with reminders
+  escalationReached: boolean; // True if any invoice hit stage ≥ 4 (manager)
+  stagesUsed: number[];       // Unique sorted stages used
+  paidAtStage: number;        // Avg stage at which paid invoices were resolved
 }
 
 export interface Activity {

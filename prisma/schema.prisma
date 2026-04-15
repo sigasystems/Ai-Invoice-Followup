@@ -35,7 +35,6 @@ model Invoice {
   startFollowups     Int           @default(0)
   reminder_stage     Int           @default(0)
   last_reminder_sent DateTime?
-  tone               String?
   notes              String?
 
   // Storing history in arrays as requested
@@ -79,5 +78,20 @@ model GlobalSetting {
   syncActivity      Boolean @default(true)
   logSentiment      Boolean @default(true)
 
+  updatedAt DateTime @updatedAt
+}
+
+model Activity {
+  id           String   @id @default(cuid())
+  customerName String
+  channel      String   // e.g., 'Email', 'Draft Created', 'WhatsApp'
+  status       String   // e.g., 'Awaiting Review', 'Delivered', 'Sent'
+  message      String
+  timestamp    DateTime @default(now())
+  
+  customerId   String?
+  invoiceId    String?
+
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

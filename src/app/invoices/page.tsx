@@ -56,6 +56,8 @@ export default function InvoicesPage() {
   const [activeTab, setActiveTab] = React.useState('All');
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
 
+  let formattedDate: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined;
+
   React.useEffect(() => {
     async function loadData() {
       setLoading(true);
@@ -101,8 +103,6 @@ export default function InvoicesPage() {
           ...updates
         });
       }
-
-      toast.success(`Updated and synced with n8n`);
 
       // Update local state to reflect change immediately
       setInvoices(prev => prev.map(inv =>
@@ -159,30 +159,30 @@ export default function InvoicesPage() {
         return <span className="font-bold text-foreground">{formatted}</span>;
       },
     },
-    {
+     {
       accessorKey: 'dueDate',
-      header: 'Due Date',
+      header: 'Issue Date',
       cell: ({ row }) => (
         <span className="text-muted-foreground font-medium">{new Date(row.getValue('dueDate')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
       ),
     },
-    {
-      accessorKey: 'hasPendingDraft',
-      header: 'Automation',
-      cell: ({ row }) => {
-        const hasDraft = row.original.hasPendingDraft;
-        if (!hasDraft) return <span className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-widest">Auto-Send</span>;
+    // {
+    //   accessorKey: 'hasPendingDraft',
+    //   header: 'Automation',
+    //   cell: ({ row }) => {
+    //     const hasDraft = row.original.hasPendingDraft;
+    //     if (!hasDraft) return <span className="text-[10px] font-bold uppercase tracking-widest">Auto-Send</span>;
         
-        return (
-          <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-500">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/10 shadow-sm">
-              <Mail className="w-3 h-3" />
-              <span className="text-[10px] font-black uppercase tracking-tight">Draft Prepared</span>
-            </div>
-          </div>
-        );
-      },
-    },
+    //     return (
+    //       <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-500">
+    //         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/10 shadow-sm">
+    //           <Mail className="w-3 h-3" />
+    //           <span className="text-[10px] font-black uppercase tracking-tight">Draft Prepared</span>
+    //         </div>
+    //       </div>
+    //     );
+    //   },
+    // },
     {
       accessorKey: 'startFollowups',
       header: 'Follow-up',
@@ -198,7 +198,7 @@ export default function InvoicesPage() {
 
         const today = startOfDay(new Date());
         const isPastOrToday = isBefore(startDate, today) || startDate.getTime() === today.getTime();
-        const formattedDate = startDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+         formattedDate = startDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
 
         return (
           <div className="flex items-center gap-2" title={`Follow-up configured for ${offset} days after due date`}>
@@ -222,6 +222,13 @@ export default function InvoicesPage() {
           </div>
         );
       },
+    },
+      {
+      accessorKey: 'issueDate',
+      header: 'Due Date',
+      cell: ({ row }) => (
+        <span className="text-muted-foreground font-medium">{formattedDate}</span>
+      ),
     },
     {
       accessorKey: 'status',
@@ -269,52 +276,137 @@ export default function InvoicesPage() {
         );
       },
     },
-    {
-      accessorKey: 'reminder_stage',
-      header: 'Automation Lifecycle',
-      cell: ({ row }) => {
-        const stage = row.original.reminder_stage || 0;
-        const ladder = settings?.escalationLadder || [];
-        const isPaid = row.original.status === 'Paid';
-        
-        // Show at least 3 indicators even if ladder is empty/short for visual balance
-        const displaySteps = Math.max(ladder.length, 3);
-        const currentStep = ladder[stage] || ladder[ladder.length - 1] || null;
 
-        return (
-          <div className="flex flex-col gap-2.5 py-1">
-            <div className="flex items-center gap-1">
-              {Array.from({ length: displaySteps }).map((_, i) => (
-                <div 
-                  key={i} 
-                  className={cn(
-                    "h-1.5 flex-1 rounded-full transition-all duration-700",
-                    isPaid ? "bg-emerald-500/40" : 
-                    i < stage ? "bg-primary/60" : 
-                    i === stage ? (stage === 0 ? "bg-emerald-500 animate-pulse" : stage === 1 ? "bg-amber-500 animate-pulse" : "bg-rose-500 animate-pulse") : 
-                    "bg-muted"
-                  )} 
-                />
-              ))}
-            </div>
-            <div className="flex flex-col">
-              <span className={cn(
-                "text-[10px] font-black uppercase tracking-[0.05em] leading-none mb-1",
-                isPaid ? "text-emerald-500" : "text-foreground"
-              )}>
-                {isPaid ? 'Collection Successful' : (currentStep?.label || `Escalation Stage ${stage + 1}`)}
-              </span>
-              {!isPaid && (
-                <span className="text-[10px] font-bold text-muted-foreground leading-none flex items-center gap-1.5">
-                  <BrainCircuit className="w-3.5 h-3.5 text-primary opacity-70" />
-                  AI Logic: <span className="text-primary italic">{currentStep?.tone || 'Mild'} Tone</span>
-                </span>
+{
+  accessorKey: 'reminder_stage',
+  header: 'Automation Lifecycle',
+  cell: ({ row }) => {
+    const stages = row.original.reminder_stages || [];
+    const dates = row.original.reminder_dates || [];
+
+    // ✅ CURRENT STAGE
+    const currentStageDelay =
+      stages.length > 0 ? Number(stages[stages.length - 1]) : 0;
+
+    const stageIndex = currentStageDelay > 0 ? currentStageDelay - 1 : 0;
+
+    const ladder = settings?.escalationLadder || [];
+    const isPaid = row.original.status === 'Paid';
+
+    const displaySteps = Math.max(ladder.length, 3);
+    const currentStep =
+      ladder[stageIndex] || ladder[ladder.length - 1] || null;
+
+    // ✅ NEXT STEP
+    const nextStep = ladder.find(
+      (step: { delayDays: any; }) => Number(step.delayDays) > currentStageDelay
+    );
+
+    // ✅ LAST REMINDER DATE
+    const lastDate =
+      dates.length > 0 ? new Date(dates[dates.length - 1]) : null;
+
+    // ✅ NEXT REMINDER DATE
+    let nextDate: Date | null = null;
+
+    if (lastDate && nextStep) {
+      const gap =
+        Number(nextStep.delayDays) - currentStageDelay;
+
+      nextDate = new Date(lastDate);
+      nextDate.setDate(nextDate.getDate() + gap);
+    }
+
+    // ✅ DAYS LEFT
+    let daysLeft: number | null = null;
+
+    if (nextDate) {
+      const today = new Date();
+      daysLeft = Math.ceil(
+        (nextDate.getTime() - today.getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
+    }
+
+    return (
+      <div className="flex flex-col gap-2.5 py-1">
+
+        {/* PROGRESS BAR */}
+        <div className="flex items-center gap-1">
+          {Array.from({ length: displaySteps }).map((_, i) => (
+            <div
+              key={i}
+              className={cn(
+                "h-1.5 flex-1 rounded-full transition-all duration-700",
+                isPaid
+                  ? "bg-emerald-500/40"
+                  : i < stageIndex
+                  ? "bg-primary/60"
+                  : i === stageIndex
+                  ? stageIndex === 0
+                    ? "bg-emerald-500 animate-pulse"
+                    : stageIndex === 1
+                    ? "bg-amber-500 animate-pulse"
+                    : "bg-rose-500 animate-pulse"
+                  : "bg-muted"
               )}
-            </div>
-          </div>
-        );
-      },
-    },
+            />
+          ))}
+        </div>
+
+        {/* CONTENT */}
+        <div className="flex flex-col">
+
+          {/* CURRENT STAGE */}
+          <span
+            className={cn(
+              "text-[10px] font-black uppercase tracking-[0.05em]",
+              isPaid ? "text-emerald-500" : "text-foreground"
+            )}
+          >
+            {isPaid
+              ? 'Collection Successful'
+              : currentStep?.label || `Stage ${stageIndex + 1}`}
+          </span>
+
+          {/* AI TONE */}
+          {!isPaid && (
+            <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1.5">
+              <BrainCircuit className="w-3.5 h-3.5 text-primary opacity-70" />
+              AI Logic:
+              <span className="text-primary italic">
+                {currentStep?.tone} Tone
+              </span>
+            </span>
+          )}
+
+          {/* NEXT STEP */}
+          {!isPaid && nextStep && (
+            <span className="text-[10px] font-semibold text-blue-500">
+              Next: {nextStep.label} •{" "}
+              {daysLeft !== null
+                ? daysLeft <= 0
+                  ? "Today"
+                  : daysLeft === 1
+                  ? "Tomorrow"
+                  : `in ${daysLeft}d`
+                : "-"}
+            </span>
+          )}
+
+          {/* FINAL STAGE */}
+          {!isPaid && !nextStep && (
+            <span className="text-[10px] font-semibold text-rose-500">
+              Final Stage Reached
+            </span>
+          )}
+
+        </div>
+      </div>
+    );
+  },
+}
+,
     {
       id: 'actions',
       cell: ({ row }) => {
@@ -344,9 +436,10 @@ export default function InvoicesPage() {
                         amount: inv.amount,
                         due_date: inv.dueDate,
                         status: inv.status,
+                        startFollowups: inv.startFollowups,
+                        reminder_stage: inv.reminder_stage,                         
                         notes: 'Manual reminder sent from dashboard'
                       });
-                      toast.success(`Success! Reminder for ${inv.customerName} pushed to n8n.`);
                     }}
                   >
                     <Send className="w-4 h-4" /> Send Reminder
@@ -437,7 +530,6 @@ export default function InvoicesPage() {
         followup_start_date: formattedStartDate
       });
 
-      toast.success('Invoice created and synced with n8n!');
       setIsCreateModalOpen(false);
 
       // Refresh the list
@@ -474,7 +566,6 @@ export default function InvoicesPage() {
                 const data = await fetchInvoices();
                 setInvoices(data);
                 setLoading(false);
-                toast.success('Sync triggered and dashboard updated!');
               }
               refresh();
             }}
@@ -522,7 +613,7 @@ export default function InvoicesPage() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="due_date" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Due Date</Label>
+                      <Label htmlFor="due_date" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Issue Date</Label>
                       <Input id="due_date" name="due_date" type="date" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
                     </div>
                     <div className="space-y-2">
@@ -571,7 +662,7 @@ export default function InvoicesPage() {
           <p className="text-sm font-bold text-muted-foreground animate-pulse">Syncing live dashboard...</p>
         </div>
       ) : (
-        <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <div className="overflow-hidden ">
           <DataTable
             columns={columns}
             data={filteredInvoices}

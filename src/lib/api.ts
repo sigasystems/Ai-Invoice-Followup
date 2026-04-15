@@ -85,6 +85,12 @@ export async function fetchCustomers(): Promise<Customer[]> {
       aiInsight: c.aiInsight ?? c.aiForecast ?? 'No AI analysis available',
       notes: c.notes ?? '',
       predictedPayDate: c.predictedPayDate,
+      // Collection journey fields
+      maxReminderStage: Number(c.maxReminderStage ?? 0),
+      avgReminderStage: Number(c.avgReminderStage ?? 0),
+      escalationReached: Boolean(c.escalationReached ?? false),
+      stagesUsed: Array.isArray(c.stagesUsed) ? c.stagesUsed : [],
+      paidAtStage: Number(c.paidAtStage ?? 0),
     }));
   } catch (error: any) {
     if (error.name === 'AbortError') {

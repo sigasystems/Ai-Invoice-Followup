@@ -55,7 +55,7 @@ export function Topbar() {
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button variant="ghost" className="p-1 pl-2 gap-2 h-auto rounded-xl hover:bg-neutral-50" />}>
             <div className="hidden sm:flex flex-col items-end text-right">
-              <span className="text-sm font-semibold text-neutral-900">Lalit Khairnar</span>
+              <span className="text-sm font-semibold ">Lalit Khairnar</span>
               <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Admin</span>
             </div>
             <Avatar className="h-9 w-9 rounded-xl border border-neutral-100 ring-2 ring-transparent group-hover:ring-neutral-100 transition-all">

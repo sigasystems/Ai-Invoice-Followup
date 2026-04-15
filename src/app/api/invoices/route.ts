@@ -26,6 +26,7 @@ export async function POST(request: Request) {
       const statusStr = (item.status || 'PENDING').toUpperCase();
       const notes = item.notes || '';
       
+      
       // Supporting both n8n internal naming and GSheet legacy naming
       const startFollowupsRaw = item.start_followups ?? item["Start Followups"];
       const startFollowups = parseInt(startFollowupsRaw) || 0;
@@ -56,6 +57,9 @@ export async function POST(request: Request) {
       });
 
       // 3. Upsert Invoice
+      const existingInvoice = await prisma.invoice.findUnique({ where: { invoice_number: invoiceNumber } });
+      const willHaveDraft = item.has_pending_draft ?? item.hasPendingDraft ?? false;
+
       const invoice = await prisma.invoice.upsert({
         where: { invoice_number: invoiceNumber },
         update: {
@@ -82,6 +86,22 @@ export async function POST(request: Request) {
           customerId: customer.id
         },
       });
+
+      // 4. ✅ Log Activity if a draft is newly created or updated
+      if (willHaveDraft && (!existingInvoice || !existingInvoice.hasPendingDraft)) {
+        if ((prisma as any).activity) {
+          await (prisma as any).activity.create({
+            data: {
+              customerName: customer.name,
+              customerId: customer.id,
+              invoiceId: invoice.id,
+              channel: 'Draft Created',
+              status: 'Awaiting Review',
+              message: `AI drafted a collection reminder for Invoice ${invoice.invoice_number}.`,
+            }
+          });
+        }
+      }
 
       results.push({ id: invoiceNumber, success: true, db_id: invoice.id });
     }

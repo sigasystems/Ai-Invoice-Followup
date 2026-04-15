@@ -26,8 +26,16 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
       {!isLast && (
         <div className="absolute left-[15px] top-[15px] bottom-0 w-[1px] bg-neutral-100" />
       )}
-      <div className="relative flex h-8 w-8 items-center justify-center rounded-full bg-neutral-50 ring-1 ring-neutral-200">
-        <Icon className="h-4 w-4 text-primary" />
+      <div className={cn(
+        "relative flex h-8 w-8 items-center justify-center rounded-full ring-1 shadow-xs transition-all",
+        activity.channel === 'Draft Created' 
+          ? "bg-orange-500/10 ring-orange-200 text-orange-600 scale-110" 
+          : "bg-neutral-50 ring-neutral-200 text-primary"
+      )}>
+        <Icon className="h-4 w-4" />
+        {activity.channel === 'Draft Created' && (
+          <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-orange-500 animate-pulse border border-white" />
+        )}
       </div>
       <div className="flex-auto py-0.5">
         <div className="flex items-center justify-between gap-x-4">

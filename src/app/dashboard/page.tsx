@@ -35,6 +35,7 @@ import {
   Bar,
   Cell
 } from 'recharts';
+import { toast } from 'sonner';
 
 export default function DashboardPage() {
   const [invoices, setInvoices] = React.useState<Invoice[]>([]);
@@ -49,11 +50,22 @@ export default function DashboardPage() {
       setLoading(true);
       try {
         const res = await fetch('/api/dashboard');
-        console.log(res);
         const data = await res.json();
         setInvoices(data.invoices || []);
         setActivities(data.activities || []);
         setSettings(data.settings);
+
+        // ✅ Notify user about pending drafts
+        const pendingCount = (data.invoices || []).filter((inv: any) => inv.hasPendingDraft).length;
+        if (pendingCount > 0) {
+          toast.message("AI Drafts Ready", {
+            description: `You have ${pendingCount} reminders awaiting approval in Gmail.`,
+            action: {
+              label: "Review",
+              onClick: () => window.location.href = '/invoices'
+            },
+          });
+        }
       } catch (err) {
         console.error("Dashboard Load Error:", err);
       } finally {

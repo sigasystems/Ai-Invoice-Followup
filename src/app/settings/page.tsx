@@ -33,7 +33,6 @@ export default function SettingsPage() {
   const [settings, setSettings] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
-  console.log("settings...", settings);
 
   React.useEffect(() => {
     async function fetchSettings() {
@@ -306,14 +305,38 @@ export default function SettingsPage() {
                     className="rounded-xl h-10 bg-muted border-border font-mono text-[10px] focus:ring-primary"
                   />
                 </div>
-                {/* <div className="space-y-2">
-                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">Write Webhook</Label>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">Write Webhook (Reminders)</Label>
                   <Input
                     value={settings?.writeWebhook || ''}
                     onChange={(e) => updateField('writeWebhook', e.target.value)}
                     className="rounded-xl h-10 bg-muted border-border font-mono text-[10px] focus:ring-primary"
+                    placeholder="https://n8n.your-site.com/webhook/..."
                   />
-                </div> */}
+                  {settings?.writeWebhook?.includes('/webhook-test/') && (
+                    <div className="flex flex-col gap-2 mt-2 p-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
+                      <p className="text-[10px] text-orange-600 font-bold leading-tight flex items-center gap-1.5">
+                        <Zap className="w-3 h-3" /> TEST WEBHOOK DETECTED
+                      </p>
+                      <p className="text-[9px] text-orange-600/80 font-medium">
+                        Test URLs only work while you are manually clicking "Execute Workflow" in n8n. 
+                        For permanent automation, use the <strong>Production URL</strong> (remove "-test") and <strong>Activate</strong> the workflow.
+                      </p>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-7 text-[9px] bg-background border-orange-200 text-orange-600 hover:bg-orange-50 h-6 px-2 w-fit rounded-lg"
+                        onClick={() => {
+                          const prodUrl = settings.writeWebhook.replace('/webhook-test/', '/webhook/');
+                          updateField('writeWebhook', prodUrl);
+                          toast.info('Switched to Production URL format. Please remember to activate the workflow in n8n!');
+                        }}
+                      >
+                        Switch to Production URL
+                      </Button>
+                    </div>
+                  )}
+                </div>
                 <div className="pt-4 border-t border-border flex items-center justify-between">
                   <div className="space-y-0.5">
                     <span className="text-xs font-bold text-foreground">Background Sync</span>
