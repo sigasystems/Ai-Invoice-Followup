@@ -129,7 +129,7 @@ export async function POST(request: Request) {
               followUp: {
                 startFollowups:     invoice.startFollowups,   // flag: followups enabled (0=no, 1=yes)
                 currentStage:       invoice.reminder_stage,   // which ladder step we're ON now
-                currentTone:        invoice.tone ?? 'Neutral',
+                currentTone:        invoice?.tone ?? 'Neutral',
                 stageHistory,                                 // [1, 2, 3] — every stage ever sent
                 toneHistory,                                  // ['Gentle', 'Firm', 'Urgent'] — matching tones
                 lastReminderSent:   invoice.last_reminder_sent,
