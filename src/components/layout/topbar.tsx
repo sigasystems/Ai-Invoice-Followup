@@ -14,8 +14,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Sidebar } from './sidebar';
-
 import { ModeToggle } from '@/components/shared/mode-toggle';
+import { logout } from '@/lib/auth';
 
 export function Topbar() {
   return (
@@ -76,7 +76,10 @@ export function Topbar() {
               Billing
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-neutral-50" />
-            <DropdownMenuItem className="rounded-xl px-3 py-2 text-sm font-medium text-rose-600 focus:bg-rose-50 focus:text-rose-700 transition-colors cursor-pointer">
+            <DropdownMenuItem 
+              onClick={() => logout()}
+              className="rounded-xl px-3 py-2 text-sm font-medium text-rose-600 focus:bg-rose-50 focus:text-rose-700 transition-colors cursor-pointer"
+            >
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -10,7 +10,9 @@ import {
   Activity,
   Settings,
   ShieldCheck,
+  LogOut
 } from 'lucide-react';
+import { logout } from '@/lib/auth';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -29,8 +31,9 @@ export function Sidebar() {
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
           <ShieldCheck className="w-5 h-5 text-primary-foreground" />
         </div>
-        <span className="text-lg font-bold  text-foreground">PayPilot</span>
+        <span className="text-lg font-bold text-foreground tracking-tight">PayPilot</span>
       </div>
+      
       <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
         {navigation.map((item) => {
           const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
@@ -46,7 +49,7 @@ export function Sidebar() {
               )}
             >
               <item.icon className={cn(
-                "w-5 h-5",
+                "w-5 h-5 transition-colors",
                 isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
               )} />
               {item.name}
@@ -54,23 +57,15 @@ export function Sidebar() {
           );
         })}
       </nav>
-      {/* <div className="p-4 mt-auto">
-        <div className="p-4 rounded-2xl bg-muted/50 border border-border">
-           <h4 className="text-xs font-semibold text-foreground mb-1">Trial Version</h4>
-           <p className="text-[11px] text-muted-foreground mb-3">14 days left in your trial.</p>
-           <button className="w-full py-2 bg-background border border-border text-xs font-semibold rounded-lg shadow-sm hover:bg-accent transition-colors">
-              Upgrade Plan
-           </button>
-        </div>
-      </div> */}
-      <div className="p-4 mt-auto">
-        {/* <div className="p-4 rounded-2xl bg-muted/50 border border-border"> */}
-        {/* <h4 className="text-xs font-semibold text-foreground mb-1">Logout</h4>
-           <p className="text-[11px] text-muted-foreground mb-3"> Click here to logout </p> */}
-        <button className="w-full py-2 bg-background border border-border text-xs font-semibold rounded-lg shadow-sm hover:bg-accent transition-colors">
+
+      <div className="p-4 mt-auto border-t border-border/50">
+        <button 
+          onClick={() => logout()}
+          className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-rose-500 hover:bg-rose-50 rounded-xl transition-all group"
+        >
+          <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           Logout
         </button>
-        {/* </div> */}
       </div>
     </div>
   );

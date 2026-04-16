@@ -248,28 +248,6 @@ export default function InvoiceDetailPage() {
 
 
         <div className="space-y-8">
-          {/* Actions Card */}
-          {/* <Card className="rounded-3xl border-none shadow-xl shadow-primary/5 bg-white overflow-hidden">
-              <CardHeader className="p-6">
-                 <CardTitle className="text-base font-bold">Manual Intervention</CardTitle>
-                 <CardDescription className="text-xs font-medium">Force a communication override.</CardDescription>
-              </CardHeader>
-              <CardContent className="p-6 pt-0 space-y-3">
-                 <Button onClick={() => handleManualReminder('Email')} variant="outline" className="w-full justify-start rounded-2xl h-12 gap-3 hover:bg-primary/5 hover:text-primary transition-all border-neutral-100 font-bold">
-                    <Mail className="w-4 h-4 text-primary" />
-                    Send Email Reminder
-                 </Button>
-                 <Button onClick={() => handleManualReminder('WhatsApp')} variant="outline" className="w-full justify-start rounded-2xl h-12 gap-3 hover:bg-emerald-50 hover:text-emerald-600 transition-all border-neutral-100 font-bold">
-                    <MessageSquare className="w-4 h-4 text-emerald-500" />
-                    WhatsApp Nudge
-                 </Button>
-                 <Button variant="outline" className="w-full justify-start rounded-2xl h-12 gap-3 hover:bg-neutral-100 transition-all border-neutral-100 font-bold">
-                    <Download className="w-4 h-4 text-muted-foreground" />
-                    Download PDF
-                 </Button>
-              </CardContent>
-           </Card> */}
-
           {/* AI Prediction */}
           <Card className="rounded-3xl border-none shadow-xl bg-linear-to-br from-indigo-600 to-primary text-white p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-10">

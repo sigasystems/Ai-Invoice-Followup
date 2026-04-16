@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "sonner";
+import { AuthGuard } from "@/components/shared/auth-guard";
 
 export default function RootLayout({
   children,
@@ -26,7 +27,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <AuthGuard>
+            {children}
+          </AuthGuard>
           <Toaster richColors position="top-right" closeButton />
         </ThemeProvider>
       </body>
