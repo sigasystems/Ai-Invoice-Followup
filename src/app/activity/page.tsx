@@ -70,7 +70,7 @@ export default function ActivityPage() {
       // Tab filtering
       if (activeTab === 'automated') {
          // Based on your backend, 'Draft Created' and 'Email' (sent by system) are automated
-         result = result.filter((a) => a.channel === 'Draft Created' || a.status === 'Delivered');
+         result = result.filter((a) => a.channel === 'Draft Created');
       } else if (activeTab === 'manual') {
          result = result.filter((a) => a.channel === 'SMS' || a.channel === 'WhatsApp'); // Assuming these are manual for now
       } else if (activeTab === 'drafts') {
@@ -142,7 +142,7 @@ export default function ActivityPage() {
                      <TabsList className="h-12 p-1.5 bg-muted/50 rounded-2xl border border-border">
                         <TabsTrigger value="all" className="rounded-xl h-full px-5 text-[11px] font-black uppercase  data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">All Events</TabsTrigger>
                         <TabsTrigger value="drafts" className="rounded-xl h-full px-5 text-[11px] font-black uppercase  data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">Drafts</TabsTrigger>
-                        <TabsTrigger value="automated" className="rounded-xl h-full px-5 text-[11px] font-black uppercase  data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">AI Automated</TabsTrigger>
+                        {/* <TabsTrigger value="automated" className="rounded-xl h-full px-5 text-[11px] font-black uppercase  data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">AI Automated</TabsTrigger> */}
                         <TabsTrigger value="manual" className="rounded-xl h-full px-5 text-[11px] font-black uppercase  data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">Manual</TabsTrigger>
                      </TabsList>
                   </Tabs>

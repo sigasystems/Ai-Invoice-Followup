@@ -87,6 +87,7 @@ model Activity {
   channel      String   // e.g., 'Email', 'Draft Created', 'WhatsApp'
   status       String   // e.g., 'Awaiting Review', 'Delivered', 'Sent'
   message      String
+  draft_url    String?
   timestamp    DateTime @default(now())
   
   customerId   String?

@@ -73,6 +73,7 @@ export interface Activity {
   status: 'Sent' | 'Delivered' | 'Failed' | 'Pending Approval' | 'Escalated';
   timestamp: string;
   message?: string;
+  draftUrl?: string; // Optional URL for email drafts
 }
 
 export interface DashboardMetrics {

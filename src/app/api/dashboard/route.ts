@@ -49,6 +49,7 @@ export async function GET() {
       tones: inv.tones,
       hasPendingDraft: inv.hasPendingDraft,
       gmailDraftId: inv.gmailDraftId,
+      draft_url: inv.draft_url,
     }));
 
     // ✅ Format Dynamic Customers with real calculations
@@ -61,7 +62,6 @@ export async function GET() {
       const overdueInvoices = c.invoices.filter((i: any) => i.status.toLowerCase() === 'overdue');
       const pendingInvoices = c.invoices.filter((i: any) => i.status.toLowerCase() === 'pending');
 
-      // Outstanding = all non-paid invoices
       const outstanding = c.invoices
         .filter((i: any) => i.status.toLowerCase() !== 'paid')
         .reduce((sum: number, i: any) => sum + i.amount, 0);
@@ -69,106 +69,37 @@ export async function GET() {
       const overdueCount = overdueInvoices.length;
       const paidCount = paidInvoices.length;
 
-      // --- Real On-Time Rate ---
-      // On-time = paid invoices / total invoices (if no invoices, 0% not 100%)
-      const onTimeRate = totalInvoices > 0
-        ? Math.round((paidCount / totalInvoices) * 100)
-        : 0;
+      const onTimeRate = totalInvoices > 0 ? Math.round((paidCount / totalInvoices) * 100) : 0;
 
-      // --- Real Avg Delay (days overdue for each overdue invoice) ---
       let avgDelay = 0;
       if (overdueCount > 0) {
         const totalDelayDays = overdueInvoices.reduce((sum: number, i: any) => {
           const dueDate = new Date(i.dueDate);
-          const delayDays = Math.max(0, Math.floor((now.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24)));
-          return sum + delayDays;
+          return sum + Math.max(0, Math.floor((now.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24)));
         }, 0);
         avgDelay = Math.round(totalDelayDays / overdueCount);
       }
 
-      // --- Real Behavior Score (0-100) ---
-      // Weighted: on-time rate (60%) + overdue penalty (30%) + delay penalty (10%)
       const overdueRatio = totalInvoices > 0 ? (overdueCount / totalInvoices) : 0;
-      const delayPenalty = Math.min(30, avgDelay); // cap at 30 points penalty
+      const delayPenalty = Math.min(30, avgDelay);
       const rawScore = (onTimeRate * 0.6) + ((1 - overdueRatio) * 30) + (30 - delayPenalty) * (10 / 30);
       const behaviorScore = Math.min(100, Math.max(0, Math.round(rawScore)));
 
-      // --- Real Risk Level ---
       let riskLevel = 'Low';
-      if (overdueCount > 2 || overdueRatio > 0.5 || avgDelay > 30) {
-        riskLevel = 'High';
-      } else if (overdueCount > 0 || onTimeRate < 70 || avgDelay > 10) {
-        riskLevel = 'Medium';
-      }
+      if (overdueCount > 2 || overdueRatio > 0.5 || avgDelay > 30) riskLevel = 'High';
+      else if (overdueCount > 0 || onTimeRate < 70 || avgDelay > 10) riskLevel = 'Medium';
 
-      // --- Real AI Insight ---
-      let aiInsight: string;
-      if (totalInvoices === 0) {
-        aiInsight = 'New customer — no payment history yet.';
-      } else if (overdueCount === 0 && onTimeRate === 100) {
-        aiInsight = `Excellent payer — all ${paidCount} invoice${paidCount !== 1 ? 's' : ''} paid on time.`;
-      } else if (overdueCount === 0 && onTimeRate >= 70) {
-        aiInsight = `Good payer — ${paidCount}/${totalInvoices} invoices paid, ${pendingInvoices.length} pending.`;
-      } else if (overdueCount > 0 && avgDelay > 30) {
-        aiInsight = `High risk — ${overdueCount} overdue invoice${overdueCount !== 1 ? 's' : ''}, avg ${avgDelay} days late. Escalation recommended.`;
-      } else if (overdueCount > 0) {
-        aiInsight = `${overdueCount} overdue invoice${overdueCount !== 1 ? 's' : ''}, avg ${avgDelay} day${avgDelay !== 1 ? 's' : ''} late. Follow-up advised.`;
-      } else if (pendingInvoices.length > 0 && onTimeRate < 50) {
-        aiInsight = `Inconsistent payer — only ${onTimeRate}% on-time rate across ${totalInvoices} invoices.`;
-      } else {
-        aiInsight = `${onTimeRate}% on-time rate — ${pendingInvoices.length} invoice${pendingInvoices.length !== 1 ? 's' : ''} pending payment.`;
-      }
+      let aiInsight = '';
+      if (totalInvoices === 0) aiInsight = 'New customer — no payment history yet.';
+      else if (overdueCount > 0 && avgDelay > 30) aiInsight = `High risk — ${overdueCount} overdue, avg ${avgDelay} days late.`;
+      else aiInsight = `${onTimeRate}% on-time rate.`;
 
-      // --- Collection Journey Metrics ---
-      // reminder_stages[] = all stages sent for that invoice, e.g. [1, 2, 3]
-      // reminder_stage   = current/highest stage reached on that invoice
-
-      // Highest stage ever reached across all invoices
       const maxReminderStage = c.invoices.reduce((max: number, i: any) => {
-        const stageArr: number[] = Array.isArray(i.reminder_stages) ? i.reminder_stages : [];
-        const highest = stageArr.length > 0 ? Math.max(...stageArr) : (i.reminder_stage || 0);
+        const highest = Array.isArray(i.reminder_stages) && i.reminder_stages.length > 0 ? Math.max(...i.reminder_stages) : (i.reminder_stage || 0);
         return Math.max(max, highest);
       }, 0);
 
-      // Average stage across invoices that had any reminders sent
-      const invoicesWithReminders = c.invoices.filter((i: any) =>
-        (Array.isArray(i.reminder_stages) && i.reminder_stages.length > 0) || i.reminder_stage > 0,
-      );
-      const avgReminderStage = invoicesWithReminders.length > 0
-        ? Math.round(
-            invoicesWithReminders.reduce((sum: number, i: any) => {
-              const stageArr: number[] = Array.isArray(i.reminder_stages) ? i.reminder_stages : [];
-              return sum + (stageArr.length > 0 ? Math.max(...stageArr) : i.reminder_stage);
-            }, 0) / invoicesWithReminders.length,
-          )
-        : 0;
-
-      // Did any invoice reach stage ≥ 4 (manager escalation threshold)?
-      const escalationReached = c.invoices.some((i: any) => {
-        const stageArr: number[] = Array.isArray(i.reminder_stages) ? i.reminder_stages : [];
-        const top = stageArr.length > 0 ? Math.max(...stageArr) : (i.reminder_stage || 0);
-        return top >= 4;
-      });
-
-      // Unique stages used across all invoices (for the journey visual)
-      const allStagesUsed = new Set<number>();
-      c.invoices.forEach((i: any) => {
-        const stageArr: number[] = Array.isArray(i.reminder_stages) ? i.reminder_stages : [];
-        if (stageArr.length > 0) stageArr.forEach((s: number) => allStagesUsed.add(s));
-        else if (i.reminder_stage > 0) allStagesUsed.add(i.reminder_stage);
-      });
-      const stagesUsed = Array.from(allStagesUsed).sort((a, b) => a - b);
-
-      // For PAID invoices: the stage at which they were resolved (highest stage in reminder_stages[])
-      const paidStages = paidInvoices
-        .map((i: any) => {
-          const stageArr: number[] = Array.isArray(i.reminder_stages) ? i.reminder_stages : [];
-          return stageArr.length > 0 ? Math.max(...stageArr) : (i.reminder_stage || 0);
-        })
-        .filter((s: number) => s > 0);
-      const paidAtStage = paidStages.length > 0
-        ? Math.round(paidStages.reduce((a: number, b: number) => a + b, 0) / paidStages.length)
-        : 0;
+      const escalationReached = c.invoices.some((i: any) => (i.reminder_stage || 0) >= 4);
 
       return {
         id: c.id,
@@ -183,29 +114,36 @@ export async function GET() {
         onTimeRate,
         aiInsight,
         notes: c.notes || '',
-        // Collection journey
         maxReminderStage,
-        avgReminderStage,
         escalationReached,
-        stagesUsed,
-        paidAtStage,
       };
     });
 
-    // ✅ Format Dynamic Activities from Database (Logs + Replies fallback)
-    const logActivities = logs.map((l: any) => ({
-      id: l.id,
-      customerId: l.customerId,
-      customerName: l.customerName,
-      channel: l.channel,
-      status: l.status,
-      timestamp: l.timestamp.toISOString(),
-      message: l.message,
-    }));
+    // ✅ Draft Link Helper
+    const getDraftLink = (val: string | null | undefined) => {
+      if (!val) return undefined;
+      if (val.startsWith('http')) return val;
+      const cleanId = val.replace(/^url-/, '');
+      return `https://mail.google.com/mail/u/0/#all?compose=${cleanId}`;
+    };
 
-    // Inferred Draft Activities (for backward compatibility if logs are missing)
+    // ✅ Format Dynamic Activities
+    const logActivities = logs.map((l: any) => {
+      const relatedInvoice = invoices.find((inv: any) => inv.id === l.invoiceId);
+      return {
+        id: l.id,
+        customerId: l.customerId,
+        customerName: l.customerName,
+        channel: l.channel,
+        status: l.status,
+        timestamp: l.timestamp.toISOString(),
+        message: l.message,
+        draftUrl: getDraftLink(l.draft_url || relatedInvoice?.gmailDraftId || relatedInvoice?.gmailDraftId),
+      };
+    });
+
     const draftActivities = invoices
-      .filter((inv: any) => inv.hasPendingDraft && !logs.some((l: any) => l.invoiceId === inv.id && l.channel === 'Draft Created'))
+      .filter((inv: any) => (inv.hasPendingDraft || inv.gmailDraftId) && !logs.some((l: any) => l.invoiceId === inv.id && l.channel === 'Draft Created'))
       .map((inv: any) => ({
         id: `draft-${inv.id}`,
         customerId: inv.customerId,
@@ -214,6 +152,7 @@ export async function GET() {
         status: 'Awaiting Review',
         timestamp: inv.updatedAt.toISOString(),
         message: `AI drafted a reminder for Invoice ${inv.invoice_number}.`,
+        draftUrl: getDraftLink(inv.draft_url || inv.gmailDraftId),
       }));
 
     const replyActivities = replies
@@ -225,7 +164,7 @@ export async function GET() {
         channel: 'Email',
         status: 'Delivered',
         timestamp: r.receivedAt.toISOString(),
-        message: `Reply: ${r.content.substring(0, 80)}${r.content.length > 80 ? '...' : ''}`,
+        message: `Reply: ${r.content.substring(0, 80)}`,
       }));
 
     const formattedActivities = [...logActivities, ...draftActivities, ...replyActivities].sort(
@@ -236,22 +175,10 @@ export async function GET() {
       invoices: formattedInvoices,
       customers: formattedCustomers,
       activities: formattedActivities.slice(0, 50),
-      settings: settings || {
-        id: 'global_config',
-        beforeDueReminder: true,
-        escalationLadder: [],
-        smartEscalation: true,
-      },
+      settings: settings || { id: 'global_config', escalationLadder: [] },
     });
   } catch (error) {
-    console.error('Database Connection Error (Dashboard API):', error);
-
-    // Return empty results on severe error - No mock data fallback
-    return NextResponse.json({
-      invoices: [],
-      customers: [],
-      activities: [],
-      error: 'Failed to fetch from database',
-    }, { status: 500 });
+    console.error('Database Connection Error:', error);
+    return NextResponse.json({ error: 'Database error' }, { status: 500 });
   }
 }

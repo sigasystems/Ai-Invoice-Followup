@@ -204,12 +204,23 @@ export default function SettingsPage() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="rounded-2xl border-border shadow-2xl p-2">
-                            {['Gentle', 'Neutral', 'Firm', 'Urgent', 'Legal'].map(t => (
+                            {['Gentle', 'Neutral', 'Firm', 'Urgent', 'Legal', 'Manager Escalation'].map(t => (
                               <SelectItem key={t} value={t} className="rounded-xl font-bold text-xs py-2 px-3">{t}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </div>
+                      {step.tone === 'Manager Escalation' && (
+                        <div className="flex flex-col gap-2 flex-1 w-full animate-in zoom-in-95 duration-200">
+                          <Label className="text-[10px] font-black text-rose-500 uppercase ">Escalation Contact</Label>
+                          <Input
+                            value={step.escalationContact || ''}
+                            onChange={(e) => updateLadderStep(index, 'escalationContact', e.target.value)}
+                            className="bg-rose-500/5 border border-rose-500/10 shadow-sm rounded-xl h-11 font-bold focus:ring-rose-500"
+                            placeholder="e.g. Finance VP / Legal"
+                          />
+                        </div>
+                      )}
                       <div className="sm:pt-6">
                         <Button
                           variant="ghost"

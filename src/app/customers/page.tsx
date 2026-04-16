@@ -67,6 +67,7 @@ import {
   FileWarning,
   Search,
 } from 'lucide-react';
+import { PageHeader } from '@/components/shared/page-header';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -552,29 +553,10 @@ export default function CustomersPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6 animate-in fade-in duration-500">
-
-        {/* ── Header ── */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2.5 mb-0.5">
-              <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Users className="h-4 w-4 text-primary" />
-              </div>
-              <h1 className="text-2xl font-black ">Customer Intelligence</h1>
-            </div>
-            <p className="text-sm text-muted-foreground font-medium pl-10.5">
-              Portfolio analysis · escalation journeys · AI payment behaviour
-            </p>
-          </div>
-          <div className="flex items-center gap-2.5">
-            <Button variant="outline" className="h-10 rounded-xl px-4 font-semibold text-sm gap-2">
-              <Download className="w-4 h-4 text-muted-foreground" /> Export
-            </Button>
-            <Button className="h-10 rounded-xl px-4 shadow-lg shadow-primary/20 font-semibold text-sm gap-2">
-              <Plus className="w-4 h-4" /> New Customer
-            </Button>
-          </div>
-        </div>
+          <PageHeader
+                title="Customer Intelligence"
+                description="Portfolio analysis · escalation journeys · AI payment behaviour"
+              ></PageHeader>
 
         {/* ── Stats ── */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">

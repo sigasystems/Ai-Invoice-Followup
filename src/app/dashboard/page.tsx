@@ -370,7 +370,7 @@ export default function DashboardPage() {
           <Card className="rounded-2xl border-border shadow-sm bg-card overflow-hidden">
             <CardHeader className="p-6 border-b border-border/50">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base font-black ">Workflow Integrity</CardTitle>
+                <CardTitle className="font-black ">Workflow Integrity</CardTitle>
                 <div className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 text-[10px] font-black uppercase flex items-center gap-1.5 border border-emerald-500/20">
                   <Zap className="w-3.5 h-3.5 fill-current" />
                   Optimal
