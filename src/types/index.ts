@@ -19,28 +19,33 @@ export interface PaymentPlan {
 }
 
 export interface Invoice {
-  last_reminder_sent: any;
-  paid: any;
-  config: any;
-  reminder_dates: never[];
-  gmailDraftId: string | null;
-  hasPendingDraft: boolean;
-  invoice_number: string;
   id: string;
-  customerName: string;
-  customerEmail: string;
+  invoice_number: string;
   amount: number;
-  dueDate: string;
-  status: InvoiceStatus;
+  dueDate: string | null;
+  issueDate: string;
+  status: any; // Using any for simplicity as it matches Prisma enum but UI has its own mapping
+  startFollowups: number;
+  followupStartDate: string | null;
+  currentStage: number;
+  nextActionAt: string | null;
+  lastSentAt: string | null;
+  lastSentStage: number | null;
+  notes: string | null;
+  reminder_stages: number[];
+  reminder_dates: string[];
+  tones: string[];
+  hasPendingDraft: boolean;
+  gmailDraftId: string | null;
+  customerId: string;
+  customerName?: string; // These are often flattened in API responses
+  customerEmail?: string;
   daysOverdue: number;
   createdAt: string;
-  startFollowups: number;
+  updatedAt: string;
   prediction?: 'Likely' | 'At Risk' | 'Delayed';
   paymentPlan?: PaymentPlan;
-  reminder_stage?: number;
-  tone?: string;
-  reminder_stages?: number[];
-  tones?: string[];
+  config?: any;
 }
 
 export interface Customer {

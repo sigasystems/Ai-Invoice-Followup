@@ -1,6 +1,41 @@
 export const runtime = 'nodejs';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { addDays } from 'date-fns';
+
+function isSameDay(date1: Date, date2: Date) {
+  return date1.toDateString() === date2.toDateString();
+}
+
+/**
+ * GET /api/automation/trigger
+ * Returns all invoices that are due for a reminder today (nextActionAt <= now)
+ */
+export async function GET() {
+  try {
+    const now = new Date();
+    
+    const pendingInvoices = await prisma.invoice.findMany({
+      where: {
+        status: { not: 'PAID' },
+        nextActionAt: { lte: now },
+        // Ensure followupStartDate has passed
+        OR: [
+          { followupStartDate: { lte: now } },
+          { followupStartDate: null }
+        ]
+      },
+      include: { customer: true }
+    });
+
+    return NextResponse.json({
+      count: pendingInvoices.length,
+      invoices: pendingInvoices
+    });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -50,18 +85,18 @@ export async function POST(request: Request) {
         if (customer) {
           // ── Customer Intelligence ─────────────────────────────────────
           const totalInvoices = customer.invoices.length;
-          const paidInvoices  = customer.invoices.filter(i => i.status === 'PAID');
-          const overdueInvoices = customer.invoices.filter(i => i.status === 'OVERDUE');
+          const paidInvoices  = customer.invoices.filter((i: any) => i.status === 'PAID');
+          const overdueInvoices = customer.invoices.filter((i: any) => i.status === 'OVERDUE');
           const onTimeRate    = totalInvoices > 0
             ? Math.round((paidInvoices.length / totalInvoices) * 100)
             : 0;
 
           // At which stage did paid invoices resolve?
           const paidStages = paidInvoices
-            .map(i => i.reminder_stage)
-            .filter(s => s > 0);
+            .map((i: any) => i.currentStage)
+            .filter((s: any) => s > 0);
           const paidAtStage = paidStages.length > 0
-            ? Math.round(paidStages.reduce((a, b) => a + b, 0) / paidStages.length)
+            ? Math.round(paidStages.reduce((a: number, b: number) => a + b, 0) / paidStages.length)
             : 0;
 
           // Overdue ratio & avg delay
@@ -69,8 +104,8 @@ export async function POST(request: Request) {
           const now = new Date();
           const avgDelay = overdueCount > 0
             ? Math.round(
-                overdueInvoices.reduce((sum, i) => {
-                  const d = Math.max(0, Math.floor((now.getTime() - new Date(i.dueDate).getTime()) / 86_400_000));
+                overdueInvoices.reduce((sum: number, i: any) => {
+                  const d = Math.max(0, Math.floor((now.getTime() - new Date(i.issueDate).getTime()) / 86_400_000));
                   return sum + d;
                 }, 0) / overdueCount,
               )
@@ -92,7 +127,8 @@ export async function POST(request: Request) {
           // ── Invoice Follow-Up Details ─────────────────────────────────
           let invoiceContext = null;
           if (invoice) {
-            const daysOverdue = invoice.status === 'OVERDUE'
+            const daysSinceIssue = Math.max(0, Math.floor((now.getTime() - new Date(invoice.issueDate).getTime()) / 86_400_000));
+            const daysOverdue = invoice.dueDate 
               ? Math.max(0, Math.floor((now.getTime() - new Date(invoice.dueDate).getTime()) / 86_400_000))
               : 0;
 
@@ -112,7 +148,7 @@ export async function POST(request: Request) {
             const isFirstFollowUp = totalReminders === 0;
 
             // Determine the NEXT stage using the escalation ladder
-            const nextStageIndex = invoice.reminder_stage; // current is 0-indexed offset
+            const nextStageIndex = invoice.currentStage; // current is 0-indexed offset
             const nextLadderStep = escalationLadder[nextStageIndex] ?? null;
 
             invoiceContext = {
@@ -127,17 +163,20 @@ export async function POST(request: Request) {
 
               // ── Follow-Up Tracking (the key fields n8n needs) ──────────────
               followUp: {
-                startFollowups:     invoice.startFollowups,   // flag: followups enabled (0=no, 1=yes)
-                currentStage:       invoice.reminder_stage,   // which ladder step we're ON now
+                startFollowups:     invoice.startFollowups,   // days after issueDate
+                followupStartDate:  invoice.followupStartDate,
+                currentStage:       invoice.currentStage,     // which ladder step we're ON now
                 currentTone:        toneHistory[toneHistory.length - 1] ?? 'Neutral',
                 stageHistory,                                 // [1, 2, 3] — every stage ever sent
                 toneHistory,                                  // ['Gentle', 'Firm', 'Urgent'] — matching tones
-                lastReminderSent:   invoice.last_reminder_sent,
+                lastSentAt:         invoice.lastSentAt,
+                lastSentStage:      invoice.lastSentStage,
+                nextActionAt:       invoice.nextActionAt,
                 totalReminders,                               // how many reminders have been sent total
                 isFirstFollowUp,                              // true if this is the very first reminder
 
                 // What n8n SHOULD do next based on the ladder
-                nextRecommendedStage: nextStageIndex + 1,
+                nextRecommendedStage: invoice.currentStage + 1,
                 nextRecommendedTone:  nextLadderStep?.tone   ?? 'Neutral',
                 nextRecommendedLabel: nextLadderStep?.label  ?? 'Follow-up',
                 nextDelayDays:        nextLadderStep?.delayDays ?? 0,
@@ -168,7 +207,7 @@ export async function POST(request: Request) {
     // ── 3. Validate webhook URL ───────────────────────────────────────────
     const webhookUrl = settings.writeWebhook;
 
-    if (!webhookUrl || webhookUrl.includes('your-site.com')) {
+    if (!webhookUrl ) {
       return NextResponse.json({ error: 'Webhook URL not configured in Settings' }, { status: 400 });
     }
 
@@ -176,7 +215,43 @@ export async function POST(request: Request) {
     const invoice = context.invoice;
     const customer = context.customer;
 
-    const enrichedBody = {
+    // ── 3.5 Duplicate Prevention ──────────────────────────────────────────
+    if (invoice?.followUp?.lastSentAt && isSameDay(new Date(invoice.followUp.lastSentAt), new Date())) {
+      return NextResponse.json({ 
+        error: 'Already sent today', 
+        details: 'A reminder has already been sent for this invoice today. Duplicate prevention is active.',
+        hint: 'You can only send one automated reminder per day per invoice.'
+      }, { status: 429 });
+    }
+
+    // ── 3.6 Start Eligibility Check (Don't send before followupStartDate) ──
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    // We compute the effective start date (fallback to issueDate + startFollowups if missing)
+    let effectiveStartDate = null;
+    if (invoice?.followUp?.followupStartDate) {
+      effectiveStartDate = new Date(invoice.followUp.followupStartDate);
+    } else if (invoice?.issueDate) {
+      effectiveStartDate = addDays(new Date(invoice.issueDate), invoice.followUp?.startFollowups || 0);
+    }
+
+    if (effectiveStartDate) {
+      effectiveStartDate.setHours(0,0,0,0);
+      if (today < effectiveStartDate) {
+        return NextResponse.json({ 
+          error: 'Too early to send', 
+          details: `This invoice is scheduled to start follow-ups on ${effectiveStartDate.toLocaleDateString()}.`,
+          hint: 'Automation will begin once the startup offset (Issue Date + Follow-up days) is reached.'
+        }, { status: 429 });
+      }
+    }
+
+    // ── 3.7 Determine actual tone from current stage ─────────────────────
+    const currentStep = escalationLadder[invoice?.followUp?.currentStage ?? 0];
+    const actualTone = currentStep?.tone ?? 'Neutral';
+
+    const enrichedBody: any = {
       action,
       ...payload,
       
@@ -191,7 +266,7 @@ export async function POST(request: Request) {
       // 🔄 Follow-up status at root
       startFollowup: invoice?.followUp?.startFollowups ?? payload.startFollowup ?? payload.startFollowups ?? 0,
       reminder_stage: invoice?.followUp?.currentStage ?? payload.reminder_stage ?? 0,
-      current_tone:   invoice?.followUp?.currentTone ?? payload.current_tone ?? 'Neutral',
+      current_tone:   actualTone,
 
       // Deep context still available if needed
       context,
@@ -244,6 +319,39 @@ export async function POST(request: Request) {
     }
 
     const result = await response.json().catch(() => ({ status: 'ok' }));
+
+    // ── 5. Update DB after successful send ────────────────────────────────
+    if (action === 'trigger-reminder' && invoice?.id) {
+      const stage = invoice.followUp.currentStage;
+      const nextStage = stage + 1;
+      
+      let nextActionAt = null;
+      let nextStageVal = stage;
+
+      if (nextStage < escalationLadder.length) {
+        const nextStep = escalationLadder[nextStage];
+        const offset = nextStep.offset ?? nextStep.delayDays ?? 0;
+        
+        // Use effective start date as the base for calculating the next action if it's cumulative
+        const baseDate = effectiveStartDate || new Date();
+        nextActionAt = addDays(baseDate, offset);
+        nextStageVal = nextStage;
+      }
+
+      await prisma.invoice.update({
+        where: { id: invoice.id },
+        data: {
+          lastSentAt: new Date(),
+          lastSentStage: stage,
+          currentStage: nextStageVal,
+          nextActionAt: nextActionAt,
+          reminder_stages: { push: stage },
+          reminder_dates: { push: new Date() },
+          tones: { push: actualTone }
+        }
+      });
+    }
+
     return NextResponse.json({ success: true, n8n_response: result });
 
   } catch (error: any) {

@@ -36,20 +36,20 @@ export async function GET() {
       customerName: inv.customer.name,
       customerEmail: inv.customer.email,
       amount: inv.amount,
-      dueDate: inv.dueDate.toISOString().split('T')[0],
+      dueDate: inv.dueDate ? inv.dueDate.toISOString().split('T')[0] : null,
+      issueDate: inv.issueDate.toISOString().split('T')[0],
       status: (inv.status.charAt(0).toUpperCase() + inv.status.slice(1).toLowerCase()) as any,
-      daysOverdue: inv.status === 'OVERDUE' 
-        ? Math.max(0, Math.floor((new Date().getTime() - inv.dueDate.getTime()) / (1000 * 60 * 60 * 24)))
-        : 0,
-      createdAt: inv.issueDate.toISOString().split('T')[0],
+      daysSinceIssue: Math.max(0, Math.floor((new Date().getTime() - inv.issueDate.getTime()) / (1000 * 60 * 60 * 24))),
+      createdAt: inv.createdAt.toISOString().split('T')[0],
       startFollowups: inv.startFollowups,
-      reminder_stage: inv.reminder_stage,
+      currentStage: inv.currentStage,
+      nextActionAt: inv.nextActionAt,
+      lastSentAt: inv.lastSentAt,
       tone: (inv.tones && inv.tones.length > 0) ? inv.tones[inv.tones.length - 1] : 'Neutral',
       reminder_stages: inv.reminder_stages,
       tones: inv.tones,
       hasPendingDraft: inv.hasPendingDraft,
       gmailDraftId: inv.gmailDraftId,
-      draft_url: inv.draft_url,
     }));
 
     // ✅ Format Dynamic Customers with real calculations
@@ -74,8 +74,8 @@ export async function GET() {
       let avgDelay = 0;
       if (overdueCount > 0) {
         const totalDelayDays = overdueInvoices.reduce((sum: number, i: any) => {
-          const dueDate = new Date(i.dueDate);
-          return sum + Math.max(0, Math.floor((now.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24)));
+          const issueDate = new Date(i.issueDate);
+          return sum + Math.max(0, Math.floor((now.getTime() - issueDate.getTime()) / (1000 * 60 * 60 * 24)));
         }, 0);
         avgDelay = Math.round(totalDelayDays / overdueCount);
       }
@@ -95,11 +95,12 @@ export async function GET() {
       else aiInsight = `${onTimeRate}% on-time rate.`;
 
       const maxReminderStage = c.invoices.reduce((max: number, i: any) => {
-        const highest = Array.isArray(i.reminder_stages) && i.reminder_stages.length > 0 ? Math.max(...i.reminder_stages) : (i.reminder_stage || 0);
+        const highestFromStages = Array.isArray(i.reminder_stages) && i.reminder_stages.length > 0 ? Math.max(...i.reminder_stages) : 0;
+        const highest = Math.max(highestFromStages, i.currentStage || 0);
         return Math.max(max, highest);
       }, 0);
 
-      const escalationReached = c.invoices.some((i: any) => (i.reminder_stage || 0) >= 4);
+      const escalationReached = c.invoices.some((i: any) => (i.currentStage || 0) >= 4);
 
       return {
         id: c.id,

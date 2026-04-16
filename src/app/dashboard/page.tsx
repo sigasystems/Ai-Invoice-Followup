@@ -76,7 +76,7 @@ export default function DashboardPage() {
   const totalOutstanding = invoices.reduce((acc, inv) => inv.status !== 'Paid' ? acc + inv.amount : acc, 0);
   const collectedThisMonth = invoices.reduce((acc, inv) => {
     const isPaid = inv.status === 'Paid';
-    const isCurrentMonth = new Date(inv.dueDate).getMonth() === new Date().getMonth();
+    const isCurrentMonth = inv.dueDate && new Date(inv.dueDate).getMonth() === new Date().getMonth();
     return (isPaid && isCurrentMonth) ? acc + inv.amount : acc;
   }, 0);
 

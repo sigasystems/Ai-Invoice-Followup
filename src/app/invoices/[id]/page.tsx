@@ -78,7 +78,11 @@ export default function InvoiceDetailPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-xs font-bold text-muted-foreground uppercase  leading-none mb-2">Due Date</p>
-                  <p className="text-xl font-black text-neutral-900">{new Date(invoice.dueDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                  <p className="text-xl font-black text-neutral-900">
+                    {invoice.dueDate 
+                      ? new Date(invoice.dueDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })
+                      : 'N/A'}
+                  </p>
                 </div>
               </div>
             </CardHeader>
@@ -100,8 +104,14 @@ export default function InvoiceDetailPage() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-muted-foreground uppercase mb-1">Currency</p>
-                  <p className="text-sm font-black text-neutral-900">INR (₹)</p>
+                  <p className="text-xs font-bold text-muted-foreground uppercase mb-1">Issue Date</p>
+                  <p className="text-sm font-black text-neutral-900">{new Date(invoice.issueDate).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-muted-foreground uppercase mb-1">Days since Issue</p>
+                  <p className="text-sm font-black text-neutral-900">
+                    {Math.max(0, Math.floor((new Date().getTime() - new Date(invoice.issueDate).getTime()) / 86400000))} Days
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -158,44 +168,23 @@ export default function InvoiceDetailPage() {
                 })}
 
                 {/* 3. NEXT REMINDER (SMART) */}
-                {!invoice.paid && (() => {
-                  const ladder = invoice.config?.escalationLadder || [];
+                {invoice.status !== 'PAID' && invoice.nextActionAt && (
+                  <div className="relative pl-10">
+                    <div className="absolute left-0 top-1 w-5 h-5 rounded-full bg-amber-500 border-4 border-white shadow-sm animate-pulse" />
 
-                  const lastStage = invoice.reminder_stages?.length
-                    ? invoice.reminder_stages[invoice.reminder_stages.length - 1]
-                    : 0;
+                    <p className="text-xs font-bold text-amber-600">
+                      Next Scheduled Reminder
+                    </p>
 
-                  const nextStage = ladder[lastStage];
+                    <p className="text-xs text-muted-foreground">
+                      Stage {invoice.currentStage} — Scheduled by AI
+                    </p>
 
-                  if (!nextStage) return null;
-
-                  const due = new Date(invoice.dueDate);
-                  const startDays = invoice.startFollowups || 0;
-
-                  const startDate = new Date(due);
-                  startDate.setDate(startDate.getDate() + startDays);
-
-                  const nextDate = new Date(startDate);
-                  nextDate.setDate(nextDate.getDate() + nextStage.delayDays);
-
-                  return (
-                    <div className="relative pl-10">
-                      <div className="absolute left-0 top-1 w-5 h-5 rounded-full bg-amber-500 border-4 border-white shadow-sm animate-pulse" />
-
-                      <p className="text-xs font-bold text-amber-600">
-                        Next Scheduled Reminder
-                      </p>
-
-                      <p className="text-xs text-muted-foreground">
-                        {nextStage.label} — {nextStage.tone} tone
-                      </p>
-
-                      <span className="text-[10px] text-muted-foreground">
-                        {nextDate.toLocaleDateString()}
-                      </span>
-                    </div>
-                  );
-                })()}
+                    <span className="text-[10px] text-muted-foreground">
+                      {new Date(invoice.nextActionAt).toLocaleString()}
+                    </span>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -217,16 +206,16 @@ export default function InvoiceDetailPage() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Last Reminder</span>
                 <span className="font-bold">
-                  {invoice.last_reminder_sent
-                    ? new Date(invoice.last_reminder_sent).toLocaleDateString()
+                  {invoice.lastSentAt
+                    ? new Date(invoice.lastSentAt).toLocaleDateString()
                     : "—"}
                 </span>
               </div>
 
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Current Tone</span>
+                <span className="text-muted-foreground">Current Stage</span>
                 <span className="font-bold capitalize">
-                  {invoice.tone || "Neutral"}
+                  {invoice.currentStage}
                 </span>
               </div>
 

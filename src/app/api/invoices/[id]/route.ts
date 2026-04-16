@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { InvoiceStatus } from '@prisma/client';
+import { addDays } from 'date-fns';
+import { InvoiceStatus } from '@/generated-prisma';
 
 export async function PATCH(
   request: Request,
@@ -51,6 +52,23 @@ export async function PATCH(
     let updatedInvoice;
     
     try {
+      // Fetch current state to compute new dates if needed
+      const current = await prisma.invoice.findFirst({
+        where: { OR: [{ id: id }, { invoice_number: id }] }
+      });
+
+      if (current && (updateData.startFollowups !== undefined)) {
+        const issueDate = current.issueDate;
+        const startFollowups = updateData.startFollowups;
+        const newFollowupStartDate = addDays(issueDate, startFollowups);
+        updateData.followupStartDate = newFollowupStartDate;
+
+        // If it's still at stage 0 and hasn't sent anything, update nextActionAt
+        if (current.currentStage === 0 && !current.lastSentAt) {
+          updateData.nextActionAt = newFollowupStartDate;
+        }
+      }
+
       // First attempt: Update by Primary ID (CUID/UUID)
       updatedInvoice = await prisma.invoice.update({
         where: { id: id },

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { InvoiceStatus } from '@prisma/client';
+import { addDays } from 'date-fns';
+import { InvoiceStatus } from '@/generated-prisma';
 
 /**
  * API for n8n or Postman to sync invoices from Google Sheets
@@ -56,7 +57,10 @@ export async function POST(request: Request) {
         },
       });
 
-      // 3. Upsert Invoice
+      // 3. Compute follow-up dates
+      const followupStartDate = addDays(issueDate, startFollowups);
+
+      // 4. Upsert Invoice
       const existingInvoice = await prisma.invoice.findUnique({ where: { invoice_number: invoiceNumber } });
       const willHaveDraft = item.has_pending_draft ?? item.hasPendingDraft ?? false;
 
@@ -69,6 +73,11 @@ export async function POST(request: Request) {
           status,
           notes,
           startFollowups,
+          followupStartDate,
+          // Only update nextActionAt if it was null or if we're explicitly resetting? 
+          // User said "On Invoice Create: Set nextActionAt = followupStartDate"
+          // For updates, we might want to be careful not to overwrite a scheduled action unless necessary.
+          // But usually sync means "match what's provided".
           hasPendingDraft: item.has_pending_draft ?? item.hasPendingDraft ?? undefined,
           gmailDraftId: item.gmail_draft_id ?? item.gmailDraftId ?? undefined,
           customerId: customer.id
@@ -81,6 +90,9 @@ export async function POST(request: Request) {
           status,
           notes,
           startFollowups,
+          followupStartDate,
+          currentStage: 0,
+          nextActionAt: followupStartDate,
           hasPendingDraft: item.has_pending_draft ?? item.hasPendingDraft ?? false,
           gmailDraftId: item.gmail_draft_id ?? item.gmailDraftId ?? null,
           customerId: customer.id

@@ -89,10 +89,9 @@ export default function InvoicesPage() {
       // ✅ AUTOMATIC N8N TRIGGER on status/follow-up change
       const invoice = invoices.find(i => i.id === invoiceId);
       if (invoice) {
-        // Calculate new followup start date if offset changed
         const newOffset = updates.startFollowups ?? invoice.startFollowups;
-        const dueDate = parseISO(invoice.dueDate);
-        const startDate = addDays(dueDate, Number(newOffset));
+        const issueDate = parseISO(invoice.issueDate);
+        const startDate = addDays(issueDate, Number(newOffset));
         const formattedStartDate = startDate.toISOString().split('T')[0];
 
         await triggerN8nWorkflow('UPDATE_INVOICE', {
@@ -160,10 +159,10 @@ export default function InvoicesPage() {
       },
     },
     {
-      accessorKey: 'dueDate',
+      accessorKey: 'issueDate',
       header: 'Issue Date',
       cell: ({ row }) => (
-        <span className="text-muted-foreground font-medium">{new Date(row.getValue('dueDate')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+        <span className="text-muted-foreground font-medium">{new Date(row.getValue('issueDate')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
       ),
     },
     {
@@ -171,20 +170,20 @@ export default function InvoicesPage() {
       header: 'Follow-up',
       cell: ({ row }) => {
         const offset = Number(row.original.startFollowups) || 0;
-        const dueDateString = row.original.dueDate;
+        const issueDateString = row.original.issueDate;
 
-        if (!dueDateString) return <span className="text-muted-foreground text-[10px]">No Date</span>;
+        if (!issueDateString) return <span className="text-muted-foreground text-[10px]">No Date</span>;
 
-        // ✅ Robust calculation: STRICTLY [Due Date] + [Offset]
-        const dueDate = parseISO(dueDateString);
-        const startDate = addDays(dueDate, offset);
+        // ✅ Logic: [Issue Date] + [Offset]
+        const issueDate = parseISO(issueDateString);
+        const startDate = addDays(issueDate, offset);
 
         const today = startOfDay(new Date());
         const isPastOrToday = isBefore(startDate, today) || startDate.getTime() === today.getTime();
-        formattedDate = startDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+        const formattedFollowupDate = startDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
 
         return (
-          <div className="flex items-center gap-2" title={`Follow-up configured for ${offset} days after due date`}>
+          <div className="flex items-center gap-2" title={`Follow-up configured for ${offset} days after issue date`}>
             <div className={cn(
               "p-1.5 rounded-xl transition-all duration-300",
               isPastOrToday ? "bg-emerald-500/10 text-emerald-500" : "bg-indigo-500/10 text-indigo-500 border border-indigo-500/10"
@@ -199,7 +198,7 @@ export default function InvoicesPage() {
                 {isPastOrToday ? 'Active' : `Scheduled (+${offset}d)`}
               </span>
               <span className="text-[11px] font-bold text-foreground leading-tight">
-                Starts {formattedDate}
+                Starts {formattedFollowupDate}
               </span>
             </div>
           </div>
@@ -207,10 +206,14 @@ export default function InvoicesPage() {
       },
     },
     {
-      accessorKey: 'issueDate',
+      accessorKey: 'dueDate',
       header: 'Due Date',
       cell: ({ row }) => (
-        <span className="text-muted-foreground font-medium">{formattedDate}</span>
+        <span className="text-muted-foreground font-medium">
+          {row.getValue('dueDate') 
+            ? new Date(row.getValue('dueDate')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+            : '-'}
+        </span>
       ),
     },
     {
@@ -236,85 +239,43 @@ export default function InvoicesPage() {
     },
     {
       accessorKey: 'daysOverdue',
-      header: 'Days Overdue',
+      header: 'Days Since Issue',
       cell: ({ row }) => {
-        const dueDate = new Date(row.original.dueDate + 'T00:00:00');
-
+        const issueDate = new Date(row.original.issueDate);
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // normalize
+        today.setHours(0, 0, 0, 0);
 
-        const diffTime = today.getTime() - dueDate.getTime();
+        const diffTime = today.getTime() - issueDate.getTime();
         const days = Math.floor(diffTime / 86400000);
 
         return (
-          <span
-            className={
-              days > 0
-                ? "text-rose-600 font-bold"
-                : "text-muted-foreground"
-            }
-          >
-            {days > 0 ? `${days}d` : '-'}
+          <span className={days > 15 ? "text-rose-600 font-bold" : "text-muted-foreground"}>
+            {days}d
           </span>
         );
       },
     },
-
     {
-      accessorKey: 'reminder_stage',
+      accessorKey: 'currentStage',
       header: 'Automation Lifecycle',
       cell: ({ row }) => {
-        const stages = row.original.reminder_stages || [];
-        const dates = row.original.reminder_dates || [];
-
-        // ✅ CURRENT STAGE
-        const currentStageDelay =
-          stages.length > 0 ? Number(stages[stages.length - 1]) : 0;
-
-        const stageIndex = currentStageDelay > 0 ? currentStageDelay - 1 : 0;
-
+        const currentStage = row.original.currentStage || 0;
         const ladder = settings?.escalationLadder || [];
         const isPaid = row.original.status === 'Paid';
 
         const displaySteps = Math.max(ladder.length, 3);
-        const currentStep =
-          ladder[stageIndex] || ladder[ladder.length - 1] || null;
+        const currentStep = ladder[currentStage] || ladder[ladder.length - 1] || null;
 
-        // ✅ NEXT STEP
-        const nextStep = ladder.find(
-          (step: { delayDays: any; }) => Number(step.delayDays) > currentStageDelay
-        );
-
-        // ✅ LAST REMINDER DATE
-        const lastDate =
-          dates.length > 0 ? new Date(dates[dates.length - 1]) : null;
-
-        // ✅ NEXT REMINDER DATE
-        let nextDate: Date | null = null;
-
-        if (lastDate && nextStep) {
-          const gap =
-            Number(nextStep.delayDays) - currentStageDelay;
-
-          nextDate = new Date(lastDate);
-          nextDate.setDate(nextDate.getDate() + gap);
-        }
-
-        // ✅ DAYS LEFT
+        // ✅ DAYS UNTIL NEXT ACTION
         let daysLeft: number | null = null;
-
-        if (nextDate) {
+        if (row.original.nextActionAt) {
+          const nextDate = new Date(row.original.nextActionAt);
           const today = new Date();
-          daysLeft = Math.ceil(
-            (nextDate.getTime() - today.getTime()) /
-            (1000 * 60 * 60 * 24)
-          );
+          daysLeft = Math.ceil((nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
         }
 
         return (
           <div className="flex flex-col gap-2.5 py-1">
-
-            {/* PROGRESS BAR */}
             <div className="flex items-center gap-1">
               {Array.from({ length: displaySteps }).map((_, i) => (
                 <div
@@ -323,67 +284,34 @@ export default function InvoicesPage() {
                     "h-1.5 flex-1 rounded-full transition-all duration-700",
                     isPaid
                       ? "bg-emerald-500/40"
-                      : i < stageIndex
+                      : i < currentStage
                         ? "bg-primary/60"
-                        : i === stageIndex
-                          ? stageIndex === 0
-                            ? "bg-emerald-500 animate-pulse"
-                            : stageIndex === 1
-                              ? "bg-amber-500 animate-pulse"
-                              : "bg-rose-500 animate-pulse"
+                        : i === currentStage
+                          ? "bg-amber-500 animate-pulse"
                           : "bg-muted"
                   )}
                 />
               ))}
             </div>
 
-            {/* CONTENT */}
             <div className="flex flex-col">
-
-              {/* CURRENT STAGE */}
-              <span
-                className={cn(
-                  "text-[10px] font-black uppercase tracking-[0.05em]",
-                  isPaid ? "text-emerald-500" : "text-foreground"
-                )}
-              >
-                {isPaid
-                  ? 'Collection Successful'
-                  : currentStep?.label || `Stage ${stageIndex + 1}`}
+              <span className={cn("text-[10px] font-black uppercase tracking-[0.05em]", isPaid ? "text-emerald-500" : "text-foreground")}>
+                {isPaid ? 'Collection Successful' : currentStep?.label || `Stage ${currentStage + 1}`}
               </span>
 
-              {/* AI TONE */}
               {!isPaid && (
                 <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1.5">
                   <BrainCircuit className="w-3.5 h-3.5 text-primary opacity-70" />
-                  AI Logic:
-                  <span className="text-primary italic">
-                    {currentStep?.tone} Tone
-                  </span>
+                  AI Tone: <span className="text-primary italic">{currentStep?.tone || 'Neutral'}</span>
                 </span>
               )}
 
-              {/* NEXT STEP */}
-              {!isPaid && nextStep && (
+              {!isPaid && row.original.nextActionAt && (
                 <span className="text-[10px] font-semibold text-blue-500">
-                  Next: {nextStep.label} •{" "}
-                  {daysLeft !== null
-                    ? daysLeft <= 0
-                      ? "Today"
-                      : daysLeft === 1
-                        ? "Tomorrow"
-                        : `in ${daysLeft}d`
-                    : "-"}
+                  Next: {daysLeft !== null ? (daysLeft <= 0 ? "Today" : daysLeft === 1 ? "Tomorrow" : `in ${daysLeft}d`) : "Scheduled"} 
+                  ({new Date(row.original.nextActionAt).toLocaleDateString()})
                 </span>
               )}
-
-              {/* FINAL STAGE */}
-              {!isPaid && !nextStep && (
-                <span className="text-[10px] font-semibold text-rose-500">
-                  Final Stage Reached
-                </span>
-              )}
-
             </div>
           </div>
         );
@@ -418,9 +346,10 @@ export default function InvoicesPage() {
                         client_email: inv.customerEmail,
                         amount: inv.amount,
                         due_date: inv.dueDate,
+                        issue_date: inv.issueDate,
                         status: inv.status,
                         startFollowups: inv.startFollowups,
-                        reminder_stage: inv.reminder_stage,
+                        currentStage: inv.currentStage,
                         notes: 'Manual reminder sent from dashboard'
                       });
                     }}
@@ -432,7 +361,7 @@ export default function InvoicesPage() {
                   <DropdownMenuItem
                     className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-primary/5 focus:text-primary transition-colors flex items-center gap-2"
                     onClick={() => {
-                      const newDays = prompt("Adjust Follow-up Offset (Days from Due Date):", String(row.original.startFollowups));
+                      const newDays = prompt("Adjust Follow-up Offset (Days from Issue Date):", String(row.original.startFollowups));
                       if (newDays !== null) {
                         updateInvoice(row.original.id, { startFollowups: parseInt(newDays) || 0 });
                       }
@@ -502,9 +431,9 @@ export default function InvoicesPage() {
       if (!res.ok) throw new Error('Failed to create invoice');
 
       // Calculate absolute followup start date for n8n
-      const dueDate = parseISO(payload.due_date as string);
+      const issueDate = new Date(); // New invoices are issued today
       const startOffset = Number(payload.start_followups) || 0;
-      const startDate = addDays(dueDate, startOffset);
+      const startDate = addDays(issueDate, startOffset);
       const formattedStartDate = startDate.toISOString().split('T')[0];
 
       // ✅ AUTOMATIC N8N TRIGGER on creation

@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated-prisma"
 }
 
 datasource db {
@@ -14,7 +15,7 @@ enum InvoiceStatus {
   OVERDUE
 }
 
-model Customer {
+model Customer {  
   id        String    @id @default(cuid())
   name      String
   email     String    @unique
@@ -29,28 +30,44 @@ model Invoice {
   id                 String        @id @default(cuid())
   invoice_number     String        @unique
   amount             Float
-  dueDate            DateTime
+
+  // ⚠️ dueDate kept only for display/reference (NOT used in logic)
+  dueDate            DateTime?
+
+  // ✅ Main driver for follow-up logic
   issueDate          DateTime
+
   status             InvoiceStatus @default(PENDING)
+
+  // Follow-up config (days AFTER issueDate)
   startFollowups     Int           @default(0)
-  reminder_stage     Int           @default(0)
-  last_reminder_sent DateTime?
+
+  // Computed fields
+  followupStartDate  DateTime?
+
+  // Execution control (automation engine)
+  currentStage       Int           @default(0)
+  nextActionAt       DateTime?
+  lastSentAt         DateTime?
+  lastSentStage      Int?
+
   notes              String?
 
-  // Storing history in arrays as requested
-  reminder_stages Int[]
-  tones           String[]
+  // History (audit trail)
+  reminder_stages    Int[]
+  reminder_dates     DateTime[]
+  tones              String[]
 
   hasPendingDraft    Boolean       @default(false)
   gmailDraftId       String?
-  
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id])
 
-  replies Reply[]
+  customerId         String
+  customer           Customer      @relation(fields: [customerId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  replies            Reply[]
+
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 }
 
 model Reply {

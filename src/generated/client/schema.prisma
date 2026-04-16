@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+model Customer {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  phone     String?
+  notes     String?
+  invoices  Invoice[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Invoice {
+  id                 String        @id @default(cuid())
+  invoice_number     String        @unique
+  amount             Float
+
+  // ⚠️ dueDate kept only for display/reference (NOT used in logic)
+  dueDate            DateTime?
+
+  // ✅ Main driver for follow-up logic
+  issueDate          DateTime
+
+  status             InvoiceStatus @default(PENDING)
+
+  // Follow-up config (days AFTER issueDate)
+  startFollowups     Int           @default(0)
+
+  // Computed fields
+  followupStartDate  DateTime?
+
+  // Execution control (automation engine)
+  currentStage       Int           @default(0)
+  nextActionAt       DateTime?
+  lastSentAt         DateTime?
+  lastSentStage      Int?
+
+  notes              String?
+
+  // History (audit trail)
+  reminder_stages    Int[]
+  reminder_dates     DateTime[]
+  tones              String[]
+
+  hasPendingDraft    Boolean       @default(false)
+  gmailDraftId       String?
+
+  customerId         String
+  customer           Customer      @relation(fields: [customerId], references: [id])
+
+  replies            Reply[]
+
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+}
+
+model Reply {
+  id         String   @id @default(cuid())
+  invoiceId  String
+  invoice    Invoice  @relation(fields: [invoiceId], references: [id])
+  content    String
+  receivedAt DateTime @default(now())
+  sentiment  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GlobalSetting {
+  id                String  @id @default("global_config")
+  beforeDueReminder Boolean @default(true)
+  createDraftsOnly  Boolean @default(false)
+  escalationLadder  Json? // Array of { delayDays: number, tone: string, label: string }
+  smartEscalation   Boolean @default(true)
+  consentVerified   Boolean @default(true)
+  dataDeletion      Boolean @default(true)
+  readWebhook       String? @default("https://n8n.your-site.com/webhook/read-sheet")
+  writeWebhook      String? @default("https://n8n.your-site.com/webhook/send-reminder")
+  syncActivity      Boolean @default(true)
+  logSentiment      Boolean @default(true)
+
+  updatedAt DateTime @updatedAt
+}
+
+model Activity {
+  id           String   @id @default(cuid())
+  customerName String
+  channel      String   // e.g., 'Email', 'Draft Created', 'WhatsApp'
+  status       String   // e.g., 'Awaiting Review', 'Delivered', 'Sent'
+  message      String
+  draft_url    String?
+  timestamp    DateTime @default(now())
+  
+  customerId   String?
+  invoiceId    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
