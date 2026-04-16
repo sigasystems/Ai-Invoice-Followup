@@ -39,7 +39,13 @@ export async function GET() {
       dueDate: inv.dueDate ? inv.dueDate.toISOString().split('T')[0] : null,
       issueDate: inv.issueDate.toISOString().split('T')[0],
       status: (inv.status.charAt(0).toUpperCase() + inv.status.slice(1).toLowerCase()) as any,
-      daysSinceIssue: Math.max(0, Math.floor((new Date().getTime() - inv.issueDate.getTime()) / (1000 * 60 * 60 * 24))),
+      daysSinceIssue: (() => {
+        const issue = new Date(inv.issueDate);
+        issue.setHours(0,0,0,0);
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        return Math.max(0, Math.floor((today.getTime() - issue.getTime()) / (1000 * 60 * 60 * 24)));
+      })(),
       createdAt: inv.createdAt.toISOString().split('T')[0],
       startFollowups: inv.startFollowups,
       currentStage: inv.currentStage,

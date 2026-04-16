@@ -101,7 +101,7 @@ export default function SettingsPage() {
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center p-40 gap-4">
           <div className="h-10 w-10 border-4 border-primary/10 border-t-primary rounded-full animate-spin" />
-          <p className="text-[10px] font-black uppercase text-muted-foreground">Initializing Preferences</p>
+          <p className="text-[12px] font-black uppercase text-muted-foreground">Initializing Preferences</p>
         </div>
       </DashboardLayout>
     );
@@ -109,9 +109,9 @@ export default function SettingsPage() {
 
   const tabs = [
     { id: 'ladder', label: 'Protocol Ladder', icon: Zap },
-    { id: 'channels', label: 'Communication', icon: Globe },
+    // { id: 'channels', label: 'Communication', icon: Globe },
     { id: 'n8n', label: 'Automation Sync', icon: BrainCircuit },
-    { id: 'security', label: 'Security & PII', icon: Lock },
+    // { id: 'security', label: 'Security & PII', icon: Lock },
   ];
 
   return (
@@ -123,7 +123,7 @@ export default function SettingsPage() {
         <Button
           onClick={handleSave}
           disabled={saving}
-          className="rounded-xl h-11 px-6 font-black text-[10px] uppercase  shadow-xl shadow-primary/20 flex items-center gap-2"
+          className="rounded-xl h-11 px-6 font-black text-[12px] uppercase  shadow-xl shadow-primary/20 flex items-center gap-2"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {saving ? 'Synchronizing...' : 'Save Configuration'}
@@ -134,7 +134,7 @@ export default function SettingsPage() {
 
         {/* Sidebar Nav */}
         <div className="lg:col-span-3 space-y-1">
-          <p className="px-4 text-[10px] font-black text-muted-foreground uppercase mb-4">Configuration</p>
+          <p className="px-4 text-[12px] font-black text-muted-foreground uppercase mb-4">Configuration</p>
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -168,7 +168,7 @@ export default function SettingsPage() {
                       <CardTitle className="text-2xl font-bold">Escalation Protocol</CardTitle>
                       <CardDescription className="text-sm font-medium text-muted-foreground">Design the sequence of autonomous reminders and tone transitions.</CardDescription>
                     </div>
-                    <Button onClick={addLadderStep} variant="outline" className="rounded-xl h-10 px-4 font-black text-[10px] uppercase  border-primary/20 text-primary hover:bg-primary/5">
+                    <Button onClick={addLadderStep} variant="outline" className="rounded-xl h-10 px-4 font-black text-[12px] uppercase  border-primary/20 text-primary hover:bg-primary/5">
                       <Plus className="w-4 h-4 mr-2" /> New Stage
                     </Button>
                   </div>
@@ -177,7 +177,7 @@ export default function SettingsPage() {
                   {settings?.escalationLadder && settings.escalationLadder.map((step: any, index: number) => (
                     <div key={index} className="group relative flex flex-col sm:flex-row items-center gap-6 p-6 rounded-3xl bg-muted/30 border border-border/50 hover:border-primary/20 transition-all duration-300">
                       <div className="flex flex-col gap-2 flex-1 w-full">
-                        <Label className="text-[10px] font-black text-muted-foreground uppercase ">Protocol Identifier</Label>
+                        <Label className="text-[12px] font-black text-muted-foreground uppercase ">Protocol Identifier</Label>
                         <Input
                           value={step.label}
                           onChange={(e) => updateLadderStep(index, 'label', e.target.value)}
@@ -186,7 +186,7 @@ export default function SettingsPage() {
                         />
                       </div>
                       <div className="flex flex-col gap-2 w-full sm:w-28">
-                        <Label className="text-[10px] font-black text-muted-foreground uppercase ">Delay (Days)</Label>
+                        <Label className="text-[12px] font-black text-muted-foreground uppercase ">Delay (Days)</Label>
                         <Input
                           type="number"
                           value={step.delayDays ?? 0}
@@ -195,7 +195,7 @@ export default function SettingsPage() {
                         />
                       </div>
                       <div className="flex flex-col gap-2 w-full sm:w-40">
-                        <Label className="text-[10px] font-black text-muted-foreground uppercase ">Communication Tone</Label>
+                        <Label className="text-[12px] font-black text-muted-foreground uppercase ">Communication Tone</Label>
                         <Select
                           value={step.tone}
                           onValueChange={(val) => updateLadderStep(index, 'tone', val)}
@@ -212,7 +212,7 @@ export default function SettingsPage() {
                       </div>
                       {step.tone === 'Manager Escalation' && (
                         <div className="flex flex-col gap-2 flex-1 w-full animate-in zoom-in-95 duration-200">
-                          <Label className="text-[10px] font-black text-rose-500 uppercase ">Escalation Contact</Label>
+                          <Label className="text-[12px] font-black text-rose-500 uppercase ">Escalation Contact</Label>
                           <Input
                             value={step.escalationContact || ''}
                             onChange={(e) => updateLadderStep(index, 'escalationContact', e.target.value)}
@@ -253,7 +253,7 @@ export default function SettingsPage() {
                         </div>
                         <div>
                           <p className="text-xs font-semibold uppercase text-foreground ">{opt.label}</p>
-                          <p className="text-[10px] font-medium text-muted-foreground mt-1">{opt.sub}</p>
+                          <p className="text-[12px] font-medium text-muted-foreground mt-1">{opt.sub}</p>
                         </div>
                       </div>
                     ))}
@@ -278,7 +278,7 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent className="p-10 pt-0 space-y-8">
                 <div className="space-y-3">
-                  <Label className="text-[10px] font-black text-muted-foreground uppercase ml-1">Ingestion Webhook (Read)</Label>
+                  <Label className="text-[12px] font-semibold text-muted-foreground uppercase ml-1">Ingestion Webhook (Read)</Label>
                   <Input
                     value={settings?.readWebhook || ''}
                     onChange={(e) => updateField('readWebhook', e.target.value)}
@@ -287,7 +287,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-[10px] font-black text-muted-foreground uppercase ml-1">Dispatch Webhook (Execution)</Label>
+                  <Label className="text-[12px] font-semibold text-muted-foreground uppercase ml-1">Dispatch Webhook (Execution)</Label>
                   <Input
                     value={settings?.writeWebhook || ''}
                     onChange={(e) => updateField('writeWebhook', e.target.value)}
@@ -322,8 +322,8 @@ export default function SettingsPage() {
 
                 <div className="p-6 rounded-3xl bg-muted/40 border border-border flex items-center justify-between">
                   <div className="space-y-1">
-                    <p className="text-xs font-black uppercase  text-foreground">Continuous Data Sync</p>
-                    <p className="text-[10px] font-medium text-muted-foreground italic">Automated activity heartbeat with n8n servers.</p>
+                    <p className="text-xs font-bold uppercase  text-foreground">Continuous Data Sync</p>
+                    <p className="text-[12px] font-medium text-muted-foreground italic">Automated activity heartbeat with n8n servers.</p>
                   </div>
                   <Checkbox
                     checked={settings?.syncActivity || false}
@@ -339,7 +339,7 @@ export default function SettingsPage() {
           {['channels', 'security'].includes(activeTab) && (
             <div className="h-96 w-full rounded-[2.5rem] border-2 border-dashed border-border flex flex-col items-center justify-center gap-4 bg-muted/20">
               <Settings2 className="h-10 w-10 text-muted-foreground opacity-20" />
-              <p className="text-[10px] font-black uppercase text-muted-foreground">Advanced module coming soon</p>
+              <p className="text-[12px] font-black uppercase text-muted-foreground">Advanced module coming soon</p>
             </div>
           )}
 

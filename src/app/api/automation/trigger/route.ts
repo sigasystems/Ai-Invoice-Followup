@@ -30,7 +30,19 @@ export async function GET() {
 
     return NextResponse.json({
       count: pendingInvoices.length,
-      invoices: pendingInvoices
+      invoices: pendingInvoices.map(i => ({
+        id: i.id,
+        number: i.invoice_number,
+        customerName: i.customer.name,
+        amount: i.amount,
+        nextActionAt: i.nextActionAt,
+        currentStage: i.currentStage
+      })),
+      automation: {
+        method: "CRON Polling",
+        recommended_n8n_flow: "Cron (Daily) -> HTTP GET (this URL) -> Split In Batches -> HTTP POST (/api/automation/trigger)",
+        status: "Online"
+      }
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -350,6 +362,23 @@ export async function POST(request: Request) {
           tones: { push: actualTone }
         }
       });
+
+      // ── 6. RECORD THE ACTION IN ACTIVITY LOG ──
+      try {
+        await prisma.activity.create({
+          data: {
+            customerName: customer?.name || 'Unknown Client',
+            customerId:   customer?.id || null,
+            invoiceId:    invoice?.id || null,
+            channel:      'Automation Engine',
+            status:       'Sent to n8n',
+            message:      `Sent request to n8n for Stage ${stage} (${actualTone}) follow-up.`,
+            timestamp:    new Date(),
+          }
+        });
+      } catch (logError) {
+        console.error('[Trigger Log Error]', logError);
+      }
     }
 
     return NextResponse.json({ success: true, n8n_response: result });

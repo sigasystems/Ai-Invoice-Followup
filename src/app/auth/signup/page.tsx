@@ -122,7 +122,7 @@ export default function SignupPage() {
                 Scale Your <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-400 to-indigo-500">Business Faster.</span>
               </h1>
-              <p className="mt-6 text-lg text-neutral-400 max-w-lg font-medium leading-relaxed">
+              <p className="mt-6 text-lg  max-w-lg font-medium leading-relaxed">
                 Join thousands of high-growth companies using PayPilot to automate 90% of their accounts receivable workload.
               </p>
             </motion.div>
@@ -168,7 +168,7 @@ export default function SignupPage() {
           >
             <div className="text-center lg:text-left space-y-2">
               <h2 className="text-4xl font-extrabold tracking-tight text-white">Create Account</h2>
-              <p className="text-neutral-400 font-medium text-lg">Start your automation journey today.</p>
+              <p className=" font-medium text-lg">Start your automation journey today.</p>
             </div>
 
             <Form {...form}>
@@ -179,7 +179,7 @@ export default function SignupPage() {
                     name="fullName"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel className="text-neutral-400 font-bold uppercase tracking-widest text-[10px] ml-1">Full Name</FormLabel>
+                        <FormLabel className=" font-bold uppercase tracking-widest text-[12px] ml-1">Full Name</FormLabel>
                         <FormControl>
                           <div className="relative group">
                             <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-600 group-focus-within:text-primary transition-colors" />
@@ -196,7 +196,7 @@ export default function SignupPage() {
                     name="companyName"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel className="text-neutral-400 font-bold uppercase tracking-widest text-[10px] ml-1">Company Name</FormLabel>
+                        <FormLabel className=" font-bold uppercase tracking-widest text-[12px] ml-1">Company Name</FormLabel>
                         <FormControl>
                           <div className="relative group">
                             <Building className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-600 group-focus-within:text-primary transition-colors" />
@@ -213,7 +213,7 @@ export default function SignupPage() {
                     name="email"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel className="text-neutral-400 font-bold uppercase tracking-widest text-[10px] ml-1">Work Email</FormLabel>
+                        <FormLabel className=" font-bold uppercase tracking-widest text-[12px] ml-1">Work Email</FormLabel>
                         <FormControl>
                           <div className="relative group">
                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-600 group-focus-within:text-primary transition-colors" />
@@ -230,7 +230,7 @@ export default function SignupPage() {
                     name="password"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel className="text-neutral-400 font-bold uppercase tracking-widest text-[10px] ml-1">Master Password</FormLabel>
+                        <FormLabel className=" font-bold uppercase tracking-widest text-[12px] ml-1">Master Password</FormLabel>
                         <FormControl>
                           <div className="relative group">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-600 group-focus-within:text-primary transition-colors" />

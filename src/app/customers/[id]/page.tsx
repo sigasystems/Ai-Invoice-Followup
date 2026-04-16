@@ -80,14 +80,14 @@ export default function CustomerDetailPage() {
                )}>
                   <div className="flex items-center justify-between mb-8">
                      <ShieldCheck className="w-8 h-8 opacity-20" />
-                     <span className="text-[10px] font-black uppercase  bg-white/20 px-2 py-1 rounded-lg">Trust Level</span>
+                     <span className="text-[12px] font-black uppercase  bg-white/20 px-2 py-1 rounded-lg">Trust Level</span>
                   </div>
                   <h4 className="text-sm font-bold opacity-80 mb-1">Behavioral Score</h4>
                   <h2 className="text-5xl font-black mb-4">{customer.behaviorScore}</h2>
                   <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
                      <div className="h-full bg-white shadow-lg" style={{ width: `${customer.behaviorScore}%` }} />
                   </div>
-                  <p className="text-[10px] mt-4 font-bold opacity-70 italic leading-snug">
+                  <p className="text-[12px] mt-4 font-bold opacity-70 italic leading-snug">
                      Based on historical payment delay, communication sentiment, and default frequency.
                   </p>
                </Card>
@@ -97,15 +97,15 @@ export default function CustomerDetailPage() {
                   <h4 className="text-xs font-bold text-muted-foreground uppercase mb-4">Contract Details</h4>
                   <div className="space-y-4">
                      <div>
-                        <p className="text-[10px] font-black uppercase text-muted-foreground mb-0.5">Email</p>
+                        <p className="text-[12px] font-black uppercase text-muted-foreground mb-0.5">Email</p>
                         <p className="text-sm font-bold text-neutral-900 border-b border-neutral-50 pb-2">{customer.email}</p>
                      </div>
                      <div>
-                        <p className="text-[10px] font-black uppercase text-muted-foreground mb-0.5">Phone</p>
+                        <p className="text-[12px] font-black uppercase text-muted-foreground mb-0.5">Phone</p>
                         <p className="text-sm font-bold text-neutral-900 border-b border-neutral-50 pb-2">{customer.phone}</p>
                      </div>
                      <div>
-                        <p className="text-[10px] font-black uppercase text-muted-foreground mb-0.5">Performance</p>
+                        <p className="text-[12px] font-black uppercase text-muted-foreground mb-0.5">Performance</p>
                         <div className="flex items-center gap-2 mt-1">
                            <TrendingUp className="w-4 h-4 text-emerald-500" />
                            <span className="text-xs font-bold text-emerald-600">{customer.onTimeRate}% On-time rate</span>
@@ -124,15 +124,15 @@ export default function CustomerDetailPage() {
                {/* Financial Recap */}
                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="bg-white p-6 rounded-3xl border-none shadow-xl shadow-primary/5 flex flex-col gap-1">
-                     <p className="text-[10px] font-black text-muted-foreground uppercase">Total Outstanding</p>
+                     <p className="text-[12px] font-black text-muted-foreground uppercase">Total Outstanding</p>
                      <p className="text-2xl font-black text-rose-600">₹{customer.totalOutstanding.toLocaleString()}</p>
                   </div>
                   <div className="bg-white p-6 rounded-3xl border-none shadow-xl shadow-primary/5 flex flex-col gap-1">
-                     <p className="text-[10px] font-black text-muted-foreground uppercase">Avg. Payment Delay</p>
+                     <p className="text-[12px] font-black text-muted-foreground uppercase">Avg. Payment Delay</p>
                      <p className="text-2xl font-black text-neutral-900">{customer.avgDelay} Days</p>
                   </div>
                   <div className="bg-white p-6 rounded-3xl border-none shadow-xl shadow-primary/5 flex flex-col gap-1">
-                     <p className="text-[10px] font-black text-muted-foreground uppercase">Total Invoices</p>
+                     <p className="text-[12px] font-black text-muted-foreground uppercase">Total Invoices</p>
                      <p className="text-2xl font-black text-neutral-900">{customer.totalInvoices}</p>
                   </div>
                </div>

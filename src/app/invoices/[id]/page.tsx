@@ -69,7 +69,7 @@ export default function InvoiceDetailPage() {
                     <div className="flex items-center gap-2 mt-1">
                       <StatusBadge status={invoice.status} />
                       {invoice.prediction && (
-                        <span className="text-[10px] font-black uppercase text-amber-600 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100">
+                        <span className="text-[12px] font-black uppercase text-amber-600 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100">
                           AI: {invoice.prediction}
                         </span>
                       )}
@@ -94,7 +94,7 @@ export default function InvoiceDetailPage() {
                   <p className="text-xs font-medium text-muted-foreground">{invoice.customerEmail}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-muted-foreground uppercase mb-1">Created At</p>
+                  <p className="text-xs font-bold text-muted-foreground uppercase mb-1">Issue Date</p>
                   <p className="text-sm font-black text-neutral-900">{new Date(invoice.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div>
@@ -104,13 +104,17 @@ export default function InvoiceDetailPage() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-muted-foreground uppercase mb-1">Issue Date</p>
-                  <p className="text-sm font-black text-neutral-900">{new Date(invoice.issueDate).toLocaleDateString()}</p>
+                  <p className="text-xs font-bold text-muted-foreground uppercase mb-1">Due Date</p>
+                  <p className="text-sm font-black text-neutral-900">
+                    {invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : 'N/A'}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs font-bold text-muted-foreground uppercase mb-1">Days since Issue</p>
                   <p className="text-sm font-black text-neutral-900">
-                    {Math.max(0, Math.floor((new Date().getTime() - new Date(invoice.issueDate).getTime()) / 86400000))} Days
+                    {invoice.issueDate 
+                      ? Math.max(0, Math.floor((new Date().getTime() - new Date(invoice.issueDate).getTime()) / 86400000))
+                      : '0'} Days
                   </p>
                 </div>
               </div>
@@ -138,7 +142,7 @@ export default function InvoiceDetailPage() {
                   <p className="text-xs text-muted-foreground">
                     Invoice generated for {invoice.customerName}
                   </p>
-                  <span className="text-[10px] text-muted-foreground">
+                  <span className="text-[12px] text-muted-foreground">
                     {new Date(invoice.createdAt).toLocaleString()}
                   </span>
                 </div>
@@ -160,7 +164,7 @@ export default function InvoiceDetailPage() {
                         Tone: <span className="font-semibold">{tone}</span>
                       </p>
 
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-[12px] text-muted-foreground">
                         {new Date(date).toLocaleString()}
                       </span>
                     </div>
@@ -180,7 +184,7 @@ export default function InvoiceDetailPage() {
                       Stage {invoice.currentStage} — Scheduled by AI
                     </p>
 
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[12px] text-muted-foreground">
                       {new Date(invoice.nextActionAt).toLocaleString()}
                     </span>
                   </div>

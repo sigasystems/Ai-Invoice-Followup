@@ -27,12 +27,12 @@ export function MetricCard({ title, value, icon: Icon, trend, className }: Metri
         {trend && (
           <div className="flex items-center gap-1.5 mt-2">
             <span className={cn(
-              "px-2 py-0.5 rounded-lg text-[10px] font-black uppercase ",
+              "px-2 py-0.5 rounded-lg text-[12px] font-black uppercase ",
               trend.isPositive ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"
             )}>
               {trend.value}
             </span>
-            <span className="text-[10px] text-muted-foreground font-bold ">System insight</span>
+            <span className="text-[12px] text-muted-foreground font-bold ">System insight</span>
           </div>
         )}
       </CardContent>

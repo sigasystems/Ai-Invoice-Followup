@@ -174,7 +174,7 @@ function CollectionJourney({
 
   if (totalInvoices === 0) {
     return (
-      <span className="text-[10px] text-muted-foreground italic">
+      <span className="text-[12px] text-muted-foreground italic">
         New customer
       </span>
     );
@@ -203,7 +203,7 @@ function CollectionJourney({
     <div className="flex items-center gap-2 min-w-0">
 
       {/* Risk badge */}
-      {/* <span className={`text-[10px] px-2 py-0.5 rounded font-semibold ${riskBadge}`}>
+      {/* <span className={`text-[12px] px-2 py-0.5 rounded font-semibold ${riskBadge}`}>
         {riskLevel.toUpperCase()}
       </span> */}
 
@@ -217,7 +217,7 @@ function CollectionJourney({
       </div>
 
       {/* Stage indicator */}
-      <span className="text-[10px] font-semibold text-muted-foreground whitespace-nowrap">
+      <span className="text-[12px] font-semibold text-muted-foreground whitespace-nowrap">
         Stage {currentStage}/{totalSteps}
       </span>
 
@@ -227,14 +227,14 @@ function CollectionJourney({
           className={`h-2 w-2 rounded-full ${hasPaid ? "bg-emerald-500" : isOverdue ? "bg-red-500 animate-pulse" : "bg-blue-500"
             }`}
         />
-        <span className="text-[10px] font-bold text-muted-foreground">
+        <span className="text-[12px] font-bold text-muted-foreground">
           {hasPaid ? "PAID" : isOverdue ? "OVERDUE" : "IN PROGRESS"}
         </span>
       </div>
 
       {/* Escalation flag */}
       {escalationReached && (
-        <span className="ml-1 text-[10px] px-2 py-0.5 rounded bg-orange-100 text-orange-700 font-semibold">
+        <span className="ml-1 text-[12px] px-2 py-0.5 rounded bg-orange-100 text-orange-700 font-semibold">
           ESCALATED
         </span>
       )}
@@ -253,9 +253,9 @@ function StatCard({ icon: Icon, label, value, sub, iconBg }: {
         <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] font-bold text-muted-foreground uppercase  leading-none">{label}</p>
+        <p className="text-[12px] font-bold text-muted-foreground uppercase  leading-none">{label}</p>
         <p className="text-xl font-black text-foreground leading-snug mt-0.5">{value}</p>
-        <p className="text-[10px] font-medium text-muted-foreground leading-none">{sub}</p>
+        <p className="text-[12px] font-medium text-muted-foreground leading-none">{sub}</p>
       </div>
     </div>
   );
@@ -267,7 +267,7 @@ function SortHeader({ column, label }: { column: any; label: string }) {
   return (
     <button
       onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      className="flex items-center gap-1 text-[10px] font-black text-muted-foreground uppercase  hover:text-foreground transition-colors group"
+      className="flex items-center gap-1 text-[12px] font-black text-muted-foreground uppercase  hover:text-foreground transition-colors group"
     >
       {label}
       <ArrowUpDown className={cn('h-3 w-3', column.getIsSorted() ? 'text-primary' : 'opacity-30 group-hover:opacity-60')} />
@@ -296,7 +296,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
               {c.phone && (
                 <div className="flex items-center gap-1 mt-0.5">
                   <Phone className="h-2.5 w-2.5 text-muted-foreground" />
-                  <span className="text-[10px] text-muted-foreground">{c.phone}</span>
+                  <span className="text-[12px] text-muted-foreground">{c.phone}</span>
                 </div>
               )}
             </div>
@@ -315,7 +315,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
           <div className="w-28">
             <div className="flex justify-between mb-1">
               <span className={cn('text-xs font-black', scoreColor(rate))}>{rate}%</span>
-              <span className="text-[10px] text-muted-foreground">{row.original.totalInvoices} inv.</span>
+              <span className="text-[12px] text-muted-foreground">{row.original.totalInvoices} inv.</span>
             </div>
             <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
               <div className={cn('h-full rounded-full transition-all duration-700', rateBar(rate))} style={{ width: `${rate}%` }} />
@@ -329,7 +329,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
     {
       id: 'collectionJourney',
       header: () => (
-        <div className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground uppercase ">
+        <div className="flex items-center gap-1.5 text-[12px] font-black text-muted-foreground uppercase ">
           <Zap className="h-3 w-3 text-amber-500" />
           Collection Journey
         </div>
@@ -344,7 +344,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
     // {
     //   accessorKey: 'aiInsight',
     //   header: () => (
-    //     <div className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground uppercase ">
+    //     <div className="flex items-center gap-1.5 text-[12px] font-black text-muted-foreground uppercase ">
     //       <BrainCircuit className="h-3 w-3 text-indigo-500" /> AI Insight
     //     </div>
     //   ),
@@ -354,7 +354,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
     //       <div className="w-44">
     //         <div className="flex items-start gap-1.5 bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-xl px-2 py-1.5">
     //           <BrainCircuit className="h-3 w-3 text-indigo-500 shrink-0 mt-0.5" />
-    //           <p className="text-[10px] text-indigo-700 dark:text-indigo-300 font-medium leading-snug italic line-clamp-2">
+    //           <p className="text-[12px] text-indigo-700 dark:text-indigo-300 font-medium leading-snug italic line-clamp-2">
     //             {insight ?? 'Analysing…'}
     //           </p>
     //         </div>
@@ -392,7 +392,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
         const risk = getRisk(row.getValue('riskLevel'));
         const Icon = risk.icon;
         return (
-          <span className={cn('inline-flex items-center gap-1.5 px-2 py-1 rounded-xl text-[10px] font-bold border', risk.cls)}>
+          <span className={cn('inline-flex items-center gap-1.5 px-2 py-1 rounded-xl text-[12px] font-bold border', risk.cls)}>
             <Icon className="h-3 w-3" />{risk.label}
           </span>
         );
@@ -445,7 +445,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-2xl border-border shadow-2xl p-1.5 w-52 bg-popover animate-in fade-in zoom-in-95 duration-150">
               <DropdownMenuGroup>
-                <DropdownMenuLabel className="text-[10px] font-bold text-muted-foreground uppercase px-2 py-1.5 ">Actions</DropdownMenuLabel>
+                <DropdownMenuLabel className="text-[12px] font-bold text-muted-foreground uppercase px-2 py-1.5 ">Actions</DropdownMenuLabel>
                 <DropdownMenuItem className="rounded-xl cursor-pointer px-2.5 py-2 text-sm font-medium flex items-center gap-2.5 hover:bg-primary/5 hover:text-primary transition-colors"
                   onClick={() => { window.location.href = `/customers/${c.id}`; }}>
                   <Eye className="w-4 h-4" /> View Profile
@@ -578,7 +578,7 @@ export default function CustomersPage() {
                   Your Escalation Ladder
                 </span>
                 {ladder.length === 0 && (
-                  <span className="text-[10px] text-muted-foreground italic">(using defaults — configure in Settings)</span>
+                  <span className="text-[12px] text-muted-foreground italic">(using defaults — configure in Settings)</span>
                 )}
               </div>
 
@@ -590,7 +590,7 @@ export default function CustomersPage() {
                   return (
                     <React.Fragment key={i}>
                       {i > 0 && <div className="h-px w-4 bg-muted-foreground/30 shrink-0" />}
-                      <div className={cn('flex items-center gap-1 px-2.5 py-1.5 rounded-lg border text-[10px] font-bold text-white', tc.fill)}>
+                      <div className={cn('flex items-center gap-1 px-2.5 py-1.5 rounded-lg border text-[12px] font-bold text-white', tc.fill)}>
                         <Icon className="h-3 w-3 shrink-0" />
                         <div>
                           <div className="leading-none">{step.label}</div>
@@ -602,11 +602,11 @@ export default function CustomersPage() {
                 })}
                 <div className="flex items-center gap-1 ml-2">
                   <div className="h-px w-4 bg-muted-foreground/30" />
-                  <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold">
+                  <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 text-[12px] font-bold">
                     <CheckCircle2 className="h-3 w-3" /> PAID
                   </div>
-                  <span className="text-[10px] text-muted-foreground font-medium ml-2">or</span>
-                  <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-rose-300 bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400 text-[10px] font-bold ml-2">
+                  <span className="text-[12px] text-muted-foreground font-medium ml-2">or</span>
+                  <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-rose-300 bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400 text-[12px] font-bold ml-2">
                     <XCircle className="h-3 w-3" /> OVERDUE
                   </div>
                 </div>
@@ -620,7 +620,7 @@ export default function CustomersPage() {
                     <div className="h-full bg-amber-400" style={{ width: `${(med / total) * 100}%` }} />
                     <div className="h-full bg-rose-500" style={{ width: `${(high / total) * 100}%` }} />
                   </div>
-                  <div className="text-[10px] font-semibold text-muted-foreground">
+                  <div className="text-[12px] font-semibold text-muted-foreground">
                     {low}L · {med}M · {high}H
                   </div>
                 </div>
@@ -649,14 +649,17 @@ export default function CustomersPage() {
               </span>
               <DropdownMenu>
                 <DropdownMenuTrigger render={
-                  <Button variant="outline" size="sm" className="h-9 rounded-xl px-3 font-bold text-sm gap-2 bg-card" />
-                }>
-                  <Settings2 className="h-4 w-4" /> Columns
-                </DropdownMenuTrigger>
+                  <Button variant="outline" size="sm" className="h-9 rounded-xl px-3 font-bold text-sm gap-2 bg-card">
+                    <Settings2 className="h-4 w-4" />
+                    Columns
+                  </Button>
+                } />
                 <DropdownMenuContent align="end" className="rounded-2xl border-border shadow-xl p-2 w-52 bg-card">
-                  <DropdownMenuLabel className="text-[10px] font-black  text-muted-foreground uppercase px-2 py-1.5">
-                    Toggle Columns
-                  </DropdownMenuLabel>
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel className="text-[12px] font-black  text-muted-foreground uppercase px-2 py-1.5">
+                      Toggle Columns
+                    </DropdownMenuLabel>
+                  </DropdownMenuGroup>
                   <DropdownMenuSeparator className="bg-border" />
                   {table.getAllColumns().filter(c => c.getCanHide()).map(col => (
                     <DropdownMenuCheckboxItem

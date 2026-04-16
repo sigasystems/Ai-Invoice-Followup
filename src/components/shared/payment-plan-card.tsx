@@ -32,7 +32,7 @@ export function PaymentPlanCard({ plan, className }: PaymentPlanCardProps) {
             <div className="flex items-center gap-3">
               <div className={cn(
                 "w-6 h-6 rounded-full flex items-center justify-center transition-colors",
-                inst.status === 'Paid' ? "bg-emerald-100 text-emerald-600" : "bg-neutral-100 text-neutral-400 group-hover:bg-primary/10 group-hover:text-primary"
+                inst.status === 'Paid' ? "bg-emerald-100 text-emerald-600" : "bg-neutral-100  group-hover:bg-primary/10 group-hover:text-primary"
               )}>
                 {inst.status === 'Paid' ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
               </div>
@@ -40,7 +40,7 @@ export function PaymentPlanCard({ plan, className }: PaymentPlanCardProps) {
                 <span className="text-xs font-bold text-neutral-900 leading-none mb-1">
                   Installment {index + 1} ({inst.percentage}%)
                 </span>
-                <span className="text-[10px] text-muted-foreground font-medium">
+                <span className="text-[12px] text-muted-foreground font-medium">
                   Due: {new Date(inst.dueDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                 </span>
               </div>

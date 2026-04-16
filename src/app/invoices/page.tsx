@@ -19,7 +19,8 @@ import {
   Zap,
   Mail,
   ExternalLink,
-  BrainCircuit
+  BrainCircuit,
+  CheckCircle2
 } from 'lucide-react';
 import { fetchInvoices } from '@/lib/api';
 import { triggerN8nWorkflow } from '@/lib/n8n';
@@ -141,7 +142,7 @@ export default function InvoicesPage() {
           <span className="font-bold text-foreground leading-none mb-1 group-hover:text-primary transition-colors underline decoration-transparent group-hover:decoration-primary/30 underline-offset-4">
             {row.getValue('customerName')}
           </span>
-          <span className="text-[10px] text-muted-foreground font-semibold leading-none">{row.original.customerEmail}</span>
+          <span className="text-[12px] text-muted-foreground font-semibold leading-none">{row.original.customerEmail}</span>
         </a>
       ),
     },
@@ -172,7 +173,7 @@ export default function InvoicesPage() {
         const offset = Number(row.original.startFollowups) || 0;
         const issueDateString = row.original.issueDate;
 
-        if (!issueDateString) return <span className="text-muted-foreground text-[10px]">No Date</span>;
+        if (!issueDateString) return <span className="text-muted-foreground text-[12px]">No Date</span>;
 
         // ✅ Logic: [Issue Date] + [Offset]
         const issueDate = parseISO(issueDateString);
@@ -192,7 +193,7 @@ export default function InvoicesPage() {
             </div>
             <div className="flex flex-col">
               <span className={cn(
-                "text-[10px] font-black uppercase  leading-none mb-0.5",
+                "text-[12px] font-black uppercase  leading-none mb-0.5",
                 isPastOrToday ? "text-emerald-500" : "text-indigo-500"
               )}>
                 {isPastOrToday ? 'Active' : `Scheduled (+${offset}d)`}
@@ -227,7 +228,7 @@ export default function InvoicesPage() {
             <StatusBadge status={status} />
             {plan && (
               <div className="flex items-center gap-2">
-                <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
+                <div className="h-1 bg-muted flex-1 rounded-full overflow-hidden">
                   <div className="h-full bg-primary" style={{ width: `${plan.progress}%` }} />
                 </div>
                 <span className="text-[9px] font-bold text-muted-foreground">{plan.progress}%</span>
@@ -238,15 +239,39 @@ export default function InvoicesPage() {
       },
     },
     {
+      accessorKey: 'lastSentAt',
+      header: 'Last Automation',
+      cell: ({ row }) => {
+        const lastSentAt = row.original.lastSentAt;
+        const stage = row.original.lastSentStage;
+        
+        if (!lastSentAt) return <span className="text-[12px] text-muted-foreground font-semibold uppercase italic">Not yet triggered</span>;
+        
+        return (
+          <div className="flex flex-col">
+            <div className="flex items-center gap-1.5 text-emerald-600 mb-0.5">
+              <CheckCircle2 className="w-3 h-3" />
+              <span className="text-[12px] font-black uppercase">Sent to n8n</span>
+            </div>
+            <span className="text-[11px] font-bold text-foreground">
+              {new Date(lastSentAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+            </span>
+            <span className="text-[9px] text-muted-foreground font-bold uppercase mt-0.5">Stage {stage} reminder</span>
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: 'daysOverdue',
-      header: 'Days Since Issue',
+      header: 'Days Since Issue ',
       cell: ({ row }) => {
         const issueDate = new Date(row.original.issueDate);
+        issueDate.setHours(0, 0, 0, 0);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
         const diffTime = today.getTime() - issueDate.getTime();
-        const days = Math.floor(diffTime / 86400000);
+        const days = Math.max(0, Math.floor(diffTime / 86400000));
 
         return (
           <span className={days > 15 ? "text-rose-600 font-bold" : "text-muted-foreground"}>
@@ -295,19 +320,19 @@ export default function InvoicesPage() {
             </div>
 
             <div className="flex flex-col">
-              <span className={cn("text-[10px] font-black uppercase tracking-[0.05em]", isPaid ? "text-emerald-500" : "text-foreground")}>
+              <span className={cn("text-[12px] font-black uppercase tracking-[0.05em]", isPaid ? "text-emerald-500" : "text-foreground")}>
                 {isPaid ? 'Collection Successful' : currentStep?.label || `Stage ${currentStage + 1}`}
               </span>
 
               {!isPaid && (
-                <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1.5">
+                <span className="text-[12px] font-bold text-muted-foreground flex items-center gap-1.5">
                   <BrainCircuit className="w-3.5 h-3.5 text-primary opacity-70" />
                   AI Tone: <span className="text-primary italic">{currentStep?.tone || 'Neutral'}</span>
                 </span>
               )}
 
               {!isPaid && row.original.nextActionAt && (
-                <span className="text-[10px] font-semibold text-blue-500">
+                <span className="text-[12px] font-semibold text-blue-500">
                   Next: {daysLeft !== null ? (daysLeft <= 0 ? "Today" : daysLeft === 1 ? "Tomorrow" : `in ${daysLeft}d`) : "Scheduled"} 
                   ({new Date(row.original.nextActionAt).toLocaleDateString()})
                 </span>
@@ -387,7 +412,11 @@ export default function InvoicesPage() {
 
                 {row.original.status !== 'Paid' && (
                   <DropdownMenuItem
-                    onClick={() => updateInvoice(row.original.id, { status: 'Paid' })}
+                    onClick={() => {
+                      if (window.confirm(`Are you sure you want to mark invoice ${row.original.invoice_number} as PAID? This will stop all future automation for this invoice.`)) {
+                        updateInvoice(row.original.id, { status: 'Paid' });
+                      }
+                    }}
                     className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-emerald-500/10 focus:text-emerald-500 transition-colors flex items-center gap-2 text-emerald-500">
                     <Zap className="w-4 h-4" /> Mark as Paid
                   </DropdownMenuItem>

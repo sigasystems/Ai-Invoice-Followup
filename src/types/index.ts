@@ -19,6 +19,7 @@ export interface PaymentPlan {
 }
 
 export interface Invoice {
+  daysSinceIssue: number;
   id: string;
   invoice_number: string;
   amount: number;

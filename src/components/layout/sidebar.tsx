@@ -60,7 +60,11 @@ export function Sidebar() {
 
       <div className="p-4 mt-auto border-t border-border/50">
         <button 
-          onClick={() => logout()}
+          onClick={() => {
+            if (window.confirm("Are you sure you want to logout?")) {
+              logout();
+            }
+          }}
           className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-rose-500 hover:bg-rose-50 rounded-xl transition-all group"
         >
           <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />

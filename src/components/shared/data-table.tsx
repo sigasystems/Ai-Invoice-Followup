@@ -30,6 +30,7 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -124,15 +125,17 @@ export function DataTable<TData, TValue>({
 
           {/* COLUMN TOGGLE */}
           <DropdownMenu>
-            <DropdownMenuTrigger >
-              <Button variant="outline" className="h-10 rounded-xl px-4">
-                <Settings2 className="w-4 h-4 mr-2" />
+            <DropdownMenuTrigger render={
+              <Button variant="outline" className="h-10 rounded-xl px-4 font-bold text-sm gap-2 bg-card">
+                <Settings2 className="w-4 h-4" />
                 Columns
               </Button>
-            </DropdownMenuTrigger>
+            } />
 
             <DropdownMenuContent align="end" className="w-48 rounded-xl">
-              <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
+              </DropdownMenuGroup>
               <DropdownMenuSeparator />
               {table.getAllColumns()
                 .filter((col) => col.getCanHide())

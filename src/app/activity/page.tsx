@@ -33,7 +33,7 @@ export default function ActivityPage() {
    const [refreshing, setRefreshing] = React.useState(false);
    const [error, setError] = React.useState<string | null>(null);
 
-   const [activeTab, setActiveTab] = React.useState<'all' | 'automated' | 'manual' | 'drafts'>('all');
+   const [activeTab, setActiveTab] = React.useState<'all' | 'automated'  | 'drafts'>('all');
    const [search, setSearch] = React.useState('');
 
    // Real-time Fetch simulation logic (Poll every 10s or manual refresh)
@@ -71,8 +71,8 @@ export default function ActivityPage() {
       if (activeTab === 'automated') {
          // Based on your backend, 'Draft Created' and 'Email' (sent by system) are automated
          result = result.filter((a) => a.channel === 'Draft Created');
-      } else if (activeTab === 'manual') {
-         result = result.filter((a) => a.channel === 'SMS' || a.channel === 'WhatsApp'); // Assuming these are manual for now
+      // } else if (activeTab === 'manual') {
+      //    result = result.filter((a) => a.channel === 'SMS' || a.channel === 'WhatsApp'); // Assuming these are manual for now
       } else if (activeTab === 'drafts') {
          result = result.filter((a) => a.channel === 'Draft Created');
       }
@@ -139,11 +139,11 @@ export default function ActivityPage() {
             <div className="lg:col-span-3 space-y-6">
                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                   <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)} className="w-full sm:w-auto">
-                     <TabsList className="h-12 p-1.5 bg-muted/50 rounded-2xl border border-border">
-                        <TabsTrigger value="all" className="rounded-xl h-full px-5 text-[11px] font-black uppercase  data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">All Events</TabsTrigger>
-                        <TabsTrigger value="drafts" className="rounded-xl h-full px-5 text-[11px] font-black uppercase  data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">Drafts</TabsTrigger>
+                     <TabsList className="h-12 p-1 bg-muted/50 rounded-xl border border-border">
+                        <TabsTrigger value="all" className=" h-full px-5 text-[12px] font-semibold  uppercase  ">All Events</TabsTrigger>
+                        <TabsTrigger value="drafts" className=" h-full px-5 text-[12px] font-semibold  uppercase  ">Drafts</TabsTrigger>
                         {/* <TabsTrigger value="automated" className="rounded-xl h-full px-5 text-[11px] font-black uppercase  data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">AI Automated</TabsTrigger> */}
-                        <TabsTrigger value="manual" className="rounded-xl h-full px-5 text-[11px] font-black uppercase  data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">Manual</TabsTrigger>
+                        {/* <TabsTrigger value="manual" className="rounded-xl h-full px-5 text-[11px] font-black uppercase  data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">Manual</TabsTrigger> */}
                      </TabsList>
                   </Tabs>
 
@@ -177,7 +177,7 @@ export default function ActivityPage() {
                                  <div className="h-px flex-1 bg-border/60" />
                                  <div className="flex items-center gap-2 px-6 py-2 bg-neutral-50 border border-border rounded-full shadow-xs">
                                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                    <span className="text-[10px] font-black  uppercase text-black">Activity Streams</span>
+                                    <span className="text-[12px] font-black  uppercase text-black">Activity Streams</span>
                                  </div>
                                  <div className="h-px flex-1 bg-border/60" />
                               </div>
@@ -221,7 +221,7 @@ export default function ActivityPage() {
                   <div className="absolute top-0 right-0 p-6 opacity-10">
                      <Sparkles className="h-20 w-20" />
                   </div>
-                  <h4 className="text-[10px] font-black uppercase text-white/70 mb-8">AI Efficiency Score</h4>
+                  <h4 className="text-[12px] font-black uppercase text-white/70 mb-8">AI Efficiency Score</h4>
 
                   <div className="space-y-8">
                      <div>
@@ -242,7 +242,7 @@ export default function ActivityPage() {
                            <span className="text-sm font-black px-2 py-0.5 rounded-lg bg-white/20">{stats.Drafts}</span>
                         </div>
                         <Button
-                           className="w-full bg-white text-primary hover:bg-white/90 font-black text-xs uppercase  py-6 rounded-2xl shadow-xl transition-all"
+                           className="w-full bg-white text-primary hover:bg-white/90 font-black text-sm uppercase  py-6 rounded-2xl shadow-xl transition-all"
                            onClick={() => window.location.href = '/invoices'}
                         >
                            Review Drafts
@@ -278,13 +278,13 @@ export default function ActivityPage() {
 
 function QuickStat({ label, value, icon: Icon, color, bgColor }: any) {
    return (
-      <Card className="p-5 rounded-3xl border border-border shadow-xs group hover:shadow-md transition-all">
+      <Card className="p-5 rounded-3xl border border-border shadow-xs group">
          <div className="flex items-center gap-4">
-            <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110", bgColor)}>
+            <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center ", bgColor)}>
                <Icon className={cn("w-6 h-6", color)} />
             </div>
             <div>
-               <h5 className="text-[10px] font-black text-muted-foreground uppercase  mb-0.5">{label}</h5>
+               <h5 className="text-[12px] font-black text-muted-foreground uppercase  mb-0.5">{label}</h5>
                <p className="text-xl font-black tabular-nums">{value}</p>
             </div>
          </div>
