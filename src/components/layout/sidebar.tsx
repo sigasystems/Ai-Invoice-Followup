@@ -27,9 +27,9 @@ export function Sidebar() {
     <div className="flex flex-col h-full bg-background border-r border-border w-64 lg:w-72">
       <div className="flex items-center gap-2 px-6 h-16 shrink-0">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <ShieldCheck className="w-5 h-5 text-primary-foreground" />
+          <ShieldCheck className="w-5 h-5 text-primary-foreground" />
         </div>
-        <span className="text-lg font-bold tracking-tight text-foreground">PayPilot</span>
+        <span className="text-lg font-bold  text-foreground">PayPilot</span>
       </div>
       <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
         {navigation.map((item) => {
@@ -65,11 +65,11 @@ export function Sidebar() {
       </div> */}
       <div className="p-4 mt-auto">
         {/* <div className="p-4 rounded-2xl bg-muted/50 border border-border"> */}
-           {/* <h4 className="text-xs font-semibold text-foreground mb-1">Logout</h4>
+        {/* <h4 className="text-xs font-semibold text-foreground mb-1">Logout</h4>
            <p className="text-[11px] text-muted-foreground mb-3"> Click here to logout </p> */}
-           <button className="w-full py-2 bg-background border border-border text-xs font-semibold rounded-lg shadow-sm hover:bg-accent transition-colors">
-             Logout
-           </button>
+        <button className="w-full py-2 bg-background border border-border text-xs font-semibold rounded-lg shadow-sm hover:bg-accent transition-colors">
+          Logout
+        </button>
         {/* </div> */}
       </div>
     </div>

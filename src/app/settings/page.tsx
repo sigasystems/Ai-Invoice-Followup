@@ -13,7 +13,10 @@ import {
   Loader2,
   Plus,
   Trash2,
-  MessageSquare
+  Settings2,
+  Globe,
+  Bell,
+  Lock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -28,11 +31,13 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 export default function SettingsPage() {
   const [settings, setSettings] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState('ladder');
 
   React.useEffect(() => {
     async function fetchSettings() {
@@ -94,262 +99,239 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center p-20">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center justify-center p-40 gap-4">
+          <div className="h-10 w-10 border-4 border-primary/10 border-t-primary rounded-full animate-spin" />
+          <p className="text-[10px] font-black uppercase text-muted-foreground">Initializing Preferences</p>
         </div>
       </DashboardLayout>
     );
   }
 
+  const tabs = [
+    { id: 'ladder', label: 'Protocol Ladder', icon: Zap },
+    { id: 'channels', label: 'Communication', icon: Globe },
+    { id: 'n8n', label: 'Automation Sync', icon: BrainCircuit },
+    { id: 'security', label: 'Security & PII', icon: Lock },
+  ];
+
   return (
     <DashboardLayout>
       <PageHeader
-        title="Settings"
-        description="Configure your automation rules and collection escalation ladder."
+        title="System Preferences"
+        description="Global configuration for autonomous collection logic and gateway integrations."
       >
         <Button
           onClick={handleSave}
           disabled={saving}
-          className="rounded-xl h-10 px-6 font-semibold shadow-md flex items-center gap-2"
+          className="rounded-xl h-11 px-6 font-black text-[10px] uppercase  shadow-xl shadow-primary/20 flex items-center gap-2"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          {saving ? 'Saving...' : 'Save Changes'}
+          {saving ? 'Synchronizing...' : 'Save Configuration'}
         </Button>
       </PageHeader>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <div className="lg:col-span-1 space-y-2">
-          <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-primary bg-primary/10 font-bold">
-            <Zap className="h-4 w-4 mr-3" />
-            Escalation Ladder
-          </Button>
-          <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-semibold hover:bg-muted transition-colors">
-            <ShieldCheck className="h-4 w-4 mr-3" />
-            Channels & Methods
-          </Button>
-          <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-semibold hover:bg-muted transition-colors">
-            <BrainCircuit className="h-4 w-4 mr-3" />
-            n8n Integration
-          </Button>
-          <Button variant="ghost" className="w-full justify-start rounded-xl h-11 px-4 text-muted-foreground font-semibold hover:bg-muted transition-colors">
-            <CreditCard className="h-4 w-4 mr-3" />
-            Billing & Plans
-          </Button>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 mt-8">
+
+        {/* Sidebar Nav */}
+        <div className="lg:col-span-3 space-y-1">
+          <p className="px-4 text-[10px] font-black text-muted-foreground uppercase mb-4">Configuration</p>
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const active = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group",
+                  active
+                    ? "bg-primary text-white shadow-lg shadow-primary/20"
+                    : "text-muted-foreground hover:bg-muted font-bold"
+                )}
+              >
+                <Icon className={cn("h-4 w-4", active ? "text-white" : "text-muted-foreground group-hover:text-foreground")} />
+                <span className="text-xs  uppercase">{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
 
-        <div className="lg:col-span-3 space-y-8">
-          <Card className="rounded-3xl border border-border shadow-sm overflow-hidden bg-card">
-            <CardHeader className="p-8 pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Zap className="w-6 h-6 text-primary" />
-                  <div>
-                    <CardTitle className="text-xl font-bold">Custom Escalation Ladder</CardTitle>
-                    <CardDescription className="text-sm font-medium">Define exactly when and with what tone reminders are sent.</CardDescription>
-                  </div>
-                </div>
-                <Button onClick={addLadderStep} variant="outline" size="sm" className="rounded-xl h-9 border-border hover:bg-muted">
-                  <Plus className="w-4 h-4 mr-2" /> Add Step
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="p-8 pt-4 space-y-6">
-              {settings?.escalationLadder && settings.escalationLadder.map((step: any, index: number) => (
-                <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-2xl bg-muted border border-border group">
-                  <div className="flex-1 space-y-2 w-full">
-                    <Label className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
-                      <Clock className="w-3 h-3" /> Step {index + 1} Label
-                    </Label>
-                    <Input
-                      value={step.label}
-                      onChange={(e) => updateLadderStep(index, 'label', e.target.value)}
-                      placeholder="e.g. Day 1 Reminder"
-                      className="rounded-xl h-10 bg-background border-border focus:ring-primary"
-                    />
-                  </div>
-                  <div className="w-full sm:w-24 space-y-2">
-                    <Label className="text-xs font-bold text-muted-foreground uppercase">Days Post</Label>
-                    <Input
-                      type="number"
-                      value={step.delayDays ?? 0}
-                      onChange={(e) => updateLadderStep(index, 'delayDays', parseInt(e.target.value) || 0)}
-                      className="rounded-xl h-10 bg-background border-border focus:ring-primary"
-                    />
-                  </div>
-                  <div className="w-full sm:w-32 space-y-2">
-                    <Label className="text-xs font-bold text-muted-foreground uppercase">Tone</Label>
-                    <Select
-                      value={step.tone}
-                      onValueChange={(val) => updateLadderStep(index, 'tone', val)}
-                    >
-                      <SelectTrigger className="rounded-xl h-10 bg-background border-border focus:ring-primary">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl">
-                        <SelectItem value="Mild">Mild</SelectItem>
-                        <SelectItem value="Neutral">Neutral</SelectItem>
-                        <SelectItem value="Firm">Firm</SelectItem>
-                        <SelectItem value="Urgent">Urgent</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="sm:pt-6">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 rounded-xl"
-                      onClick={() => removeLadderStep(index)}
-                    >
-                      <Trash2 className="w-4 h-4" />
+        {/* Content Area */}
+        <div className="lg:col-span-9 animate-in fade-in slide-in-from-right-4 duration-500">
+
+          {activeTab === 'ladder' && (
+            <div className="space-y-8">
+              <Card className="rounded-[2.5rem] border border-border shadow-2xl shadow-neutral-500/5 overflow-hidden bg-card">
+                <CardHeader className="p-10 pb-2">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <CardTitle className="text-2xl font-bold">Escalation Protocol</CardTitle>
+                      <CardDescription className="text-sm font-medium text-muted-foreground">Design the sequence of autonomous reminders and tone transitions.</CardDescription>
+                    </div>
+                    <Button onClick={addLadderStep} variant="outline" className="rounded-xl h-10 px-4 font-black text-[10px] uppercase  border-primary/20 text-primary hover:bg-primary/5">
+                      <Plus className="w-4 h-4 mr-2" /> New Stage
                     </Button>
                   </div>
-                </div>
-              ))}
+                </CardHeader>
+                <CardContent className="p-10 pt-8 space-y-4">
+                  {settings?.escalationLadder && settings.escalationLadder.map((step: any, index: number) => (
+                    <div key={index} className="group relative flex flex-col sm:flex-row items-center gap-6 p-6 rounded-3xl bg-muted/30 border border-border/50 hover:border-primary/20 transition-all duration-300">
+                      <div className="flex flex-col gap-2 flex-1 w-full">
+                        <Label className="text-[10px] font-black text-muted-foreground uppercase ">Protocol Identifier</Label>
+                        <Input
+                          value={step.label}
+                          onChange={(e) => updateLadderStep(index, 'label', e.target.value)}
+                          className="bg-background border-none shadow-sm rounded-xl h-11 font-bold focus:ring-primary h-11"
+                          placeholder="e.g. Day 1 Courtesy"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2 w-full sm:w-28">
+                        <Label className="text-[10px] font-black text-muted-foreground uppercase ">Delay (Days)</Label>
+                        <Input
+                          type="number"
+                          value={step.delayDays ?? 0}
+                          onChange={(e) => updateLadderStep(index, 'delayDays', parseInt(e.target.value) || 0)}
+                          className="bg-background border-none shadow-sm rounded-xl h-11 font-black focus:ring-primary text-center"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-2 w-full sm:w-40">
+                        <Label className="text-[10px] font-black text-muted-foreground uppercase ">Communication Tone</Label>
+                        <Select
+                          value={step.tone}
+                          onValueChange={(val) => updateLadderStep(index, 'tone', val)}
+                        >
+                          <SelectTrigger className="bg-background border-none shadow-sm rounded-xl h-11 font-bold focus:ring-primary transition-all">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-2xl border-border shadow-2xl p-2">
+                            {['Gentle', 'Neutral', 'Firm', 'Urgent', 'Legal'].map(t => (
+                              <SelectItem key={t} value={t} className="rounded-xl font-bold text-xs py-2 px-3">{t}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="sm:pt-6">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 rounded-xl h-11 w-11"
+                          onClick={() => removeLadderStep(index)}
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
 
-              {(!settings?.escalationLadder || settings.escalationLadder.length === 0) && (
-                <div className="text-center py-10 border-2 border-dashed border-border rounded-3xl bg-muted/30">
-                  <p className="text-sm text-muted-foreground font-medium">No escalation steps defined. Click "Add Step" to start.</p>
-                </div>
-              )}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10 pt-10 border-t border-border/50">
+                    {[
+                      { id: 'createDraftsOnly', label: 'Human Review', sub: 'Queue as Gmail drafts', icon: ShieldCheck, color: 'text-emerald-500' },
+                      { id: 'smartEscalation', label: 'Smart Direct', sub: 'Auto-detect owner mail', icon: BrainCircuit, color: 'text-indigo-500' },
+                      { id: 'beforeDueReminder', label: 'Early Alerts', sub: 'Courtesy pre-due ping', icon: Bell, color: 'text-amber-500' }
+                    ].map((opt) => (
+                      <div key={opt.id} className="p-5 rounded-[2rem] border border-border bg-card hover:border-primary/20 transition-all group flex flex-col gap-4">
+                        <div className="flex items-center justify-between">
+                          <div className={cn("h-10 w-10 rounded-2xl flex items-center justify-center bg-muted group-hover:bg-primary/5 transition-colors", opt.color)}>
+                            <opt.icon className="h-5 w-5" />
+                          </div>
+                          <Checkbox
+                            checked={settings?.[opt.id] || false}
+                            onCheckedChange={(val) => updateField(opt.id, val)}
+                            className="h-6 w-6 rounded-lg"
+                          />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold uppercase text-foreground ">{opt.label}</p>
+                          <p className="text-[10px] font-medium text-muted-foreground mt-1">{opt.sub}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/10 border border-primary/20">
-                  <div className="space-y-1">
-                    <Label className="text-sm font-bold text-foreground">Draft Mode</Label>
-                    <p className="text-[10px] text-muted-foreground font-normal italic">Save drafts in Gmail instead of sending.</p>
+          {activeTab === 'n8n' && (
+            <Card className="rounded-[2.5rem] border border-border shadow-2xl shadow-neutral-500/5 bg-card animate-in fade-in slide-in-from-bottom-2">
+              <CardHeader className="p-10">
+                <div className="flex items-center gap-4 mb-2">
+                  <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                    <BrainCircuit className="h-6 w-6" />
                   </div>
-                  <Checkbox
-                    checked={settings?.createDraftsOnly || false}
-                    onCheckedChange={(val) => updateField('createDraftsOnly', val)}
-                  />
-                </div>
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
-                  <div className="space-y-1">
-                    <Label className="text-sm font-bold text-foreground">Smart Escalation</Label>
-                    <p className="text-[10px] text-muted-foreground font-normal italic">Auto-switch to owner contact.</p>
+                  <div>
+                    <CardTitle className="text-2xl font-black ">Automation Engine</CardTitle>
+                    <CardDescription className="text-sm font-medium">Bridge your financial data with autonomous collection workflows via n8n.</CardDescription>
                   </div>
-                  <Checkbox
-                    checked={settings?.smartEscalation || false}
-                    onCheckedChange={(val) => updateField('smartEscalation', val)}
-                  />
-                </div>
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
-                  <div className="space-y-1">
-                    <Label className="text-sm font-bold text-foreground">Pre-Due Alerts</Label>
-                    <p className="text-[10px] text-muted-foreground font-normal italic">Send courtesy reminder early.</p>
-                  </div>
-                  <Checkbox
-                    checked={settings?.beforeDueReminder || false}
-                    onCheckedChange={(val) => updateField('beforeDueReminder', val)}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div >
-            {/* <Card className="rounded-3xl border border-border shadow-sm overflow-hidden bg-card">
-              <CardHeader className="p-6 pb-2">
-                <div className="flex items-center gap-3">
-                  <ShieldCheck className="w-5 h-5 text-emerald-500" />
-                  <CardTitle className="text-lg font-bold">Compliance</CardTitle>
                 </div>
               </CardHeader>
-              <CardContent className="p-6 pt-4 space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50 border border-border/50">
-                  <div className="space-y-0.5">
-                    <span className="text-sm font-semibold block text-foreground">Consent Verification</span>
-                    <span className="text-[10px] text-muted-foreground">Verify manual consent for all contacts</span>
-                  </div>
-                  <Checkbox
-                    checked={settings?.consentVerified || false}
-                    onCheckedChange={(val) => updateField('consentVerified', val)}
-                  />
-                </div>
-                <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50 border border-border/50">
-                  <div className="space-y-0.5">
-                    <span className="text-sm font-semibold block text-foreground">Data Deletion Policy</span>
-                    <span className="text-[10px] text-muted-foreground">Auto-purge PII after 90 days of inactivity</span>
-                  </div>
-                  <Checkbox
-                    checked={settings?.dataDeletion || false}
-                    onCheckedChange={(val) => updateField('dataDeletion', val)}
-                  />
-                </div>
-                <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50 border border-border/50">
-                  <div className="space-y-0.5">
-                    <span className="text-sm font-semibold block text-foreground">Sentiment Logs</span>
-                    <span className="text-[10px] text-muted-foreground">Store AI analysis of customer replies</span>
-                  </div>
-                  <Checkbox
-                    checked={settings?.logSentiment || false}
-                    onCheckedChange={(val) => updateField('logSentiment', val)}
-                  />
-                </div>
-              </CardContent>
-            </Card> */}
-
-            <Card className="rounded-3xl border border-border shadow-sm overflow-hidden bg-card">
-              <CardHeader className="p-6 pb-2">
-                <div className="flex items-center gap-3">
-                  <BrainCircuit className="w-5 h-5 text-primary" />
-                  <CardTitle className="text-lg font-bold">n8n Config</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6 pt-4 space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">Read Webhook</Label>
+              <CardContent className="p-10 pt-0 space-y-8">
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-black text-muted-foreground uppercase ml-1">Ingestion Webhook (Read)</Label>
                   <Input
                     value={settings?.readWebhook || ''}
                     onChange={(e) => updateField('readWebhook', e.target.value)}
-                    className="rounded-xl h-10 bg-muted border-border font-mono text-[10px] focus:ring-primary"
+                    className="rounded-[1.25rem] h-12 bg-muted border-none font-mono text-xs focus:ring-primary px-6"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-[10px] font-bold text-muted-foreground uppercase">Write Webhook (Reminders)</Label>
+
+                <div className="space-y-3">
+                  <Label className="text-[10px] font-black text-muted-foreground uppercase ml-1">Dispatch Webhook (Execution)</Label>
                   <Input
                     value={settings?.writeWebhook || ''}
                     onChange={(e) => updateField('writeWebhook', e.target.value)}
-                    className="rounded-xl h-10 bg-muted border-border font-mono text-[10px] focus:ring-primary"
-                    placeholder="https://n8n.your-site.com/webhook/..."
+                    className="rounded-[1.25rem] h-12 bg-muted border-none font-mono text-xs focus:ring-primary px-6"
+                    placeholder="https://n8n.instance.com/webhook/..."
                   />
+
                   {settings?.writeWebhook?.includes('/webhook-test/') && (
-                    <div className="flex flex-col gap-2 mt-2 p-3 rounded-xl bg-orange-500/10 border border-orange-500/20">
-                      <p className="text-[10px] text-orange-600 font-bold leading-tight flex items-center gap-1.5">
-                        <Zap className="w-3 h-3" /> TEST WEBHOOK DETECTED
-                      </p>
-                      <p className="text-[9px] text-orange-600/80 font-medium">
-                        Test URLs only work while you are manually clicking "Execute Workflow" in n8n. 
-                        For permanent automation, use the <strong>Production URL</strong> (remove "-test") and <strong>Activate</strong> the workflow.
-                      </p>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="h-7 text-[9px] bg-background border-orange-200 text-orange-600 hover:bg-orange-50 h-6 px-2 w-fit rounded-lg"
-                        onClick={() => {
-                          const prodUrl = settings.writeWebhook.replace('/webhook-test/', '/webhook/');
-                          updateField('writeWebhook', prodUrl);
-                          toast.info('Switched to Production URL format. Please remember to activate the workflow in n8n!');
-                        }}
-                      >
-                        Switch to Production URL
-                      </Button>
+                    <div className="mt-4 p-5 rounded-3xl bg-amber-500/5 border border-amber-500/10 flex items-start gap-4">
+                      <Zap className="h-5 w-5 text-amber-600 mt-1" />
+                      <div className="space-y-2">
+                        <p className="text-xs font-black uppercase  text-amber-700">Environment Mismatch</p>
+                        <p className="text-[11px] font-medium text-amber-800/80 leading-relaxed">
+                          Detected a test webhook. Production automation requires a permanent, active workflow URL.
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="bg-amber-100 border-amber-200 text-amber-800 font-black text-[9px] uppercase  rounded-xl"
+                          onClick={() => {
+                            const prodUrl = settings.writeWebhook.replace('/webhook-test/', '/webhook/');
+                            updateField('writeWebhook', prodUrl);
+                            toast.info('Switched to suggested production URL format.');
+                          }}
+                        >
+                          Migrate to Production URL
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>
-                <div className="pt-4 border-t border-border flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <span className="text-xs font-bold text-foreground">Background Sync</span>
-                    <span className="text-[10px] text-muted-foreground block">Keep activities in sync with n8n</span>
+
+                <div className="p-6 rounded-3xl bg-muted/40 border border-border flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-xs font-black uppercase  text-foreground">Continuous Data Sync</p>
+                    <p className="text-[10px] font-medium text-muted-foreground italic">Automated activity heartbeat with n8n servers.</p>
                   </div>
                   <Checkbox
                     checked={settings?.syncActivity || false}
                     onCheckedChange={(val) => updateField('syncActivity', val)}
+                    className="h-6 w-6 rounded-lg"
                   />
                 </div>
               </CardContent>
             </Card>
-          </div>
+          )}
+
+          {/* Placeholder for other tabs to keep UI consistent */}
+          {['channels', 'security'].includes(activeTab) && (
+            <div className="h-96 w-full rounded-[2.5rem] border-2 border-dashed border-border flex flex-col items-center justify-center gap-4 bg-muted/20">
+              <Settings2 className="h-10 w-10 text-muted-foreground opacity-20" />
+              <p className="text-[10px] font-black uppercase text-muted-foreground">Advanced module coming soon</p>
+            </div>
+          )}
+
         </div>
       </div>
     </DashboardLayout>

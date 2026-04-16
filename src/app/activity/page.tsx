@@ -41,10 +41,10 @@ export default function ActivityPage() {
       try {
          if (isManual) setRefreshing(true);
          else setLoading(true);
-         
+
          const data = await fetchActivities();
          setActivities(data);
-         
+
          if (isManual) toast.success("Logs synced with database.");
       } catch (err) {
          console.error(err);
@@ -57,7 +57,7 @@ export default function ActivityPage() {
 
    React.useEffect(() => {
       loadData();
-      
+
       // Basic polling for "real-time" feel
       const interval = setInterval(() => loadData(), 15000);
       return () => clearInterval(interval);
@@ -109,12 +109,12 @@ export default function ActivityPage() {
             description="Complete real-time audit trail of all manual interactions and automated AI follow-ups."
          >
             <div className="flex items-center gap-3">
-               <Button 
-                variant="outline" 
-                size="sm" 
-                className="h-11 rounded-xl px-4 bg-background border-border hover:bg-muted font-bold transition-all"
-                onClick={() => loadData(true)}
-                disabled={refreshing}
+               <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-11 rounded-xl px-4 bg-background border-border hover:bg-muted font-bold transition-all"
+                  onClick={() => loadData(true)}
+                  disabled={refreshing}
                >
                   <RefreshCw className={cn("w-4 h-4 mr-2 text-primary", refreshing && "animate-spin")} />
                   {refreshing ? "Syncing..." : "Sync Logs"}
@@ -140,10 +140,10 @@ export default function ActivityPage() {
                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                   <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)} className="w-full sm:w-auto">
                      <TabsList className="h-12 p-1.5 bg-muted/50 rounded-2xl border border-border">
-                        <TabsTrigger value="all" className="rounded-xl h-full px-5 text-[11px] font-black uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">All Events</TabsTrigger>
-                        <TabsTrigger value="drafts" className="rounded-xl h-full px-5 text-[11px] font-black uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">Drafts</TabsTrigger>
-                        <TabsTrigger value="automated" className="rounded-xl h-full px-5 text-[11px] font-black uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">AI Automated</TabsTrigger>
-                        <TabsTrigger value="manual" className="rounded-xl h-full px-5 text-[11px] font-black uppercase tracking-widest data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">Manual</TabsTrigger>
+                        <TabsTrigger value="all" className="rounded-xl h-full px-5 text-[11px] font-black uppercase  data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">All Events</TabsTrigger>
+                        <TabsTrigger value="drafts" className="rounded-xl h-full px-5 text-[11px] font-black uppercase  data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">Drafts</TabsTrigger>
+                        <TabsTrigger value="automated" className="rounded-xl h-full px-5 text-[11px] font-black uppercase  data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">AI Automated</TabsTrigger>
+                        <TabsTrigger value="manual" className="rounded-xl h-full px-5 text-[11px] font-black uppercase  data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm">Manual</TabsTrigger>
                      </TabsList>
                   </Tabs>
 
@@ -166,7 +166,7 @@ export default function ActivityPage() {
                         <div className="flex flex-col items-center justify-center p-32 space-y-6 text-center">
                            <div className="w-16 h-16 border-4 border-primary/10 border-t-primary rounded-full animate-spin" />
                            <div>
-                              <p className="text-lg font-black text-foreground mb-1 tracking-tight">Syncing Live Logs</p>
+                              <p className="text-lg font-black text-foreground mb-1 ">Syncing Live Logs</p>
                               <p className="text-sm font-medium text-muted-foreground">Pulling latest records from database engine...</p>
                            </div>
                         </div>
@@ -177,11 +177,11 @@ export default function ActivityPage() {
                                  <div className="h-px flex-1 bg-border/60" />
                                  <div className="flex items-center gap-2 px-6 py-2 bg-neutral-50 border border-border rounded-full shadow-xs">
                                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                    <span className="text-[10px] font-black  uppercase tracking-[0.2em] text-black">Activity Streams</span>
+                                    <span className="text-[10px] font-black  uppercase text-black">Activity Streams</span>
                                  </div>
                                  <div className="h-px flex-1 bg-border/60" />
                               </div>
-                              
+
                               <div className="space-y-0 relative">
                                  {filteredActivities.map((activity, index) => (
                                     <ActivityItem
@@ -192,10 +192,10 @@ export default function ActivityPage() {
                                  ))}
                               </div>
                            </div>
-                           
-                           <Button 
-                              variant="ghost" 
-                              className="w-full mt-16 text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-primary py-8 rounded-3xl border border-dashed border-border hover:border-primary/30 transition-all group"
+
+                           <Button
+                              variant="ghost"
+                              className="w-full mt-16 text-[11px] font-black uppercase text-muted-foreground hover:text-primary py-8 rounded-3xl border border-dashed border-border hover:border-primary/30 transition-all group"
                            >
                               Load Historical Archives
                               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -207,7 +207,7 @@ export default function ActivityPage() {
                               <Calendar className="h-10 w-10 text-muted-foreground" />
                            </div>
                            <h3 className="text-xl font-bold text-foreground">No Events Recorded</h3>
-                           <p className="text-sm text-muted-foreground mt-2 max-w-[280px]">No interactions match your current database filter protocols.</p>
+                           <p className="text-sm text-muted-foreground mt-2 max-w-70">No interactions match your current database filter protocols.</p>
                         </div>
                      )}
                   </CardContent>
@@ -221,8 +221,8 @@ export default function ActivityPage() {
                   <div className="absolute top-0 right-0 p-6 opacity-10">
                      <Sparkles className="h-20 w-20" />
                   </div>
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 mb-8">AI Efficiency Score</h4>
-                  
+                  <h4 className="text-[10px] font-black uppercase text-white/70 mb-8">AI Efficiency Score</h4>
+
                   <div className="space-y-8">
                      <div>
                         <div className="flex items-baseline gap-2 mb-2">
@@ -238,12 +238,12 @@ export default function ActivityPage() {
 
                      <div className="pt-6 border-t border-white/20">
                         <div className="flex items-center justify-between mb-4">
-                           <span className="text-[11px] font-bold text-white/70 text-rose-200">Pending Actions</span>
+                           <span className="text-[11px] font-bold  text-rose-200">Pending Actions</span>
                            <span className="text-sm font-black px-2 py-0.5 rounded-lg bg-white/20">{stats.Drafts}</span>
                         </div>
-                        <Button 
-                            className="w-full bg-white text-primary hover:bg-white/90 font-black text-xs uppercase tracking-widest py-6 rounded-2xl shadow-xl transition-all"
-                            onClick={() => window.location.href = '/invoices'}
+                        <Button
+                           className="w-full bg-white text-primary hover:bg-white/90 font-black text-xs uppercase  py-6 rounded-2xl shadow-xl transition-all"
+                           onClick={() => window.location.href = '/invoices'}
                         >
                            Review Drafts
                         </Button>
@@ -253,10 +253,10 @@ export default function ActivityPage() {
 
                {/* SMART TIPS */}
                <Card className="p-8 rounded-[32px] border border-border bg-muted/30">
-                  <h4 className="text-xs font-black uppercase tracking-widest mb-6">Automation Tip</h4>
+                  <h4 className="text-xs font-black uppercase  mb-6">Automation Tip</h4>
                   <div className="space-y-4">
                      <div className="flex gap-4 p-4 rounded-2xl bg-white border border-border shadow-xs">
-                        <div className="h-10 w-10 rounded-xl bg-primary/10 flex-shrink-0 flex items-center justify-center text-primary">
+                        <div className="h-10 w-10 rounded-xl bg-primary/10 shrink-0 flex items-center justify-center text-primary">
                            <MailCheck className="w-5 h-5" />
                         </div>
                         <div>
@@ -277,17 +277,17 @@ export default function ActivityPage() {
 /* ============================= */
 
 function QuickStat({ label, value, icon: Icon, color, bgColor }: any) {
-    return (
-        <Card className="p-5 rounded-3xl border border-border shadow-xs group hover:shadow-md transition-all">
-            <div className="flex items-center gap-4">
-                <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110", bgColor)}>
-                    <Icon className={cn("w-6 h-6", color)} />
-                </div>
-                <div>
-                    <h5 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-0.5">{label}</h5>
-                    <p className="text-xl font-black tabular-nums">{value}</p>
-                </div>
+   return (
+      <Card className="p-5 rounded-3xl border border-border shadow-xs group hover:shadow-md transition-all">
+         <div className="flex items-center gap-4">
+            <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110", bgColor)}>
+               <Icon className={cn("w-6 h-6", color)} />
             </div>
-        </Card>
-    );
+            <div>
+               <h5 className="text-[10px] font-black text-muted-foreground uppercase  mb-0.5">{label}</h5>
+               <p className="text-xl font-black tabular-nums">{value}</p>
+            </div>
+         </div>
+      </Card>
+   );
 }

@@ -128,7 +128,7 @@ export default function InvoicesPage() {
       cell: ({ row }) => (
         <a
           href={`/invoices/${row.original.id}`}
-          className="font-mono text-[10px] font-bold text-primary hover:underline hover:text-primary transition-colors"
+          className="font-mono  font-bold text-primary hover:underline hover:text-primary transition-colors"
         >
           {row.original.invoice_number}
         </a>
@@ -159,30 +159,13 @@ export default function InvoicesPage() {
         return <span className="font-bold text-foreground">{formatted}</span>;
       },
     },
-     {
+    {
       accessorKey: 'dueDate',
       header: 'Issue Date',
       cell: ({ row }) => (
         <span className="text-muted-foreground font-medium">{new Date(row.getValue('dueDate')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
       ),
     },
-    // {
-    //   accessorKey: 'hasPendingDraft',
-    //   header: 'Automation',
-    //   cell: ({ row }) => {
-    //     const hasDraft = row.original.hasPendingDraft;
-    //     if (!hasDraft) return <span className="text-[10px] font-bold uppercase tracking-widest">Auto-Send</span>;
-        
-    //     return (
-    //       <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-500">
-    //         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/10 shadow-sm">
-    //           <Mail className="w-3 h-3" />
-    //           <span className="text-[10px] font-black uppercase tracking-tight">Draft Prepared</span>
-    //         </div>
-    //       </div>
-    //     );
-    //   },
-    // },
     {
       accessorKey: 'startFollowups',
       header: 'Follow-up',
@@ -198,7 +181,7 @@ export default function InvoicesPage() {
 
         const today = startOfDay(new Date());
         const isPastOrToday = isBefore(startDate, today) || startDate.getTime() === today.getTime();
-         formattedDate = startDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+        formattedDate = startDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
 
         return (
           <div className="flex items-center gap-2" title={`Follow-up configured for ${offset} days after due date`}>
@@ -210,7 +193,7 @@ export default function InvoicesPage() {
             </div>
             <div className="flex flex-col">
               <span className={cn(
-                "text-[10px] font-black uppercase tracking-tight leading-none mb-0.5",
+                "text-[10px] font-black uppercase  leading-none mb-0.5",
                 isPastOrToday ? "text-emerald-500" : "text-indigo-500"
               )}>
                 {isPastOrToday ? 'Active' : `Scheduled (+${offset}d)`}
@@ -223,7 +206,7 @@ export default function InvoicesPage() {
         );
       },
     },
-      {
+    {
       accessorKey: 'issueDate',
       header: 'Due Date',
       cell: ({ row }) => (
@@ -277,136 +260,136 @@ export default function InvoicesPage() {
       },
     },
 
-{
-  accessorKey: 'reminder_stage',
-  header: 'Automation Lifecycle',
-  cell: ({ row }) => {
-    const stages = row.original.reminder_stages || [];
-    const dates = row.original.reminder_dates || [];
+    {
+      accessorKey: 'reminder_stage',
+      header: 'Automation Lifecycle',
+      cell: ({ row }) => {
+        const stages = row.original.reminder_stages || [];
+        const dates = row.original.reminder_dates || [];
 
-    // ✅ CURRENT STAGE
-    const currentStageDelay =
-      stages.length > 0 ? Number(stages[stages.length - 1]) : 0;
+        // ✅ CURRENT STAGE
+        const currentStageDelay =
+          stages.length > 0 ? Number(stages[stages.length - 1]) : 0;
 
-    const stageIndex = currentStageDelay > 0 ? currentStageDelay - 1 : 0;
+        const stageIndex = currentStageDelay > 0 ? currentStageDelay - 1 : 0;
 
-    const ladder = settings?.escalationLadder || [];
-    const isPaid = row.original.status === 'Paid';
+        const ladder = settings?.escalationLadder || [];
+        const isPaid = row.original.status === 'Paid';
 
-    const displaySteps = Math.max(ladder.length, 3);
-    const currentStep =
-      ladder[stageIndex] || ladder[ladder.length - 1] || null;
+        const displaySteps = Math.max(ladder.length, 3);
+        const currentStep =
+          ladder[stageIndex] || ladder[ladder.length - 1] || null;
 
-    // ✅ NEXT STEP
-    const nextStep = ladder.find(
-      (step: { delayDays: any; }) => Number(step.delayDays) > currentStageDelay
-    );
+        // ✅ NEXT STEP
+        const nextStep = ladder.find(
+          (step: { delayDays: any; }) => Number(step.delayDays) > currentStageDelay
+        );
 
-    // ✅ LAST REMINDER DATE
-    const lastDate =
-      dates.length > 0 ? new Date(dates[dates.length - 1]) : null;
+        // ✅ LAST REMINDER DATE
+        const lastDate =
+          dates.length > 0 ? new Date(dates[dates.length - 1]) : null;
 
-    // ✅ NEXT REMINDER DATE
-    let nextDate: Date | null = null;
+        // ✅ NEXT REMINDER DATE
+        let nextDate: Date | null = null;
 
-    if (lastDate && nextStep) {
-      const gap =
-        Number(nextStep.delayDays) - currentStageDelay;
+        if (lastDate && nextStep) {
+          const gap =
+            Number(nextStep.delayDays) - currentStageDelay;
 
-      nextDate = new Date(lastDate);
-      nextDate.setDate(nextDate.getDate() + gap);
-    }
+          nextDate = new Date(lastDate);
+          nextDate.setDate(nextDate.getDate() + gap);
+        }
 
-    // ✅ DAYS LEFT
-    let daysLeft: number | null = null;
+        // ✅ DAYS LEFT
+        let daysLeft: number | null = null;
 
-    if (nextDate) {
-      const today = new Date();
-      daysLeft = Math.ceil(
-        (nextDate.getTime() - today.getTime()) /
-          (1000 * 60 * 60 * 24)
-      );
-    }
+        if (nextDate) {
+          const today = new Date();
+          daysLeft = Math.ceil(
+            (nextDate.getTime() - today.getTime()) /
+            (1000 * 60 * 60 * 24)
+          );
+        }
 
-    return (
-      <div className="flex flex-col gap-2.5 py-1">
+        return (
+          <div className="flex flex-col gap-2.5 py-1">
 
-        {/* PROGRESS BAR */}
-        <div className="flex items-center gap-1">
-          {Array.from({ length: displaySteps }).map((_, i) => (
-            <div
-              key={i}
-              className={cn(
-                "h-1.5 flex-1 rounded-full transition-all duration-700",
-                isPaid
-                  ? "bg-emerald-500/40"
-                  : i < stageIndex
-                  ? "bg-primary/60"
-                  : i === stageIndex
-                  ? stageIndex === 0
-                    ? "bg-emerald-500 animate-pulse"
-                    : stageIndex === 1
-                    ? "bg-amber-500 animate-pulse"
-                    : "bg-rose-500 animate-pulse"
-                  : "bg-muted"
-              )}
-            />
-          ))}
-        </div>
+            {/* PROGRESS BAR */}
+            <div className="flex items-center gap-1">
+              {Array.from({ length: displaySteps }).map((_, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "h-1.5 flex-1 rounded-full transition-all duration-700",
+                    isPaid
+                      ? "bg-emerald-500/40"
+                      : i < stageIndex
+                        ? "bg-primary/60"
+                        : i === stageIndex
+                          ? stageIndex === 0
+                            ? "bg-emerald-500 animate-pulse"
+                            : stageIndex === 1
+                              ? "bg-amber-500 animate-pulse"
+                              : "bg-rose-500 animate-pulse"
+                          : "bg-muted"
+                  )}
+                />
+              ))}
+            </div>
 
-        {/* CONTENT */}
-        <div className="flex flex-col">
+            {/* CONTENT */}
+            <div className="flex flex-col">
 
-          {/* CURRENT STAGE */}
-          <span
-            className={cn(
-              "text-[10px] font-black uppercase tracking-[0.05em]",
-              isPaid ? "text-emerald-500" : "text-foreground"
-            )}
-          >
-            {isPaid
-              ? 'Collection Successful'
-              : currentStep?.label || `Stage ${stageIndex + 1}`}
-          </span>
-
-          {/* AI TONE */}
-          {!isPaid && (
-            <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1.5">
-              <BrainCircuit className="w-3.5 h-3.5 text-primary opacity-70" />
-              AI Logic:
-              <span className="text-primary italic">
-                {currentStep?.tone} Tone
+              {/* CURRENT STAGE */}
+              <span
+                className={cn(
+                  "text-[10px] font-black uppercase tracking-[0.05em]",
+                  isPaid ? "text-emerald-500" : "text-foreground"
+                )}
+              >
+                {isPaid
+                  ? 'Collection Successful'
+                  : currentStep?.label || `Stage ${stageIndex + 1}`}
               </span>
-            </span>
-          )}
 
-          {/* NEXT STEP */}
-          {!isPaid && nextStep && (
-            <span className="text-[10px] font-semibold text-blue-500">
-              Next: {nextStep.label} •{" "}
-              {daysLeft !== null
-                ? daysLeft <= 0
-                  ? "Today"
-                  : daysLeft === 1
-                  ? "Tomorrow"
-                  : `in ${daysLeft}d`
-                : "-"}
-            </span>
-          )}
+              {/* AI TONE */}
+              {!isPaid && (
+                <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1.5">
+                  <BrainCircuit className="w-3.5 h-3.5 text-primary opacity-70" />
+                  AI Logic:
+                  <span className="text-primary italic">
+                    {currentStep?.tone} Tone
+                  </span>
+                </span>
+              )}
 
-          {/* FINAL STAGE */}
-          {!isPaid && !nextStep && (
-            <span className="text-[10px] font-semibold text-rose-500">
-              Final Stage Reached
-            </span>
-          )}
+              {/* NEXT STEP */}
+              {!isPaid && nextStep && (
+                <span className="text-[10px] font-semibold text-blue-500">
+                  Next: {nextStep.label} •{" "}
+                  {daysLeft !== null
+                    ? daysLeft <= 0
+                      ? "Today"
+                      : daysLeft === 1
+                        ? "Tomorrow"
+                        : `in ${daysLeft}d`
+                    : "-"}
+                </span>
+              )}
 
-        </div>
-      </div>
-    );
-  },
-}
-,
+              {/* FINAL STAGE */}
+              {!isPaid && !nextStep && (
+                <span className="text-[10px] font-semibold text-rose-500">
+                  Final Stage Reached
+                </span>
+              )}
+
+            </div>
+          </div>
+        );
+      },
+    }
+    ,
     {
       id: 'actions',
       cell: ({ row }) => {
@@ -437,7 +420,7 @@ export default function InvoicesPage() {
                         due_date: inv.dueDate,
                         status: inv.status,
                         startFollowups: inv.startFollowups,
-                        reminder_stage: inv.reminder_stage,                         
+                        reminder_stage: inv.reminder_stage,
                         notes: 'Manual reminder sent from dashboard'
                       });
                     }}
@@ -458,7 +441,7 @@ export default function InvoicesPage() {
                     <Filter className="w-4 h-4" /> Adjust Automation
                   </DropdownMenuItem>
                 )}
-                
+
                 {row.original.hasPendingDraft && (
                   <DropdownMenuItem
                     onClick={() => {
@@ -585,45 +568,45 @@ export default function InvoicesPage() {
             <DialogContent className="rounded-2xl max-w-lg border-border bg-card shadow-2xl p-0 overflow-hidden">
               <div className="p-8 bg-linear-to-br from-primary/5 via-transparent to-transparent">
                 <DialogHeader className="space-y-1 mb-8 text-left">
-                  <DialogTitle className="text-2xl font-bold tracking-tight text-foreground">Create New Invoice</DialogTitle>
+                  <DialogTitle className="text-2xl font-bold  text-foreground">Create New Invoice</DialogTitle>
                   <DialogDescription className="text-muted-foreground font-medium">Capture details for your records and set automation.</DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleCreateInvoice} className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="invoice_number" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Invoice ID</Label>
+                      <Label htmlFor="invoice_number" className="text-xs font-black uppercase  text-muted-foreground">Invoice ID</Label>
                       <Input id="invoice_number" name="invoice_number" placeholder="INV-2024-001" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="amount" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Amount (₹)</Label>
+                      <Label htmlFor="amount" className="text-xs font-black uppercase  text-muted-foreground">Amount (₹)</Label>
                       <Input id="amount" name="amount" type="number" placeholder="0.00" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="customer_name" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Customer Name</Label>
+                    <Label htmlFor="customer_name" className="text-xs font-black uppercase  text-muted-foreground">Customer Name</Label>
                     <Input id="customer_name" name="customer_name" placeholder="John Doe Services" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="customer_email" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Customer Email</Label>
+                    <Label htmlFor="customer_email" className="text-xs font-black uppercase  text-muted-foreground">Customer Email</Label>
                     <Input id="customer_email" name="customer_email" type="email" placeholder="client@example.com" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="due_date" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Issue Date</Label>
+                      <Label htmlFor="due_date" className="text-xs font-black uppercase  text-muted-foreground">Issue Date</Label>
                       <Input id="due_date" name="due_date" type="date" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="start_followups" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Follow-up Days</Label>
+                      <Label htmlFor="start_followups" className="text-xs font-black uppercase  text-muted-foreground">Follow-up Days</Label>
                       <Input id="start_followups" name="start_followups" type="number" defaultValue="7" placeholder="e.g. 7" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="notes" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Notes (Optional)</Label>
+                    <Label htmlFor="notes" className="text-xs font-black uppercase  text-muted-foreground">Notes (Optional)</Label>
                     <Input id="notes" name="notes" placeholder="e.g. Monthly maintenance retainer" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" />
                   </div>
 

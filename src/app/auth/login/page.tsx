@@ -30,9 +30,9 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center text-center gap-2 mb-8">
           <div className="h-12 w-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 ring-4 ring-primary/5">
-             <ShieldCheck className="h-7 w-7 text-white" />
+            <ShieldCheck className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-neutral-900 mt-2">PayPilot</h1>
+          <h1 className="text-3xl font-black  text-neutral-900 mt-2">PayPilot</h1>
           <p className="text-sm font-medium text-muted-foreground italic">"Your receivables, on autopilot."</p>
         </div>
 
@@ -47,12 +47,12 @@ export default function LoginPage() {
                 <Label htmlFor="email" className="text-sm font-bold ml-1">Work Email</Label>
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="john@company.com" 
-                    className="pl-12 h-14 rounded-2xl bg-neutral-50/50 border-none focus:bg-white focus:ring-2 focus:ring-primary shadow-sm text-base font-medium" 
-                    required 
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="john@company.com"
+                    className="pl-12 h-14 rounded-2xl bg-neutral-50/50 border-none focus:bg-white focus:ring-2 focus:ring-primary shadow-sm text-base font-medium"
+                    required
                   />
                 </div>
               </div>
@@ -60,14 +60,14 @@ export default function LoginPage() {
                 <Label htmlFor="pass" className="text-sm font-bold ml-1">Password</Label>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                  <Input 
-                    id="pass" 
-                    type={showPassword ? "text" : "password"} 
-                    placeholder="••••••••" 
-                    className="pl-12 pr-12 h-14 rounded-2xl bg-neutral-50/50 border-none focus:bg-white focus:ring-2 focus:ring-primary shadow-sm text-base font-medium" 
-                    required 
+                  <Input
+                    id="pass"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="pl-12 pr-12 h-14 rounded-2xl bg-neutral-50/50 border-none focus:bg-white focus:ring-2 focus:ring-primary shadow-sm text-base font-medium"
+                    required
                   />
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
@@ -76,7 +76,7 @@ export default function LoginPage() {
                   </button>
                 </div>
               </div>
-              
+
               <div className="flex items-center justify-between px-1">
                 <div className="flex items-center gap-2">
                   <Checkbox id="remember" className="rounded-md border-neutral-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
@@ -96,13 +96,13 @@ export default function LoginPage() {
             </p>
           </CardFooter>
         </Card>
-        
-        <div className="flex items-center justify-center gap-4 text-xs font-bold text-muted-foreground/40 uppercase tracking-widest mt-8">
-           <Link href="#" className="hover:text-primary transition-colors">Privacy</Link>
-           <span className="h-1 w-1 rounded-full bg-neutral-200" />
-           <Link href="#" className="hover:text-primary transition-colors">Terms</Link>
-           <span className="h-1 w-1 rounded-full bg-neutral-200" />
-           <Link href="#" className="hover:text-primary transition-colors">Documentation</Link>
+
+        <div className="flex items-center justify-center gap-4 text-xs font-bold text-muted-foreground/40 uppercase  mt-8">
+          <Link href="#" className="hover:text-primary transition-colors">Privacy</Link>
+          <span className="h-1 w-1 rounded-full bg-neutral-200" />
+          <Link href="#" className="hover:text-primary transition-colors">Terms</Link>
+          <span className="h-1 w-1 rounded-full bg-neutral-200" />
+          <Link href="#" className="hover:text-primary transition-colors">Documentation</Link>
         </div>
       </div>
     </div>

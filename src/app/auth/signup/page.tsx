@@ -29,9 +29,9 @@ export default function SignupPage() {
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center text-center gap-2 mb-8">
           <div className="h-12 w-12 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20 ring-4 ring-primary/5">
-             <ShieldCheck className="h-7 w-7 text-white" />
+            <ShieldCheck className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-neutral-900 mt-2">PayPilot</h1>
+          <h1 className="text-3xl font-black  text-neutral-900 mt-2">PayPilot</h1>
           <p className="text-sm font-medium text-muted-foreground italic">"Join the future of receivables management."</p>
         </div>
 
@@ -72,7 +72,7 @@ export default function SignupPage() {
                   <Input id="pass" type="password" placeholder="••••••••" className="pl-12 h-12 rounded-xl bg-neutral-50/50 border-none focus:bg-white focus:ring-2 focus:ring-primary shadow-sm font-medium" required />
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-2 px-1 pt-2">
                 <Checkbox id="terms" className="mt-0.5 rounded-md border-neutral-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary" required />
                 <Label htmlFor="terms" className="text-[11px] font-medium text-muted-foreground leading-normal cursor-pointer">

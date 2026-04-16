@@ -28,8 +28,8 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
       )}
       <div className={cn(
         "relative flex h-8 w-8 items-center justify-center rounded-full ring-1 shadow-xs transition-all",
-        activity.channel === 'Draft Created' 
-          ? "bg-orange-500/10 ring-orange-200 text-orange-600 scale-110" 
+        activity.channel === 'Draft Created'
+          ? "bg-orange-500/10 ring-orange-200 text-orange-600 scale-110"
           : "bg-neutral-50 ring-neutral-200 text-primary"
       )}>
         <Icon className="h-4 w-4" />
@@ -54,19 +54,19 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
           <StatusBadge status={activity.status} className="border-none bg-transparent h-auto py-0 px-0 shadow-none text-[10px]" />
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-2">
-            <span className="text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-black border border-border">
-              {activity.channel}
+          <span className="text-[9px] uppercase  px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-black border border-border">
+            {activity.channel}
+          </span>
+          {activity.channel === 'Manager Escalation' && (
+            <span className="text-[9px] uppercase  px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-600 font-black border border-rose-500/10">
+              Critical Alert
             </span>
-            {activity.channel === 'Manager Escalation' && (
-              <span className="text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-600 font-black border border-rose-500/10">
-                Critical Alert
-              </span>
-            )}
-            {activity.channel === 'Draft Created' && (
-              <span className="text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-600 font-black border border-orange-500/10">
-                Awaiting Approval
-              </span>
-            )}
+          )}
+          {activity.channel === 'Draft Created' && (
+            <span className="text-[9px] uppercase  px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-600 font-black border border-orange-500/10">
+              Awaiting Approval
+            </span>
+          )}
         </div>
       </div>
     </div>

@@ -86,8 +86,8 @@ function getInitials(name: string) {
 }
 const GRADS = [
   'from-violet-500 to-indigo-600', 'from-blue-500 to-cyan-500',
-  'from-emerald-500 to-teal-500',  'from-orange-500 to-amber-500',
-  'from-rose-500 to-pink-500',     'from-purple-500 to-fuchsia-500',
+  'from-emerald-500 to-teal-500', 'from-orange-500 to-amber-500',
+  'from-rose-500 to-pink-500', 'from-purple-500 to-fuchsia-500',
   'from-indigo-500 to-blue-500',
 ];
 function getGradient(name: string) {
@@ -97,9 +97,9 @@ function getGradient(name: string) {
 }
 function getRisk(risk: string) {
   const map: Record<string, { label: string; icon: React.ElementType; cls: string }> = {
-    High:   { label: 'High Risk',   icon: ShieldAlert, cls: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/60' },
-    Medium: { label: 'Medium Risk', icon: Shield,       cls: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-800/60' },
-    Low:    { label: 'Low Risk',    icon: ShieldCheck,  cls: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/60' },
+    High: { label: 'High Risk', icon: ShieldAlert, cls: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/60' },
+    Medium: { label: 'Medium Risk', icon: Shield, cls: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-800/60' },
+    Low: { label: 'Low Risk', icon: ShieldCheck, cls: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/60' },
   };
   return map[risk] ?? map.Low;
 }
@@ -122,21 +122,21 @@ function toneConfig(tone: string): { icon: React.ElementType; fill: string; ring
   if (t.includes('whatsapp') || t.includes('sms') || t.includes('message'))
     return { icon: MessageCircle, fill: 'bg-green-500 border-green-600', ring: 'ring-green-200 dark:ring-green-900', label: 'WhatsApp' };
   if (t.includes('manager') || t.includes('escalat'))
-    return { icon: UserCheck2,   fill: 'bg-orange-500 border-orange-600', ring: 'ring-orange-200 dark:ring-orange-900', label: 'Manager' };
+    return { icon: UserCheck2, fill: 'bg-orange-500 border-orange-600', ring: 'ring-orange-200 dark:ring-orange-900', label: 'Manager' };
   if (t.includes('final') || t.includes('legal') || t.includes('demand'))
-    return { icon: FileWarning,  fill: 'bg-rose-600 border-rose-700', ring: 'ring-rose-200 dark:ring-rose-900', label: 'Final' };
+    return { icon: FileWarning, fill: 'bg-rose-600 border-rose-700', ring: 'ring-rose-200 dark:ring-rose-900', label: 'Final' };
   if (t.includes('urgent') || t.includes('firm'))
-    return { icon: Zap,          fill: 'bg-amber-500 border-amber-600', ring: 'ring-amber-200 dark:ring-amber-900', label: 'Firm' };
+    return { icon: Zap, fill: 'bg-amber-500 border-amber-600', ring: 'ring-amber-200 dark:ring-amber-900', label: 'Firm' };
   // gentle / neutral / default = email
-  return { icon: Mail,           fill: 'bg-blue-500 border-blue-600', ring: 'ring-blue-200 dark:ring-blue-900', label: 'Email' };
+  return { icon: Mail, fill: 'bg-blue-500 border-blue-600', ring: 'ring-blue-200 dark:ring-blue-900', label: 'Email' };
 }
 
 // Default ladder when none configured
 const DEFAULT_LADDER: LadderStep[] = [
-  { delayDays: 3,  tone: 'Gentle',   label: 'Reminder 1' },
-  { delayDays: 7,  tone: 'Firm',     label: 'Reminder 2' },
-  { delayDays: 14, tone: 'Urgent',   label: 'Reminder 3' },
-  { delayDays: 21, tone: 'Manager',  label: 'Manager Escalation' },
+  { delayDays: 3, tone: 'Gentle', label: 'Reminder 1' },
+  { delayDays: 7, tone: 'Firm', label: 'Reminder 2' },
+  { delayDays: 14, tone: 'Urgent', label: 'Reminder 3' },
+  { delayDays: 21, tone: 'Manager', label: 'Manager Escalation' },
 ];
 
 // ─── COLLECTION JOURNEY component ────────────────────────────────────────────
@@ -159,136 +159,83 @@ function CollectionJourney({
   customer: Customer;
   ladder: LadderStep[];
 }) {
-  const { stagesUsed, paidAtStage, maxReminderStage, escalationReached,
-          totalInvoices, riskLevel, onTimeRate } = customer;
+  const {
+    paidAtStage,
+    maxReminderStage,
+    escalationReached,
+    totalInvoices,
+    riskLevel,
+    onTimeRate,
+  } = customer;
 
-  const steps = ladder.length > 0 ? ladder : DEFAULT_LADDER;
+  const steps = ladder.length ? ladder : DEFAULT_LADDER;
+  const totalSteps = steps.length;
 
-  // ── Edge cases ────────────────────────────────────────────────
   if (totalInvoices === 0) {
-    return <span className="text-[10px] text-muted-foreground italic">New customer</span>;
-  }
-
-  if (maxReminderStage === 0 && stagesUsed.length === 0) {
-    // No reminders ever sent
-    if (riskLevel === 'Low' && onTimeRate === 100) {
-      return (
-        <div className="flex items-center gap-1">
-          <div className="h-5 w-5 rounded-full bg-emerald-100 dark:bg-emerald-950/40 border border-emerald-300 flex items-center justify-center">
-            <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-          </div>
-          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">Pays before reminder</span>
-        </div>
-      );
-    }
-    // pending but no reminders yet
     return (
-      <div className="flex items-center gap-1.5">
-        <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="text-[10px] text-muted-foreground font-medium">No reminders sent yet</span>
-      </div>
+      <span className="text-[10px] text-muted-foreground italic">
+        New customer
+      </span>
     );
   }
 
-  // ── Step state logic ──────────────────────────────────────────
-  const isOverdue = riskLevel !== 'Low';
-  // paid = has a paidAtStage OR onTimeRate > 0 with low/no overdue
+  const isOverdue = riskLevel !== "Low";
   const hasPaid = paidAtStage > 0 || (!isOverdue && onTimeRate > 0);
 
+  const currentStage = hasPaid
+    ? paidAtStage || totalSteps
+    : Math.max(maxReminderStage, 0);
+
+  const progress = Math.min(
+    100,
+    Math.round((currentStage / totalSteps) * 100)
+  );
+
+  const riskBadge =
+    riskLevel === "Low"
+      ? "bg-emerald-100 text-emerald-700"
+      : riskLevel === "Medium"
+        ? "bg-yellow-100 text-yellow-700"
+        : "bg-red-100 text-red-700";
+
   return (
-    <div className="flex items-center gap-0 min-w-0">
-      {steps.map((step, idx) => {
-        const stage = idx + 1;  // 1-indexed
-        const sent    = stagesUsed.includes(stage) || maxReminderStage >= stage;
-        const isActive = !hasPaid && maxReminderStage === stage && isOverdue;
-        // "paid here" = this is where payment typically happened
-        const paidHere = hasPaid && paidAtStage === stage;
-        // Show a "paid before this step" marker on the first step if paidAtStage === 0 but paid
-        const paidBeforeStart = idx === 0 && hasPaid && paidAtStage === 0;
+    <div className="flex items-center gap-2 min-w-0">
 
-        const tc = toneConfig(step.tone);
-        const StepIcon = tc.icon;
+      {/* Risk badge */}
+      {/* <span className={`text-[10px] px-2 py-0.5 rounded font-semibold ${riskBadge}`}>
+        {riskLevel.toUpperCase()}
+      </span> */}
 
-        return (
-          <React.Fragment key={idx}>
-            {/* Connector */}
-            {idx > 0 && (
-              <div className={cn(
-                'h-px shrink-0 transition-colors',
-                sent ? 'w-3 bg-muted-foreground/50' : 'w-2 bg-muted/80',
-              )} />
-            )}
+      {/* Progress bar container */}
+      <div className="relative flex-1 h-2 bg-muted rounded-full overflow-hidden">
+        <div
+          className={`h-full transition-all ${hasPaid ? "bg-emerald-500" : isOverdue ? "bg-red-500" : "bg-blue-500"
+            }`}
+          style={{ width: `${progress}%` }}
+        />
+      </div>
 
-            {/* Step node */}
-            <div className="relative group/node shrink-0">
-              <div
-                className={cn(
-                  'relative h-7 px-2 rounded-lg border text-[9px] font-black flex items-center gap-1 transition-all duration-200 select-none',
-                  // State styles
-                  sent && paidHere  ? 'bg-emerald-500 border-emerald-600 text-white shadow-sm shadow-emerald-200 dark:shadow-emerald-900' :
-                  sent && isActive  ? `${tc.fill} text-white shadow-sm ring-2 ${tc.ring} animate-pulse` :
-                  sent              ? `${tc.fill} text-white opacity-80` :
-                  /* pending */       'bg-muted/60 border-border text-muted-foreground opacity-40',
-                )}
-              >
-                {sent && paidHere ? (
-                  <CheckCircle2 className="h-3 w-3 shrink-0" />
-                ) : (
-                  <StepIcon className="h-3 w-3 shrink-0" />
-                )}
-                <span className="whitespace-nowrap">{step.label}</span>
+      {/* Stage indicator */}
+      <span className="text-[10px] font-semibold text-muted-foreground whitespace-nowrap">
+        Stage {currentStage}/{totalSteps}
+      </span>
 
-                {/* "Active now" pulse dot */}
-                {isActive && (
-                  <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-rose-500 border-2 border-background" />
-                )}
-                {/* "Paid here" tick */}
-                {paidHere && !isActive && (
-                  <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-emerald-400 border-2 border-background flex items-center justify-center">
-                    <CheckCircle2 className="h-2 w-2 text-white" />
-                  </span>
-                )}
-              </div>
+      {/* Status dot */}
+      <div className="flex items-center gap-1">
+        <span
+          className={`h-2 w-2 rounded-full ${hasPaid ? "bg-emerald-500" : isOverdue ? "bg-red-500 animate-pulse" : "bg-blue-500"
+            }`}
+        />
+        <span className="text-[10px] font-bold text-muted-foreground">
+          {hasPaid ? "PAID" : isOverdue ? "OVERDUE" : "IN PROGRESS"}
+        </span>
+      </div>
 
-              {/* Tooltip */}
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/node:block z-50 pointer-events-none whitespace-nowrap">
-                <div className="bg-popover text-popover-foreground shadow-xl border border-border rounded-xl px-3 py-2 text-[10px]">
-                  <p className="font-bold text-foreground">{step.label}</p>
-                  <p className="text-muted-foreground">Day {step.delayDays} after due · <span className="font-semibold capitalize">{step.tone}</span> tone</p>
-                  {paidHere && <p className="text-emerald-600 font-bold mt-0.5">✓ Customer paid after this step</p>}
-                  {isActive  && <p className="text-rose-500 font-bold mt-0.5">⚠ Currently at this step (overdue)</p>}
-                  {!sent     && <p className="text-muted-foreground mt-0.5 italic">Not yet reached</p>}
-                </div>
-              </div>
-            </div>
-          </React.Fragment>
-        );
-      })}
-
-      {/* Outcome tail */}
-      {hasPaid && !escalationReached && (
-        <>
-          <div className="h-px w-2 bg-emerald-400 shrink-0" />
-          <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-lg px-2 py-1 shrink-0">
-            <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span className="text-[9px] font-black text-emerald-700 dark:text-emerald-400">PAID</span>
-          </div>
-        </>
-      )}
-      {!hasPaid && isOverdue && (
-        <>
-          <div className="h-px w-2 bg-rose-400 shrink-0" />
-          <div className="flex items-center gap-1 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/50 rounded-lg px-2 py-1 shrink-0">
-            <XCircle className="h-3 w-3 text-rose-600 dark:text-rose-400 shrink-0" />
-            <span className="text-[9px] font-black text-rose-700 dark:text-rose-400">OVERDUE</span>
-          </div>
-        </>
-      )}
+      {/* Escalation flag */}
       {escalationReached && (
-        <div className="ml-1.5 flex items-center gap-1 bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800/50 rounded-lg px-2 py-1 shrink-0">
-          <AlertTriangle className="h-3 w-3 text-orange-600 shrink-0" />
-          <span className="text-[9px] font-black text-orange-700 dark:text-orange-400">MGR</span>
-        </div>
+        <span className="ml-1 text-[10px] px-2 py-0.5 rounded bg-orange-100 text-orange-700 font-semibold">
+          ESCALATED
+        </span>
       )}
     </div>
   );
@@ -305,7 +252,7 @@ function StatCard({ icon: Icon, label, value, sub, iconBg }: {
         <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">{label}</p>
+        <p className="text-[10px] font-bold text-muted-foreground uppercase  leading-none">{label}</p>
         <p className="text-xl font-black text-foreground leading-snug mt-0.5">{value}</p>
         <p className="text-[10px] font-medium text-muted-foreground leading-none">{sub}</p>
       </div>
@@ -319,7 +266,7 @@ function SortHeader({ column, label }: { column: any; label: string }) {
   return (
     <button
       onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      className="flex items-center gap-1 text-[10px] font-black text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors group"
+      className="flex items-center gap-1 text-[10px] font-black text-muted-foreground uppercase  hover:text-foreground transition-colors group"
     >
       {label}
       <ArrowUpDown className={cn('h-3 w-3', column.getIsSorted() ? 'text-primary' : 'opacity-30 group-hover:opacity-60')} />
@@ -339,7 +286,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
         const c = row.original;
         return (
           <a href={`/customers/${c.id}`} className="flex items-center gap-3 group min-w-0">
-            <div className={cn('h-9 w-9 rounded-xl bg-gradient-to-br flex items-center justify-center shrink-0 text-white font-black text-xs shadow-sm', getGradient(c.name))}>
+            <div className={cn('h-9 w-9 rounded-xl bg-linear-to-br flex items-center justify-center shrink-0 text-white font-black text-xs shadow-sm', getGradient(c.name))}>
               {getInitials(c.name)}
             </div>
             <div className="min-w-0">
@@ -381,7 +328,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
     {
       id: 'collectionJourney',
       header: () => (
-        <div className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+        <div className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground uppercase ">
           <Zap className="h-3 w-3 text-amber-500" />
           Collection Journey
         </div>
@@ -393,28 +340,28 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
     },
 
     // 4. AI Insight
-    {
-      accessorKey: 'aiInsight',
-      header: () => (
-        <div className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-          <BrainCircuit className="h-3 w-3 text-indigo-500" /> AI Insight
-        </div>
-      ),
-      cell: ({ row }) => {
-        const insight = row.getValue('aiInsight') as string | undefined;
-        return (
-          <div className="w-44">
-            <div className="flex items-start gap-1.5 bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-xl px-2 py-1.5">
-              <BrainCircuit className="h-3 w-3 text-indigo-500 shrink-0 mt-0.5" />
-              <p className="text-[10px] text-indigo-700 dark:text-indigo-300 font-medium leading-snug italic line-clamp-2">
-                {insight ?? 'Analysing…'}
-              </p>
-            </div>
-          </div>
-        );
-      },
-      enableSorting: false,
-    },
+    // {
+    //   accessorKey: 'aiInsight',
+    //   header: () => (
+    //     <div className="flex items-center gap-1.5 text-[10px] font-black text-muted-foreground uppercase ">
+    //       <BrainCircuit className="h-3 w-3 text-indigo-500" /> AI Insight
+    //     </div>
+    //   ),
+    //   cell: ({ row }) => {
+    //     const insight = row.getValue('aiInsight') as string | undefined;
+    //     return (
+    //       <div className="w-44">
+    //         <div className="flex items-start gap-1.5 bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-xl px-2 py-1.5">
+    //           <BrainCircuit className="h-3 w-3 text-indigo-500 shrink-0 mt-0.5" />
+    //           <p className="text-[10px] text-indigo-700 dark:text-indigo-300 font-medium leading-snug italic line-clamp-2">
+    //             {insight ?? 'Analysing…'}
+    //           </p>
+    //         </div>
+    //       </div>
+    //     );
+    //   },
+    //   enableSorting: false,
+    // },
 
     // 5. Score
     {
@@ -497,7 +444,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-2xl border-border shadow-2xl p-1.5 w-52 bg-popover animate-in fade-in zoom-in-95 duration-150">
               <DropdownMenuGroup>
-                <DropdownMenuLabel className="text-[10px] font-bold text-muted-foreground uppercase px-2 py-1.5 tracking-widest">Actions</DropdownMenuLabel>
+                <DropdownMenuLabel className="text-[10px] font-bold text-muted-foreground uppercase px-2 py-1.5 ">Actions</DropdownMenuLabel>
                 <DropdownMenuItem className="rounded-xl cursor-pointer px-2.5 py-2 text-sm font-medium flex items-center gap-2.5 hover:bg-primary/5 hover:text-primary transition-colors"
                   onClick={() => { window.location.href = `/customers/${c.id}`; }}>
                   <Eye className="w-4 h-4" /> View Profile
@@ -521,10 +468,10 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function CustomersPage() {
-  const [customers, setCustomers]   = React.useState<Customer[]>([]);
-  const [ladder, setLadder]         = React.useState<LadderStep[]>([]);
-  const [loading, setLoading]       = React.useState(true);
-  const [sorting, setSorting]       = React.useState<SortingState>([]);
+  const [customers, setCustomers] = React.useState<Customer[]>([]);
+  const [ladder, setLadder] = React.useState<LadderStep[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 
@@ -532,34 +479,34 @@ export default function CustomersPage() {
     async function load() {
       setLoading(true);
       try {
-        const res  = await fetch('/api/dashboard', { cache: 'no-store' });
+        const res = await fetch('/api/dashboard', { cache: 'no-store' });
         const data = await res.json();
 
         // Normalise customers
         const normalizeRisk = (r: string): Customer['riskLevel'] => {
           const v = (r ?? '').toLowerCase();
-          if (v.includes('high'))   return 'High';
+          if (v.includes('high')) return 'High';
           if (v.includes('medium')) return 'Medium';
           return 'Low';
         };
         const mapped: Customer[] = (data.customers ?? []).map((c: any) => ({
-          id:                c.id ?? '',
-          name:              c.name ?? '',
-          email:             c.email ?? '',
-          phone:             String(c.phone ?? ''),
-          totalInvoices:     Number(c.totalInvoices ?? 0),
-          behaviorScore:     Number(c.behaviorScore ?? 0),
-          riskLevel:         normalizeRisk(c.riskLevel),
-          totalOutstanding:  Number(c.totalOutstanding ?? 0),
-          avgDelay:          Number(c.avgDelay ?? 0),
-          onTimeRate:        Number(c.onTimeRate ?? 0),
-          aiInsight:         c.aiInsight ?? '',
-          notes:             c.notes ?? '',
-          maxReminderStage:  Number(c.maxReminderStage ?? 0),
-          avgReminderStage:  Number(c.avgReminderStage ?? 0),
+          id: c.id ?? '',
+          name: c.name ?? '',
+          email: c.email ?? '',
+          phone: String(c.phone ?? ''),
+          totalInvoices: Number(c.totalInvoices ?? 0),
+          behaviorScore: Number(c.behaviorScore ?? 0),
+          riskLevel: normalizeRisk(c.riskLevel),
+          totalOutstanding: Number(c.totalOutstanding ?? 0),
+          avgDelay: Number(c.avgDelay ?? 0),
+          onTimeRate: Number(c.onTimeRate ?? 0),
+          aiInsight: c.aiInsight ?? '',
+          notes: c.notes ?? '',
+          maxReminderStage: Number(c.maxReminderStage ?? 0),
+          avgReminderStage: Number(c.avgReminderStage ?? 0),
           escalationReached: Boolean(c.escalationReached ?? false),
-          stagesUsed:        Array.isArray(c.stagesUsed) ? c.stagesUsed : [],
-          paidAtStage:       Number(c.paidAtStage ?? 0),
+          stagesUsed: Array.isArray(c.stagesUsed) ? c.stagesUsed : [],
+          paidAtStage: Number(c.paidAtStage ?? 0),
         }));
 
         setCustomers(mapped);
@@ -574,13 +521,13 @@ export default function CustomersPage() {
   }, []);
 
   // Derived metrics
-  const total       = customers.length;
-  const low         = customers.filter(c => c.riskLevel === 'Low').length;
-  const med         = customers.filter(c => c.riskLevel === 'Medium').length;
-  const high        = customers.filter(c => c.riskLevel === 'High').length;
+  const total = customers.length;
+  const low = customers.filter(c => c.riskLevel === 'Low').length;
+  const med = customers.filter(c => c.riskLevel === 'Medium').length;
+  const high = customers.filter(c => c.riskLevel === 'High').length;
   const outstanding = customers.reduce((s, c) => s + c.totalOutstanding, 0);
-  const escalated   = customers.filter(c => c.escalationReached).length;
-  const paidFirst   = customers.filter(c => c.paidAtStage <= 1 && c.onTimeRate > 0).length;
+  const escalated = customers.filter(c => c.escalationReached).length;
+  const paidFirst = customers.filter(c => c.paidAtStage <= 1 && c.onTimeRate > 0).length;
 
   // Table columns depend on ladder (re-memoize when ladder changes)
   const columns = React.useMemo(() => buildColumns(ladder), [ladder]);
@@ -613,9 +560,9 @@ export default function CustomersPage() {
               <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
                 <Users className="h-4 w-4 text-primary" />
               </div>
-              <h1 className="text-2xl font-black tracking-tight">Customer Intelligence</h1>
+              <h1 className="text-2xl font-black ">Customer Intelligence</h1>
             </div>
-            <p className="text-sm text-muted-foreground font-medium pl-[42px]">
+            <p className="text-sm text-muted-foreground font-medium pl-10.5">
               Portfolio analysis · escalation journeys · AI payment behaviour
             </p>
           </div>
@@ -630,13 +577,13 @@ export default function CustomersPage() {
         </div>
 
         {/* ── Stats ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <StatCard icon={Building2}    label="Portfolio"   value={loading ? '—' : total}       sub="Total accounts"  iconBg="bg-primary/10 text-primary" />
-          <StatCard icon={ShieldCheck}  label="Healthy"     value={loading ? '—' : low}         sub="Low risk"        iconBg="bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400" />
-          <StatCard icon={Shield}       label="At Watch"    value={loading ? '—' : med}         sub="Medium risk"     iconBg="bg-amber-100 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400" />
-          <StatCard icon={ShieldAlert}  label="Critical"    value={loading ? '—' : high}        sub="High risk"       iconBg="bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400" />
-          <StatCard icon={AlertTriangle} label="Escalated"  value={loading ? '—' : escalated}   sub="Manager involved" iconBg="bg-orange-100 text-orange-600 dark:bg-orange-950/50 dark:text-orange-400" />
-          <StatCard icon={IndianRupee}  label="Outstanding" value={loading ? '—' : fmt(outstanding)} sub="Pending recovery" iconBg="bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          <StatCard icon={Building2} label="Portfolio" value={loading ? '—' : total} sub="Total accounts" iconBg="bg-primary/10 text-primary" />
+          {/* <StatCard icon={ShieldCheck} label="Healthy" value={loading ? '—' : low} sub="Low risk" iconBg="bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400" /> */}
+          <StatCard icon={Shield} label="At Watch" value={loading ? '—' : med} sub="Medium risk" iconBg="bg-amber-100 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400" />
+          <StatCard icon={ShieldAlert} label="Critical" value={loading ? '—' : high} sub="High risk" iconBg="bg-rose-100 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400" />
+          <StatCard icon={AlertTriangle} label="Escalated" value={loading ? '—' : escalated} sub="Manager involved" iconBg="bg-orange-100 text-orange-600 dark:bg-orange-950/50 dark:text-orange-400" />
+          <StatCard icon={IndianRupee} label="Outstanding" value={loading ? '—' : fmt(outstanding)} sub="Pending recovery" iconBg="bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400" />
         </div>
 
         {/* ── Journey Legend Banner ── */}
@@ -645,7 +592,7 @@ export default function CustomersPage() {
             <div className="flex flex-col lg:flex-row lg:items-center gap-4">
               <div className="flex items-center gap-2 shrink-0">
                 <Zap className="h-4 w-4 text-amber-500" />
-                <span className="text-xs font-black text-foreground uppercase tracking-widest">
+                <span className="text-xs font-black text-foreground uppercase ">
                   Your Escalation Ladder
                 </span>
                 {ladder.length === 0 && (
@@ -687,9 +634,9 @@ export default function CustomersPage() {
               {total > 0 && (
                 <div className="hidden xl:flex items-center gap-3 border-l border-border pl-4 ml-auto shrink-0">
                   <div className="w-28 h-2 rounded-full bg-muted overflow-hidden flex">
-                    <div className="h-full bg-emerald-500" style={{ width: `${(low/total)*100}%` }} />
-                    <div className="h-full bg-amber-400"   style={{ width: `${(med/total)*100}%` }} />
-                    <div className="h-full bg-rose-500"    style={{ width: `${(high/total)*100}%` }} />
+                    <div className="h-full bg-emerald-500" style={{ width: `${(low / total) * 100}%` }} />
+                    <div className="h-full bg-amber-400" style={{ width: `${(med / total) * 100}%` }} />
+                    <div className="h-full bg-rose-500" style={{ width: `${(high / total) * 100}%` }} />
                   </div>
                   <div className="text-[10px] font-semibold text-muted-foreground">
                     {low}L · {med}M · {high}H
@@ -725,7 +672,7 @@ export default function CustomersPage() {
                   <Settings2 className="h-4 w-4" /> Columns
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="rounded-2xl border-border shadow-xl p-2 w-52 bg-card">
-                  <DropdownMenuLabel className="text-[10px] font-black tracking-widest text-muted-foreground uppercase px-2 py-1.5">
+                  <DropdownMenuLabel className="text-[10px] font-black  text-muted-foreground uppercase px-2 py-1.5">
                     Toggle Columns
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-border" />
@@ -772,7 +719,7 @@ export default function CustomersPage() {
                     table.getRowModel().rows.map(row => (
                       <TableRow
                         key={row.id}
-                        className="group/row border-b border-border/60 last:border-0 hover:bg-primary/[0.015] transition-colors duration-150"
+                        className="group/row border-b border-border/60 last:border-0 hover:bg-primary/1.5 transition-colors duration-150"
                       >
                         {row.getVisibleCells().map(cell => (
                           <TableCell key={cell.id} className="px-4 py-3 align-middle">
