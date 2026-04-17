@@ -270,16 +270,18 @@ function StatCard({
 // ─── Sort Header ──────────────────────────────────────────────────────────────
 
 function SortHeader({ column, label }: { column: any; label: string }) {
+  const isSorted = column.getIsSorted();
   return (
     <button
-      onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      className="flex items-center gap-1 text-[11px] font-semibold  uppercase tracking-wider hover: transition-colors group"
+      type="button"
+      onClick={column.getToggleSortingHandler()}
+      className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider hover:text-slate-900 transition-colors group cursor-pointer"
     >
       {label}
       <ArrowUpDown
         className={cn(
           'h-3 w-3 transition-opacity',
-          column.getIsSorted() ? 'text-blue-500 opacity-100' : 'opacity-30 group-hover:opacity-60'
+          isSorted ? 'text-blue-500 opacity-100' : 'opacity-30 group-hover:opacity-60'
         )}
       />
     </button>
@@ -432,13 +434,14 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
               render={
                 <Button
                   variant="ghost"
-                  className="h-7 w-7 p-0 rounded-lg opacity-0 group-hover/row:opacity-100 focus:opacity-100 transition-opacity hover:bg-slate-100"
-                />
+                  size="icon-sm"
+                  className="opacity-0 group-hover/row:opacity-100 focus:opacity-100 transition-opacity hover:bg-slate-100"
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                  <span className="sr-only">Actions</span>
+                </Button>
               }
-            >
-              <span className="sr-only">Actions</span>
-              <MoreHorizontal className="h-4 w-4 " />
-            </DropdownMenuTrigger>
+            />
             <DropdownMenuContent
               align="end"
               className="rounded-xl  shadow-lg p-1 w-44 "
@@ -697,7 +700,7 @@ export default function CustomersPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 rounded-lg px-3 text-xs font-medium gap-1.5 border-slate-200   "
+                      className="h-8 rounded-lg px-3 text-xs font-medium gap-1.5 border-slate-200"
                     >
                       <Settings2 className="h-3.5 w-3.5" />
                       Columns

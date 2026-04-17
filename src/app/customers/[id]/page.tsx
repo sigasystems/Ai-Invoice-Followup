@@ -8,7 +8,7 @@ import { DataTable } from "@/components/shared/data-table"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Users, ArrowLeft, Mail, MessageSquare, TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, IndianRupee } from "lucide-react"
+import { ArrowLeft, Mail, TrendingUp, ShieldCheck } from "lucide-react"
 import { fetchInvoices, fetchCustomers } from "@/lib/api"
 import { Customer, Invoice } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
@@ -80,12 +80,12 @@ export default function CustomerDetailPage() {
                )}>
                   <div className="flex items-center justify-between mb-8">
                      <ShieldCheck className="w-8 h-8 opacity-20" />
-                     <span className="text-[12px] font-black uppercase  bg-white/20 px-2 py-1 rounded-lg">Trust Level</span>
+                     <span className="text-[12px] font-semibold uppercase  /20 px-2 py-1 rounded-lg">Trust Level</span>
                   </div>
                   <h4 className="text-sm font-bold opacity-80 mb-1">Behavioral Score</h4>
-                  <h2 className="text-5xl font-black mb-4">{customer.behaviorScore}</h2>
-                  <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
-                     <div className="h-full bg-white shadow-lg" style={{ width: `${customer.behaviorScore}%` }} />
+                  <h2 className="text-5xl font-semibold mb-4">{customer.behaviorScore}</h2>
+                  <div className="h-1.5 w-full /20 rounded-full overflow-hidden">
+                     <div className="h-full  shadow-lg" style={{ width: `${customer.behaviorScore}%` }} />
                   </div>
                   <p className="text-[12px] mt-4 font-bold opacity-70 italic leading-snug">
                      Based on historical payment delay, communication sentiment, and default frequency.
@@ -93,19 +93,19 @@ export default function CustomerDetailPage() {
                </Card>
 
                {/* Contact Info */}
-               <Card className="rounded-3xl border-none shadow-xl shadow-primary/5 bg-white p-6">
+               <Card className="rounded-3xl border-none shadow-xl shadow-primary/5  p-6">
                   <h4 className="text-xs font-bold text-muted-foreground uppercase mb-4">Contract Details</h4>
                   <div className="space-y-4">
                      <div>
-                        <p className="text-[12px] font-black uppercase text-muted-foreground mb-0.5">Email</p>
-                        <p className="text-sm font-bold text-neutral-900 border-b border-neutral-50 pb-2">{customer.email}</p>
+                        <p className="text-[12px] font-semibold uppercase text-muted-foreground mb-0.5">Email</p>
+                        <p className="text-sm font-bold  border-b border-neutral-50 pb-2">{customer.email}</p>
                      </div>
                      <div>
-                        <p className="text-[12px] font-black uppercase text-muted-foreground mb-0.5">Phone</p>
-                        <p className="text-sm font-bold text-neutral-900 border-b border-neutral-50 pb-2">{customer.phone}</p>
+                        <p className="text-[12px] font-semibold uppercase text-muted-foreground mb-0.5">Phone</p>
+                        <p className="text-sm font-bold  border-b border-neutral-50 pb-2">{customer.phone}</p>
                      </div>
                      <div>
-                        <p className="text-[12px] font-black uppercase text-muted-foreground mb-0.5">Performance</p>
+                        <p className="text-[12px] font-semibold uppercase text-muted-foreground mb-0.5">Performance</p>
                         <div className="flex items-center gap-2 mt-1">
                            <TrendingUp className="w-4 h-4 text-emerald-500" />
                            <span className="text-xs font-bold text-emerald-600">{customer.onTimeRate}% On-time rate</span>
@@ -123,24 +123,24 @@ export default function CustomerDetailPage() {
             <div className="lg:col-span-3 space-y-8">
                {/* Financial Recap */}
                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-white p-6 rounded-3xl border-none shadow-xl shadow-primary/5 flex flex-col gap-1">
-                     <p className="text-[12px] font-black text-muted-foreground uppercase">Total Outstanding</p>
-                     <p className="text-2xl font-black text-rose-600">₹{customer.totalOutstanding.toLocaleString()}</p>
+                  <div className=" p-6 rounded-3xl border-none shadow-xl shadow-primary/5 flex flex-col gap-1">
+                     <p className="text-[12px] font-semibold text-muted-foreground uppercase">Total Outstanding</p>
+                     <p className="text-2xl font-semibold text-rose-600">₹{customer.totalOutstanding.toLocaleString()}</p>
                   </div>
-                  <div className="bg-white p-6 rounded-3xl border-none shadow-xl shadow-primary/5 flex flex-col gap-1">
-                     <p className="text-[12px] font-black text-muted-foreground uppercase">Avg. Payment Delay</p>
-                     <p className="text-2xl font-black text-neutral-900">{customer.avgDelay} Days</p>
+                  <div className=" p-6 rounded-3xl border-none shadow-xl shadow-primary/5 flex flex-col gap-1">
+                     <p className="text-[12px] font-semibold text-muted-foreground uppercase">Avg. Payment Delay</p>
+                     <p className="text-2xl font-semibold ">{customer.avgDelay} Days</p>
                   </div>
-                  <div className="bg-white p-6 rounded-3xl border-none shadow-xl shadow-primary/5 flex flex-col gap-1">
-                     <p className="text-[12px] font-black text-muted-foreground uppercase">Total Invoices</p>
-                     <p className="text-2xl font-black text-neutral-900">{customer.totalInvoices}</p>
+                  <div className=" p-6 rounded-3xl border-none shadow-xl shadow-primary/5 flex flex-col gap-1">
+                     <p className="text-[12px] font-semibold text-muted-foreground uppercase">Total Invoices</p>
+                     <p className="text-2xl font-semibold ">{customer.totalInvoices}</p>
                   </div>
                </div>
 
                {/* Invoice History */}
-               <Card className="rounded-3xl border-none shadow-xl shadow-primary/5 bg-white overflow-hidden">
+               <Card className="rounded-3xl border-none shadow-xl shadow-primary/5  overflow-hidden">
                   <CardHeader className="p-8">
-                     <CardTitle className="text-lg font-bold">Billing Record</CardTitle>
+                     <CardTitle className="text-lg font-semibold">Billing Record</CardTitle>
                      <CardDescription className="text-xs font-semibold">Complete ledger for {customer.name}.</CardDescription>
                   </CardHeader>
                   <CardContent className="px-8 pb-8 pt-0">
@@ -149,14 +149,14 @@ export default function CustomerDetailPage() {
                </Card>
 
                {/* AI Analysis Card */}
-               <Card className="rounded-3xl border-none shadow-xl shadow-primary/5 bg-indigo-50/50 p-8">
+               <Card className="rounded-3xl border-none shadow-xl shadow-primary/5  p-8">
                   <div className="flex items-start gap-4">
-                     <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center shrink-0">
+                     <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0">
                         <TrendingUp className="w-6 h-6 text-indigo-600" />
                      </div>
                      <div>
-                        <h4 className="text-sm font-black text-indigo-950 mb-2 underline decoration-indigo-200 underline-offset-4">Strategic Recommendation</h4>
-                        <p className="text-sm font-medium text-indigo-900/80 leading-relaxed italic">
+                        <h4 className="text-sm font-semibold  mb-2 underline decoration-indigo-200 underline-offset-4">Strategic Recommendation</h4>
+                        <p className="text-sm font-medium  leading-relaxed italic">
                            "{customer.aiInsight || 'Customer exhibits regular payment behavior. Recommend neutral automated reminders 2 days prior to due date to maintain healthy DSO.'}"
                         </p>
                      </div>

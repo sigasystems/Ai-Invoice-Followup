@@ -42,7 +42,7 @@ export default function InvoiceDetailPage() {
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
        <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-black text-indigo-900 uppercase tracking-widest animate-pulse">Analyzing Ledger...</p>
+          <p className="text-sm text-indigo-900 uppercase tracking-widest animate-pulse">Analyzing Ledger...</p>
        </div>
     </div>
   )
@@ -53,7 +53,7 @@ export default function InvoiceDetailPage() {
          <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto">
             <Zap className="w-10 h-10 text-rose-500" />
          </div>
-         <h2 className="text-2xl font-black ">Invoice not found</h2>
+         <h2 className="text-2xl ">Invoice not found</h2>
          <Button onClick={() => router.push('/invoices')} variant="outline">Return to Dashboard</Button>
       </div>
     </div>
@@ -78,18 +78,18 @@ export default function InvoiceDetailPage() {
           <Button 
             variant="ghost" 
             onClick={() => router.back()} 
-            className="rounded-2xl h-12 px-6  shadow-sm border border-neutral-100 hover:bg-neutral-50 font-bold gap-3"
+            className="rounded-2xl h-12 px-6  shadow-sm border border-neutral-100 hover:bg-neutral-50 font-semibold gap-3"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Collection Board
           </Button>
 
           <div className="flex items-center gap-3">
-             <Button variant="outline" className="rounded-2xl h-12 px-6 border-neutral-200 font-bold  gap-2">
+             <Button variant="outline" className="rounded-2xl h-12 px-6 border-neutral-200 font-semibold  gap-2">
                 <Download className="w-4 h-4" />
                 Export Ledger
              </Button>
-             <Button className="rounded-2xl h-12 px-6 bg-indigo-600 text-white hover:bg-indigo-700 font-bold gap-2 shadow-lg shadow-indigo-600/20">
+             <Button className="rounded-2xl h-12 px-6 bg-indigo-600 text-white hover:bg-indigo-700 font-semibold gap-2 shadow-lg shadow-indigo-600/20">
                 <Mail className=" transition-transform group-hover:rotate-12 " />
                 Direct Message
              </Button>
@@ -101,59 +101,59 @@ export default function InvoiceDetailPage() {
           
           {/* LEFT COLUMN: Customer & Risk Card */}
           <div className="col-span-12 lg:col-span-4 space-y-8">
-            <Card className="rounded-[40px] border-none shadow-2xl shadow-indigo-900/5  overflow-hidden p-10">
+            <Card className=" border-none shadow-2xl shadow-indigo-900/5  overflow-hidden p-10">
                <div className="space-y-8">
                   <div className="flex items-center gap-5">
                      <div className="w-20 h-20 rounded-3xl bg-linear-to-br from-indigo-500 to-primary flex items-center justify-center text-white shadow-xl shadow-indigo-500/20">
                         <span className="text-3xl font-black">{invoice.customerName?.charAt(0)}</span>
                      </div>
                      <div>
-                        <h2 className="text-2xl font-black  tracking-tight leading-tight">{invoice.customerName}</h2>
-                        <p className="text-sm font-bold  mt-0.5">{invoice.customerEmail}</p>
+                        <h2 className="text-2xl font-semibold ">{invoice.customerName}</h2>
+                        <p className="text-sm mt-0.5">{invoice.customerEmail}</p>
                      </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                     <div className="p-5 bg-neutral-50 rounded-3xl border border-neutral-100/50">
-                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Risk Profile</p>
+                     <div className="p-5 rounded-3xl border border-neutral-100/50">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Risk Profile</p>
                         <div className="flex items-center gap-2">
                            <div className={cn("w-2 h-2 rounded-full", invoice.prediction === 'Likely' ? 'bg-emerald-500' : 'bg-rose-500')} />
-                           <span className="text-sm font-black ">{invoice.prediction || 'Unrated'}</span>
+                           <span className="text-sm ">{invoice.prediction || 'Unrated'}</span>
                         </div>
                      </div>
-                     <div className="p-5 bg-neutral-50 rounded-3xl border border-neutral-100/50">
-                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Pay History</p>
-                        <span className="text-sm font-black ">82% On-Time</span>
+                     <div className="p-5 rounded-3xl border border-neutral-100/50">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Pay History</p>
+                        <span className="text-sm ">82% On-Time</span>
                      </div>
                   </div>
 
                   <div className="divider h-[1px] bg-neutral-100" />
 
                   <div className="space-y-6">
-                     <h4 className="text-xs font-black uppercase text-neutral-400 tracking-thinner">Case Intelligence</h4>
+                     <h4 className="text-xs uppercase text-neutral-400 tracking-thinner">Case Intelligence</h4>
                      <div className="space-y-4">
                         <div className="flex justify-between items-center text-sm">
-                           <span className="font-bold text-muted-foreground">Wait Protocol</span>
-                           <span className="font-black ">
+                           <span className="font-semibold text-muted-foreground">Wait Protocol</span>
+                           <span className="">
                              {invoice.startFollowups === null ? `Global (${settings?.followupStartDelayDays}d)` : `Manual (${invoice.startFollowups}d)`}
                            </span>
                         </div>
                         <div className="flex justify-between items-center text-sm">
-                           <span className="font-bold text-muted-foreground">Current Stage</span>
-                           <span className="font-black ">Stage {invoice.currentStage}</span>
+                           <span className="font-semibold text-muted-foreground">Current Stage</span>
+                           <span className="">Stage {invoice.currentStage}</span>
                         </div>
                         <div className="flex justify-between items-center text-sm">
-                           <span className="font-bold text-muted-foreground">Total Nudges</span>
-                           <span className="font-black ">{invoice.reminder_stages?.length || 0}</span>
+                           <span className="font-semibold text-muted-foreground">Total Nudges</span>
+                           <span className="">{invoice.reminder_stages?.length || 0}</span>
                         </div>
                      </div>
                   </div>
 
-                  <div className="p-6 bg-indigo-600 rounded-3xl text-white space-y-4 relative overflow-hidden group hover:scale-[1.02] transition-transform duration-500">
+                  <div className="p-6 bg-indigo-600 rounded-3xl text-white space-y-4 relative overflow-hidden ">
                      <div className="absolute top-0 right-0 p-4 opacity-10">
                         <BrainCircuit className="w-16 h-16" />
                      </div>
-                     <p className="text-[10px] font-black uppercase tracking-widest text-indigo-100">AI Sentiment Forecast</p>
+                     <p className="text-[10px] uppercase tracking-widest text-indigo-100">AI Sentiment Forecast</p>
                      <p className="text-sm font-medium leading-relaxed italic text-indigo-50">
                         "This client responds best to legal-adjacent language. Recommend immediate transition to Stage 3 if unpaid by tomorrow."
                      </p>
@@ -161,17 +161,17 @@ export default function InvoiceDetailPage() {
                </div>
             </Card>
 
-            <Card className="rounded-[40px] border-none shadow-2xl shadow-indigo-900/5  p-10">
+            <Card className=" border-none shadow-2xl shadow-indigo-900/5  p-10">
                <div className="flex items-center gap-3 mb-8">
                   <div className="p-2 bg-indigo-50 rounded-xl ">
                      <Zap className="w-5 h-5" />
                   </div>
-                  <h4 className="text-sm font-black uppercase  tracking-tight">Comm. Temperature</h4>
+                  <h4 className="text-sm uppercase  tracking-tight">Comm. Temperature</h4>
                </div>
 
                <div className="space-y-8">
                   <div className="space-y-2">
-                     <div className="flex justify-between text-[11px] font-black uppercase text-muted-foreground">
+                     <div className="flex justify-between text-[11px] uppercase text-muted-foreground">
                         <span>Mild</span>
                         <span>Neutral</span>
                         <span>Firm</span>
@@ -192,7 +192,7 @@ export default function InvoiceDetailPage() {
                      </div>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-                     Communication has escalated <span className="text-rose-600 font-bold">{invoice.tones?.length} times</span>. Tone shifted from <b>{invoice.tones?.[0]}</b> to <b>{invoice.tones?.[invoice.tones?.length - 1]}</b>.
+                     Communication has escalated <span className="text-rose-600 font-semibold">{invoice.tones?.length} times</span>. Tone shifted from <b>{invoice.tones?.[0]}</b> to <b>{invoice.tones?.[invoice.tones?.length - 1]}</b>.
                   </p>
                </div>
             </Card>
@@ -201,7 +201,7 @@ export default function InvoiceDetailPage() {
           {/* MAIN CONTENT: Hero Amount & Timeline */}
           <div className="col-span-12 lg:col-span-8 space-y-8">
             {/* HERO AMOUNT CARD */}
-            <Card className="rounded-[40px] border-none shadow-2xl shadow-indigo-900/5  overflow-hidden">
+            <Card className=" border-none shadow-2xl shadow-indigo-900/5  overflow-hidden">
                <div className="p-12  relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-12 opacity-5">
                     <IndianRupee className="w-40 h-40" />
@@ -210,21 +210,21 @@ export default function InvoiceDetailPage() {
                   <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                      <div className="space-y-2">
                         <div className="flex items-center gap-3">
-                           <span className="px-3 py-1 rounded-full  text-[10px] font-black uppercase tracking-widest backdrop-blur-md">Invoice {invoice.invoice_number}</span>
+                           <span className="rounded-full font-semibold  uppercase tracking-widest backdrop-blur-md">Invoice {invoice.invoice_number}</span>
                            <StatusBadge status={invoice.status} />
                         </div>
-                        <h1 className="text-6xl font-black tracking-tight mt-4">
+                        <h1 className="text-4xl font-semibold tracking-tight mt-4">
                            ₹{invoice.amount.toLocaleString('en-IN')}
                         </h1>
                         <p className="text-neutral-400 font-medium text-lg">Total Outstanding Balance</p>
                      </div>
 
                      <div className="flex flex-col items-end gap-2 text-right">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-neutral-500">Due Date</p>
-                        <p className="text-3xl font-black text-white">
+                        {/* <p className="text-[10px] uppercase tracking-widest text-neutral-500">Due Date</p>
+                        <p className="text-3xl text-white">
                            {invoice.dueDate ? format(new Date(invoice.dueDate), 'dd MMMM yyyy') : 'N/A'}
-                        </p>
-                        <div className="px-4 py-1 bg-rose-500/20 text-rose-300 rounded-full border border-rose-500/30 text-[11px] font-black uppercase tracking-wider">
+                        </p> */}
+                        <div className="px-4 py-1 bg-rose-500/20 text-rose-700 rounded-full border border-rose-500/30 text-[11px] uppercase tracking-wider">
                            {invoice.daysOverdue} Days Past Due
                         </div>
                      </div>
@@ -233,54 +233,54 @@ export default function InvoiceDetailPage() {
                
                <div className="grid grid-cols-3 divide-x divide-neutral-100">
                   <div className="p-8 space-y-1">
-                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Issue Date</p>
-                     <p className="text-base font-black ">{invoice.issueDate ? format(new Date(invoice.issueDate), 'dd MMM yyyy') : 'N/A'}</p>
+                     <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Issue Date</p>
+                     <p className="text-base ">{invoice.issueDate ? format(new Date(invoice.issueDate), 'dd MMM yyyy') : 'N/A'}</p>
                   </div>
                   <div className="p-8 space-y-1">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Status Duration</p>
-                    <p className="text-base font-black ">{invoice.issueDate ? differenceInCalendarDays(new Date(), new Date(invoice.issueDate)) : 0} Days Active</p>
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Status Duration</p>
+                    <p className="text-base ">{invoice.issueDate ? differenceInCalendarDays(new Date(), new Date(invoice.issueDate)) : 0} Days Active</p>
                   </div>
                   <div className="p-8 space-y-1">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Last Automation Step</p>
-                    <p className="text-base font-black ">Stage {lastSentStageValue !== null ? lastSentStageValue : 'None'}</p>
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Last Automation Step</p>
+                    <p className="text-base ">Stage {lastSentStageValue !== null ? lastSentStageValue : 'None'}</p>
                   </div>
                </div>
             </Card>
 
             {/* ENHANCED TIMELINE */}
-            <Card className="rounded-[40px] border-none shadow-2xl shadow-indigo-900/5  p-12">
+            <Card className=" border-none shadow-2xl shadow-indigo-900/5  p-12">
                <div className="flex items-center justify-between mb-12">
                   <div className="flex items-center gap-4">
-                     <div className="p-3 bg-indigo-50 rounded-2xl ">
+                     <div className="p-3 bg-indigo-500 rounded-2xl ">
                         <History className="w-6 h-6" />
                      </div>
                      <div>
-                        <h4 className="text-xl font-black ">Collection Journey</h4>
+                        <h4 className="text-xl font-semibold">Collection Journey</h4>
                         <p className="text-sm font-medium text-muted-foreground">Complete chronology of the automation sequence.</p>
                      </div>
                   </div>
-                  <div className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase shadow-lg shadow-indigo-600/20">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-2xl text-[10px] uppercase shadow-lg shadow-indigo-600/20">
                      <div className="w-1.5 h-1.5 rounded-full  animate-pulse" />
                      Live Sequence Monitoring
                   </div>
                </div>
 
                <div className="space-y-16 relative">
-                  <div className="absolute left-6 top-4 bottom-4 w-1 bg-linear-to-b from-indigo-500 via-primary/50 to-neutral-100 rounded-full" />
+                  <div className="absolute left-6 top-4 bottom-4 w-1" />
 
                   {/* INITIALIZATION */}
                   <div className="relative pl-16">
-                     <div className="absolute left-[-2px] top-1 w-12 h-12 -translate-x-1/2 rounded-3xl bg-neutral-950 border-4 border-white shadow-xl flex items-center justify-center text-white">
+                     <div className="absolute left-[-2px] top-1 w-12 h-12 -translate-x-1/2 rounded-3xl bg-gray-400 border-4 border-white shadow-xl flex items-center justify-center text-white">
                         <Zap className="w-5 h-5" />
                      </div>
                      <div className="space-y-1">
                         <div className="flex items-center gap-3">
-                           <span className="text-[11px] font-black uppercase py-1 px-3 bg-neutral-100 text-neutral-600 rounded-xl border border-neutral-200">Genesis</span>
-                           <span className="text-xs font-bold text-neutral-400">{invoice.issueDate ? format(new Date(invoice.issueDate), 'PPpp') : 'N/A'}</span>
+                           <span className="text-[11px] uppercase py-1 px-3 bg-neutral-100 text-black  rounded-xl border border-neutral-200">Genesis</span>
+                           <span className="text-xs font-semibold text-neutral-400">{invoice.issueDate ? format(new Date(invoice.issueDate), 'PPpp') : 'N/A'}</span>
                         </div>
-                        <h5 className="text-lg font-black  mt-2">Case Registry & Protocol Assignment</h5>
+                        <h5 className="text-lg  mt-2">Case Registry & Protocol Assignment</h5>
                         <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
-                           Invoice registered at <span className="font-bold text-neutral-700">₹{invoice.amount.toLocaleString()}</span>. System applied the <b>{invoice.startFollowups === null ? 'Standard Business Rules' : `Custom Offset (+${invoice.startFollowups}d)`}</b>.
+                           Invoice registered at <span className="font-semibold">₹{invoice.amount.toLocaleString()}</span>. System applied the <b>{invoice.startFollowups === null ? 'Standard Business Rules' : `Custom Offset (+${invoice.startFollowups}d)`}</b>.
                         </p>
                      </div>
                   </div>
@@ -293,25 +293,25 @@ export default function InvoiceDetailPage() {
 
                     return (
                       <div key={i} className="relative pl-16">
-                        <div className="absolute left-[-2px] top-1 w-12 h-12 -translate-x-1/2 rounded-3xl bg-indigo-600 border-4 border-white shadow-xl flex items-center justify-center text-white">
+                        <div className="absolute left-[-2px] top-1 w-12 h-12 -translate-x-1/2 rounded-3xl bg-gray-400 border-4 border-white shadow-xl flex items-center justify-center text-white">
                            <Send className="w-5 h-5" />
                         </div>
                         <div className="space-y-4">
                            <div className="flex items-center gap-3">
-                              <span className="text-[11px] font-black uppercase py-1 px-3 bg-indigo-50  rounded-xl border border-indigo-100">Stage {stage} Sent</span>
-                              <span className="text-xs font-bold text-neutral-400">{format(new Date(date), 'PPpp')}</span>
+                              <span className="text-[11px] uppercase py-1 px-3 bg-indigo-50  rounded-xl border border-indigo-100">Stage {stage} Sent</span>
+                              <span className="text-xs font-semibold text-neutral-400">{format(new Date(date), 'PPpp')}</span>
                            </div>
                            
                            <div className="p-6 bg-neutral-50 rounded-[32px] border border-neutral-100 space-y-3">
-                              <h5 className="text-base font-black ">{ladderStep?.label || 'Direct Collection Reminder'}</h5>
+                              <h5 className="text-base ">{ladderStep?.label || 'Direct Collection Reminder'}</h5>
                               <div className="flex items-center gap-4">
                                  <div className="flex items-center gap-2">
                                     <MessageSquare className="w-3.5 h-3.5 text-indigo-500" />
-                                    <span className="text-[10px] font-black uppercase text-neutral-500">Tone: <b className="">{tone}</b></span>
+                                    <span className="text-[10px] uppercase text-neutral-500">Tone: <b className="">{tone}</b></span>
                                  </div>
                                  <div className="flex items-center gap-2">
                                     <BrainCircuit className="w-3.5 h-3.5 text-indigo-500" />
-                                    <span className="text-[10px] font-black uppercase text-neutral-500">AI Generated Copy</span>
+                                    <span className="text-[10px] uppercase text-neutral-500">AI Generated Copy</span>
                                  </div>
                               </div>
                            </div>
@@ -331,44 +331,44 @@ export default function InvoiceDetailPage() {
                       </div>
 
                       <div className={cn(
-                        "p-8 rounded-[40px] border",
+                        "p-8  border",
                         // invoice.nextActionAt ? 'bg-amber-50/50 border-amber-100' : 'bg-rose-50/50 border-rose-100'
                       )}>
                         {invoice.nextActionAt ? (
                           <div className="space-y-4">
                             <div className="flex items-center gap-3">
-                               <span className="text-[11px] font-black uppercase py-1 px-3 bg-amber-500 text-white rounded-xl shadow-lg shadow-amber-500/20">Upcoming Check</span>
-                               <span className="text-xs font-bold text-amber-700">Scheduled by Engine</span>
+                               <span className="text-[11px] uppercase py-1 px-3 bg-amber-500 text-white rounded-xl shadow-lg shadow-amber-500/20">Upcoming Check</span>
+                               <span className="text-xs font-semibold text-amber-700">Scheduled by Engine</span>
                             </div>
-                            <h5 className="text-xl font-black text-amber-950">
-                               {settings?.escalationLadder?.[invoice.currentStage]?.label || `Stage ${invoice.currentStage} Follow-up`}
+                            <h5 className="text-xl text-amber-950">
+                               {settings?.escalationLadder?.[(invoice.currentStage || 1) - 1]?.label || `Stage ${invoice.currentStage} Follow-up`}
                             </h5>
                             <div className="flex items-center gap-3">
                                <div className="w-12 h-12 rounded-2xl  border border-amber-200 shadow-sm flex flex-col items-center justify-center">
-                                  <span className="text-[10px] font-black text-amber-500 leading-none">Day</span>
-                                  <span className="text-xl font-black text-amber-900 leading-none">{format(new Date(invoice.nextActionAt), 'dd')}</span>
+                                  <span className="text-[10px] text-amber-500 leading-none">Day</span>
+                                  <span className="text-xl text-amber-900 leading-none">{format(new Date(invoice.nextActionAt), 'dd')}</span>
                                </div>
                                <div>
-                                  <p className="text-sm font-bold text-amber-950">{format(new Date(invoice.nextActionAt), 'MMMM yyyy')}</p>
-                                  <p className="text-[11px] font-black uppercase tracking-widest text-amber-500">Processing @ 12:00 AM</p>
+                                  <p className="text-sm font-semibold text-amber-950">{format(new Date(invoice.nextActionAt), 'MMMM yyyy')}</p>
+                                  <p className="text-[11px] uppercase tracking-widest text-amber-500">Processing @ 12:00 AM</p>
                                </div>
                             </div>
                           </div>
                         ) : (
                           <div className="space-y-4">
                              <div className="flex items-center gap-3">
-                               <span className="text-[11px] font-black uppercase py-1 px-3 bg-rose-600 text-white rounded-xl">Sequence Handover</span>
-                               <span className="text-xs font-bold ">Manual Level 2 Active</span>
+                               <span className="text-[11px] uppercase py-1 px-3 bg-rose-600 text-white rounded-xl">Sequence Handover</span>
+                               <span className="text-xs font-semibold ">Manual Level 2 Active</span>
                             </div>
-                            <h5 className="text-xl font-black ">Manager Review Required</h5>
+                            <h5 className="text-xl ">Manager Review Required</h5>
                             <p className="text-sm font-medium text-muted-foreground leading-relaxed">
                                Automation sequence for <b>{invoice.invoice_number}</b> is now complete. Handing over to managerial tier for final collection resolution.
                             </p>
                             <div className="flex items-center gap-3 pt-4">
-                               <Button className="rounded-2xl h-11 bg-rose-600 hover:bg-rose-700 text-white font-black uppercase tracking-wider text-[10px] px-6">
+                               <Button className="rounded-2xl h-11 uppercase tracking-wider text-[10px] px-6">
                                   Initiate Legal Tier
                                </Button>
-                               <Button variant="outline" className="rounded-2xl h-11 border-rose-200  font-black uppercase tracking-wider text-[10px] px-6 ">
+                               <Button variant="outline" className="rounded-2xl h-11 border-rose-200  uppercase tracking-wider text-[10px] px-6 ">
                                   Mark In-Plan
                                </Button>
                             </div>

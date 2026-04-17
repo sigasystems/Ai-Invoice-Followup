@@ -17,6 +17,7 @@ import {
    Sparkles,
    ArrowRight,
    MailCheck,
+   WavesLadderIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -171,13 +172,13 @@ export default function ActivityPage() {
                            </div>
                         </div>
                      ) : filteredActivities.length > 0 ? (
-                        <div className="p-10 lg:p-14">
+                        <div className="p-10 lg:p-10">
                            <div className="space-y-4">
                               <div className="flex items-center gap-4 mb-12">
                                  <div className="h-px flex-1 bg-border/60" />
-                                 <div className="flex items-center gap-2 px-6 py-2 bg-neutral-50 border border-border rounded-full shadow-xs">
+                                 <div className="flex items-center gap-2 px-6 py-2 dark:bg-gray-800  border border-border rounded-full shadow-xs">
                                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                    <span className="text-[12px] font-black  uppercase text-black">Activity Streams</span>
+                                    <span className="text-[12px] font-black uppercase ">Activity Streams</span>
                                  </div>
                                  <div className="h-px flex-1 bg-border/60" />
                               </div>
@@ -193,13 +194,13 @@ export default function ActivityPage() {
                               </div>
                            </div>
 
-                           <Button
+                           {/* <Button
                               variant="ghost"
                               className="w-full mt-16 text-[11px] font-black uppercase text-muted-foreground hover:text-primary py-8 rounded-3xl border border-dashed border-border hover:border-primary/30 transition-all group"
                            >
                               Load Historical Archives
                               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                           </Button>
+                           </Button> */}
                         </div>
                      ) : (
                         <div className="flex flex-col items-center justify-center p-32 text-center opacity-60">

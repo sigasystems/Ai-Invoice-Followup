@@ -145,12 +145,12 @@ export default function SettingsPage() {
                 className={cn(
                   "w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group",
                   active
-                    ? "bg-primary text-white shadow-lg shadow-primary/20"
+                    ? "bg-primary text-white "
                     : "text-muted-foreground hover:bg-muted font-bold"
                 )}
               >
-                <Icon className={cn("h-4 w-4", active ? "text-white" : "text-muted-foreground group-hover:text-foreground")} />
-                <span className="text-xs  uppercase">{tab.label}</span>
+                <Icon className={cn("h-4 w-4", active ? "text-white dark:text-black" : "text-muted-foreground group-hover:text-foreground")} />
+                <span className="text-xs uppercase">{tab.label}</span>
               </button>
             );
           })}

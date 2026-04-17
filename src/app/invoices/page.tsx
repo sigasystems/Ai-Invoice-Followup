@@ -334,7 +334,7 @@ export default function InvoicesPage() {
 
             <div className="flex flex-col">
               <span className={cn("text-[12px] font-black uppercase tracking-[0.05em]", isPaid ? "text-emerald-500" : "text-foreground")}>
-                {isPaid ? 'Collection Successful' : currentStep?.label || `Stage ${currentStage + 1}`}
+                {isPaid ? 'Collection Successful' : currentStep?.label || `Stage ${currentStage}`}
               </span>
 
               {!isPaid && (
@@ -749,11 +749,11 @@ export default function InvoicesPage() {
                       </div>
                       <select
                         name="currentStage"
-                        defaultValue={editingInvoice?.currentStage ?? 0}
+                        defaultValue={editingInvoice?.currentStage ?? 1}
                         className="h-10 px-3 rounded-xl border border-border bg-background text-xs font-bold"
                       >
                         {settings?.escalationLadder?.map((step: any, i: number) => (
-                          <option key={i} value={i}>{step.label} (Stage {i})</option>
+                          <option key={i} value={i + 1}>{step.label} (Stage {i + 1})</option>
                         ))}
                       </select>
                     </div>
