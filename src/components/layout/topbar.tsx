@@ -82,11 +82,6 @@ export function Topbar() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 h-10 w-full bg-muted border-transparent rounded-xl focus-visible:ring-primary focus-visible:bg-background transition-all text-sm"
           />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
-             <kbd className="hidden sm:flex h-5 select-none items-center gap-1 rounded border bg-background px-1.5 font-mono text-[12px] font-medium text-muted-foreground opacity-100 border-border">
-                <span className="text-xs">⌘</span>K
-             </kbd>
-          </div>
 
           {/* Search Results Dropdown */}
           <AnimatePresence>

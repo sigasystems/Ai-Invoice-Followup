@@ -1,4 +1,18 @@
-import { Invoice, Customer, Activity } from "@/types";
+import { Invoice, Customer, Activity, GlobalSetting } from "@/types";
+
+/**
+ * Fetches global settings from the database via API.
+ */
+export async function fetchSettings(): Promise<GlobalSetting | null> {
+  try {
+    const response = await fetch('/api/settings');
+    if (!response.ok) throw new Error(`Failed to fetch settings: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error("Dynamic Fetch Error (Settings):", error);
+    return null;
+  }
+}
 
 /**
  * PayPilot Client API Service

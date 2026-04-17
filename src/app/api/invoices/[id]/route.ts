@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { addDays } from 'date-fns';
+import { addDays, startOfDay } from 'date-fns';
 import { InvoiceStatus } from '@/generated-prisma';
 
 export async function PATCH(
@@ -10,7 +10,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { status, startFollowups, hasPendingDraft, gmailDraftId } = body;
+    const { status, startFollowups, hasPendingDraft, gmailDraftId, currentStage, nextActionAt } = body;
 
     // Build update data object
     const updateData: any = {};
@@ -34,7 +34,7 @@ export async function PATCH(
     }
 
     if (startFollowups !== undefined) {
-      updateData.startFollowups = parseInt(String(startFollowups)) || 0;
+      updateData.startFollowups = startFollowups === null ? null : parseInt(String(startFollowups));
     }
 
     if (hasPendingDraft !== undefined) {
@@ -43,6 +43,14 @@ export async function PATCH(
 
     if (gmailDraftId !== undefined) {
       updateData.gmailDraftId = String(gmailDraftId);
+    }
+
+    if (currentStage !== undefined) {
+      updateData.currentStage = parseInt(String(currentStage));
+    }
+
+    if (nextActionAt !== undefined) {
+      updateData.nextActionAt = nextActionAt === null ? null : new Date(String(nextActionAt));
     }
 
     if (Object.keys(updateData).length === 0) {
@@ -59,8 +67,14 @@ export async function PATCH(
 
       if (current && (updateData.startFollowups !== undefined)) {
         const issueDate = current.issueDate;
-        const startFollowups = updateData.startFollowups;
-        const newFollowupStartDate = addDays(issueDate, startFollowups);
+        
+        let effectiveOffset = updateData.startFollowups;
+        if (effectiveOffset === null) {
+          const globalSettings = await prisma.globalSetting.findUnique({ where: { id: 'global_config' } });
+          effectiveOffset = globalSettings?.followupStartDelayDays ?? 0;
+        }
+
+        const newFollowupStartDate = addDays(startOfDay(issueDate), effectiveOffset);
         updateData.followupStartDate = newFollowupStartDate;
 
         // If it's still at stage 0 and hasn't sent anything, update nextActionAt

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { addDays } from 'date-fns';
+import { addDays, startOfDay } from 'date-fns';
 import { InvoiceStatus } from '@/generated-prisma';
 
 /**
@@ -14,6 +14,10 @@ export async function POST(request: Request) {
     // Support both direct object or array of objects
     const items = Array.isArray(body) ? body : [body];
     const results = [];
+
+    // Fetch Global Settings ONCE for efficiency
+    const globalSettings = await prisma.globalSetting.findUnique({ where: { id: 'global_config' } });
+    const globalDelay = globalSettings?.followupStartDelayDays ?? 0;
 
     for (const item of items) {
       // 1. Map incoming fields (flexible naming for n8n/GSheet)
@@ -30,7 +34,9 @@ export async function POST(request: Request) {
       
       // Supporting both n8n internal naming and GSheet legacy naming
       const startFollowupsRaw = item.start_followups ?? item["Start Followups"];
-      const startFollowups = parseInt(startFollowupsRaw) || 0;
+      const startFollowups = (startFollowupsRaw !== undefined && startFollowupsRaw !== null && startFollowupsRaw !== '') ? parseInt(String(startFollowupsRaw)) : null;
+
+      const effectiveOffset = startFollowups !== null ? startFollowups : globalDelay;
 
       // Validate required fields
       if (!invoiceNumber || !clientEmail || !clientName) {
@@ -58,7 +64,8 @@ export async function POST(request: Request) {
       });
 
       // 3. Compute follow-up dates
-      const followupStartDate = addDays(issueDate, startFollowups);
+      const followupStartDate = addDays(startOfDay(issueDate), effectiveOffset);
+      const nextActionAt = followupStartDate;
 
       // 4. Upsert Invoice
       const existingInvoice = await prisma.invoice.findUnique({ where: { invoice_number: invoiceNumber } });

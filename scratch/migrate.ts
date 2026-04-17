@@ -19,7 +19,7 @@ async function main() {
   console.log(`Found ${invoices.length} invoices to update.`);
 
   for (const invoice of invoices) {
-    const followupStartDate = invoice.followupStartDate || addDays(invoice.issueDate, invoice.startFollowups);
+    const followupStartDate = invoice.followupStartDate || addDays(invoice.issueDate, invoice.startFollowups ? 0 : 1);
     const nextActionAt = invoice.nextActionAt || followupStartDate;
 
     await prisma.invoice.update({

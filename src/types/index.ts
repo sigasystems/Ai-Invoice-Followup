@@ -19,6 +19,7 @@ export interface PaymentPlan {
 }
 
 export interface Invoice {
+  calculated_metrics: {};
   daysSinceIssue: number;
   id: string;
   invoice_number: string;
@@ -26,7 +27,7 @@ export interface Invoice {
   dueDate: string | null;
   issueDate: string;
   status: any; // Using any for simplicity as it matches Prisma enum but UI has its own mapping
-  startFollowups: number;
+   startFollowups: number | null;
   followupStartDate: string | null;
   currentStage: number;
   nextActionAt: string | null;
@@ -80,6 +81,19 @@ export interface Activity {
   timestamp: string;
   message?: string;
   draftUrl?: string; // Optional URL for email drafts
+}
+
+export interface GlobalSetting {
+  id: string;
+  followupStartDelayDays: number;
+  escalationLadder: Array<{
+    delayDays: number;
+    tone: string;
+    label: string;
+  }>;
+  beforeDueReminder: boolean;
+  smartEscalation: boolean;
+  updatedAt: string;
 }
 
 export interface DashboardMetrics {

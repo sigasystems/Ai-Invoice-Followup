@@ -161,6 +161,7 @@ exports.Prisma.GlobalSettingScalarFieldEnum = {
   dataDeletion: 'dataDeletion',
   readWebhook: 'readWebhook',
   writeWebhook: 'writeWebhook',
+  followupStartDelayDays: 'followupStartDelayDays',
   syncActivity: 'syncActivity',
   logSentiment: 'logSentiment',
   updatedAt: 'updatedAt'

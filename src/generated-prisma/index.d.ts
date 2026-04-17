@@ -2504,7 +2504,7 @@ export namespace Prisma {
     dueDate: Date | null
     issueDate: Date
     status: $Enums.InvoiceStatus
-    startFollowups: number
+    startFollowups: number | null
     followupStartDate: Date | null
     currentStage: number
     nextActionAt: Date | null
@@ -2611,7 +2611,7 @@ export namespace Prisma {
       dueDate: Date | null
       issueDate: Date
       status: $Enums.InvoiceStatus
-      startFollowups: number
+      startFollowups: number | null
       followupStartDate: Date | null
       currentStage: number
       nextActionAt: Date | null
@@ -4338,8 +4338,18 @@ export namespace Prisma {
 
   export type AggregateGlobalSetting = {
     _count: GlobalSettingCountAggregateOutputType | null
+    _avg: GlobalSettingAvgAggregateOutputType | null
+    _sum: GlobalSettingSumAggregateOutputType | null
     _min: GlobalSettingMinAggregateOutputType | null
     _max: GlobalSettingMaxAggregateOutputType | null
+  }
+
+  export type GlobalSettingAvgAggregateOutputType = {
+    followupStartDelayDays: number | null
+  }
+
+  export type GlobalSettingSumAggregateOutputType = {
+    followupStartDelayDays: number | null
   }
 
   export type GlobalSettingMinAggregateOutputType = {
@@ -4351,6 +4361,7 @@ export namespace Prisma {
     dataDeletion: boolean | null
     readWebhook: string | null
     writeWebhook: string | null
+    followupStartDelayDays: number | null
     syncActivity: boolean | null
     logSentiment: boolean | null
     updatedAt: Date | null
@@ -4365,6 +4376,7 @@ export namespace Prisma {
     dataDeletion: boolean | null
     readWebhook: string | null
     writeWebhook: string | null
+    followupStartDelayDays: number | null
     syncActivity: boolean | null
     logSentiment: boolean | null
     updatedAt: Date | null
@@ -4380,12 +4392,21 @@ export namespace Prisma {
     dataDeletion: number
     readWebhook: number
     writeWebhook: number
+    followupStartDelayDays: number
     syncActivity: number
     logSentiment: number
     updatedAt: number
     _all: number
   }
 
+
+  export type GlobalSettingAvgAggregateInputType = {
+    followupStartDelayDays?: true
+  }
+
+  export type GlobalSettingSumAggregateInputType = {
+    followupStartDelayDays?: true
+  }
 
   export type GlobalSettingMinAggregateInputType = {
     id?: true
@@ -4396,6 +4417,7 @@ export namespace Prisma {
     dataDeletion?: true
     readWebhook?: true
     writeWebhook?: true
+    followupStartDelayDays?: true
     syncActivity?: true
     logSentiment?: true
     updatedAt?: true
@@ -4410,6 +4432,7 @@ export namespace Prisma {
     dataDeletion?: true
     readWebhook?: true
     writeWebhook?: true
+    followupStartDelayDays?: true
     syncActivity?: true
     logSentiment?: true
     updatedAt?: true
@@ -4425,6 +4448,7 @@ export namespace Prisma {
     dataDeletion?: true
     readWebhook?: true
     writeWebhook?: true
+    followupStartDelayDays?: true
     syncActivity?: true
     logSentiment?: true
     updatedAt?: true
@@ -4469,6 +4493,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: GlobalSettingAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GlobalSettingSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: GlobalSettingMinAggregateInputType
@@ -4499,6 +4535,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: GlobalSettingCountAggregateInputType | true
+    _avg?: GlobalSettingAvgAggregateInputType
+    _sum?: GlobalSettingSumAggregateInputType
     _min?: GlobalSettingMinAggregateInputType
     _max?: GlobalSettingMaxAggregateInputType
   }
@@ -4513,10 +4551,13 @@ export namespace Prisma {
     dataDeletion: boolean
     readWebhook: string | null
     writeWebhook: string | null
+    followupStartDelayDays: number
     syncActivity: boolean
     logSentiment: boolean
     updatedAt: Date
     _count: GlobalSettingCountAggregateOutputType | null
+    _avg: GlobalSettingAvgAggregateOutputType | null
+    _sum: GlobalSettingSumAggregateOutputType | null
     _min: GlobalSettingMinAggregateOutputType | null
     _max: GlobalSettingMaxAggregateOutputType | null
   }
@@ -4545,6 +4586,7 @@ export namespace Prisma {
     dataDeletion?: boolean
     readWebhook?: boolean
     writeWebhook?: boolean
+    followupStartDelayDays?: boolean
     syncActivity?: boolean
     logSentiment?: boolean
     updatedAt?: boolean
@@ -4560,6 +4602,7 @@ export namespace Prisma {
     dataDeletion?: boolean
     readWebhook?: boolean
     writeWebhook?: boolean
+    followupStartDelayDays?: boolean
     syncActivity?: boolean
     logSentiment?: boolean
     updatedAt?: boolean
@@ -4579,6 +4622,7 @@ export namespace Prisma {
       dataDeletion: boolean
       readWebhook: string | null
       writeWebhook: string | null
+      followupStartDelayDays: number
       syncActivity: boolean
       logSentiment: boolean
       updatedAt: Date
@@ -4985,6 +5029,7 @@ export namespace Prisma {
     readonly dataDeletion: FieldRef<"GlobalSetting", 'Boolean'>
     readonly readWebhook: FieldRef<"GlobalSetting", 'String'>
     readonly writeWebhook: FieldRef<"GlobalSetting", 'String'>
+    readonly followupStartDelayDays: FieldRef<"GlobalSetting", 'Int'>
     readonly syncActivity: FieldRef<"GlobalSetting", 'Boolean'>
     readonly logSentiment: FieldRef<"GlobalSetting", 'Boolean'>
     readonly updatedAt: FieldRef<"GlobalSetting", 'DateTime'>
@@ -6288,6 +6333,7 @@ export namespace Prisma {
     dataDeletion: 'dataDeletion',
     readWebhook: 'readWebhook',
     writeWebhook: 'writeWebhook',
+    followupStartDelayDays: 'followupStartDelayDays',
     syncActivity: 'syncActivity',
     logSentiment: 'logSentiment',
     updatedAt: 'updatedAt'
@@ -6521,7 +6567,7 @@ export namespace Prisma {
     dueDate?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     issueDate?: DateTimeFilter<"Invoice"> | Date | string
     status?: EnumInvoiceStatusFilter<"Invoice"> | $Enums.InvoiceStatus
-    startFollowups?: IntFilter<"Invoice"> | number
+    startFollowups?: IntNullableFilter<"Invoice"> | number | null
     followupStartDate?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     currentStage?: IntFilter<"Invoice"> | number
     nextActionAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
@@ -6547,7 +6593,7 @@ export namespace Prisma {
     dueDate?: SortOrderInput | SortOrder
     issueDate?: SortOrder
     status?: SortOrder
-    startFollowups?: SortOrder
+    startFollowups?: SortOrderInput | SortOrder
     followupStartDate?: SortOrderInput | SortOrder
     currentStage?: SortOrder
     nextActionAt?: SortOrderInput | SortOrder
@@ -6576,7 +6622,7 @@ export namespace Prisma {
     dueDate?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     issueDate?: DateTimeFilter<"Invoice"> | Date | string
     status?: EnumInvoiceStatusFilter<"Invoice"> | $Enums.InvoiceStatus
-    startFollowups?: IntFilter<"Invoice"> | number
+    startFollowups?: IntNullableFilter<"Invoice"> | number | null
     followupStartDate?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     currentStage?: IntFilter<"Invoice"> | number
     nextActionAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
@@ -6602,7 +6648,7 @@ export namespace Prisma {
     dueDate?: SortOrderInput | SortOrder
     issueDate?: SortOrder
     status?: SortOrder
-    startFollowups?: SortOrder
+    startFollowups?: SortOrderInput | SortOrder
     followupStartDate?: SortOrderInput | SortOrder
     currentStage?: SortOrder
     nextActionAt?: SortOrderInput | SortOrder
@@ -6634,7 +6680,7 @@ export namespace Prisma {
     dueDate?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
     issueDate?: DateTimeWithAggregatesFilter<"Invoice"> | Date | string
     status?: EnumInvoiceStatusWithAggregatesFilter<"Invoice"> | $Enums.InvoiceStatus
-    startFollowups?: IntWithAggregatesFilter<"Invoice"> | number
+    startFollowups?: IntNullableWithAggregatesFilter<"Invoice"> | number | null
     followupStartDate?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
     currentStage?: IntWithAggregatesFilter<"Invoice"> | number
     nextActionAt?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
@@ -6729,6 +6775,7 @@ export namespace Prisma {
     dataDeletion?: BoolFilter<"GlobalSetting"> | boolean
     readWebhook?: StringNullableFilter<"GlobalSetting"> | string | null
     writeWebhook?: StringNullableFilter<"GlobalSetting"> | string | null
+    followupStartDelayDays?: IntFilter<"GlobalSetting"> | number
     syncActivity?: BoolFilter<"GlobalSetting"> | boolean
     logSentiment?: BoolFilter<"GlobalSetting"> | boolean
     updatedAt?: DateTimeFilter<"GlobalSetting"> | Date | string
@@ -6744,6 +6791,7 @@ export namespace Prisma {
     dataDeletion?: SortOrder
     readWebhook?: SortOrderInput | SortOrder
     writeWebhook?: SortOrderInput | SortOrder
+    followupStartDelayDays?: SortOrder
     syncActivity?: SortOrder
     logSentiment?: SortOrder
     updatedAt?: SortOrder
@@ -6762,6 +6810,7 @@ export namespace Prisma {
     dataDeletion?: BoolFilter<"GlobalSetting"> | boolean
     readWebhook?: StringNullableFilter<"GlobalSetting"> | string | null
     writeWebhook?: StringNullableFilter<"GlobalSetting"> | string | null
+    followupStartDelayDays?: IntFilter<"GlobalSetting"> | number
     syncActivity?: BoolFilter<"GlobalSetting"> | boolean
     logSentiment?: BoolFilter<"GlobalSetting"> | boolean
     updatedAt?: DateTimeFilter<"GlobalSetting"> | Date | string
@@ -6777,12 +6826,15 @@ export namespace Prisma {
     dataDeletion?: SortOrder
     readWebhook?: SortOrderInput | SortOrder
     writeWebhook?: SortOrderInput | SortOrder
+    followupStartDelayDays?: SortOrder
     syncActivity?: SortOrder
     logSentiment?: SortOrder
     updatedAt?: SortOrder
     _count?: GlobalSettingCountOrderByAggregateInput
+    _avg?: GlobalSettingAvgOrderByAggregateInput
     _max?: GlobalSettingMaxOrderByAggregateInput
     _min?: GlobalSettingMinOrderByAggregateInput
+    _sum?: GlobalSettingSumOrderByAggregateInput
   }
 
   export type GlobalSettingScalarWhereWithAggregatesInput = {
@@ -6798,6 +6850,7 @@ export namespace Prisma {
     dataDeletion?: BoolWithAggregatesFilter<"GlobalSetting"> | boolean
     readWebhook?: StringNullableWithAggregatesFilter<"GlobalSetting"> | string | null
     writeWebhook?: StringNullableWithAggregatesFilter<"GlobalSetting"> | string | null
+    followupStartDelayDays?: IntWithAggregatesFilter<"GlobalSetting"> | number
     syncActivity?: BoolWithAggregatesFilter<"GlobalSetting"> | boolean
     logSentiment?: BoolWithAggregatesFilter<"GlobalSetting"> | boolean
     updatedAt?: DateTimeWithAggregatesFilter<"GlobalSetting"> | Date | string
@@ -6966,7 +7019,7 @@ export namespace Prisma {
     dueDate?: Date | string | null
     issueDate: Date | string
     status?: $Enums.InvoiceStatus
-    startFollowups?: number
+    startFollowups?: number | null
     followupStartDate?: Date | string | null
     currentStage?: number
     nextActionAt?: Date | string | null
@@ -6991,7 +7044,7 @@ export namespace Prisma {
     dueDate?: Date | string | null
     issueDate: Date | string
     status?: $Enums.InvoiceStatus
-    startFollowups?: number
+    startFollowups?: number | null
     followupStartDate?: Date | string | null
     currentStage?: number
     nextActionAt?: Date | string | null
@@ -7016,7 +7069,7 @@ export namespace Prisma {
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
-    startFollowups?: IntFieldUpdateOperationsInput | number
+    startFollowups?: NullableIntFieldUpdateOperationsInput | number | null
     followupStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentStage?: IntFieldUpdateOperationsInput | number
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7041,7 +7094,7 @@ export namespace Prisma {
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
-    startFollowups?: IntFieldUpdateOperationsInput | number
+    startFollowups?: NullableIntFieldUpdateOperationsInput | number | null
     followupStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentStage?: IntFieldUpdateOperationsInput | number
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7066,7 +7119,7 @@ export namespace Prisma {
     dueDate?: Date | string | null
     issueDate: Date | string
     status?: $Enums.InvoiceStatus
-    startFollowups?: number
+    startFollowups?: number | null
     followupStartDate?: Date | string | null
     currentStage?: number
     nextActionAt?: Date | string | null
@@ -7090,7 +7143,7 @@ export namespace Prisma {
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
-    startFollowups?: IntFieldUpdateOperationsInput | number
+    startFollowups?: NullableIntFieldUpdateOperationsInput | number | null
     followupStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentStage?: IntFieldUpdateOperationsInput | number
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7113,7 +7166,7 @@ export namespace Prisma {
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
-    startFollowups?: IntFieldUpdateOperationsInput | number
+    startFollowups?: NullableIntFieldUpdateOperationsInput | number | null
     followupStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentStage?: IntFieldUpdateOperationsInput | number
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7209,6 +7262,7 @@ export namespace Prisma {
     dataDeletion?: boolean
     readWebhook?: string | null
     writeWebhook?: string | null
+    followupStartDelayDays?: number
     syncActivity?: boolean
     logSentiment?: boolean
     updatedAt?: Date | string
@@ -7224,6 +7278,7 @@ export namespace Prisma {
     dataDeletion?: boolean
     readWebhook?: string | null
     writeWebhook?: string | null
+    followupStartDelayDays?: number
     syncActivity?: boolean
     logSentiment?: boolean
     updatedAt?: Date | string
@@ -7239,6 +7294,7 @@ export namespace Prisma {
     dataDeletion?: BoolFieldUpdateOperationsInput | boolean
     readWebhook?: NullableStringFieldUpdateOperationsInput | string | null
     writeWebhook?: NullableStringFieldUpdateOperationsInput | string | null
+    followupStartDelayDays?: IntFieldUpdateOperationsInput | number
     syncActivity?: BoolFieldUpdateOperationsInput | boolean
     logSentiment?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7254,6 +7310,7 @@ export namespace Prisma {
     dataDeletion?: BoolFieldUpdateOperationsInput | boolean
     readWebhook?: NullableStringFieldUpdateOperationsInput | string | null
     writeWebhook?: NullableStringFieldUpdateOperationsInput | string | null
+    followupStartDelayDays?: IntFieldUpdateOperationsInput | number
     syncActivity?: BoolFieldUpdateOperationsInput | boolean
     logSentiment?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7269,6 +7326,7 @@ export namespace Prisma {
     dataDeletion?: boolean
     readWebhook?: string | null
     writeWebhook?: string | null
+    followupStartDelayDays?: number
     syncActivity?: boolean
     logSentiment?: boolean
     updatedAt?: Date | string
@@ -7284,6 +7342,7 @@ export namespace Prisma {
     dataDeletion?: BoolFieldUpdateOperationsInput | boolean
     readWebhook?: NullableStringFieldUpdateOperationsInput | string | null
     writeWebhook?: NullableStringFieldUpdateOperationsInput | string | null
+    followupStartDelayDays?: IntFieldUpdateOperationsInput | number
     syncActivity?: BoolFieldUpdateOperationsInput | boolean
     logSentiment?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7299,6 +7358,7 @@ export namespace Prisma {
     dataDeletion?: BoolFieldUpdateOperationsInput | boolean
     readWebhook?: NullableStringFieldUpdateOperationsInput | string | null
     writeWebhook?: NullableStringFieldUpdateOperationsInput | string | null
+    followupStartDelayDays?: IntFieldUpdateOperationsInput | number
     syncActivity?: BoolFieldUpdateOperationsInput | boolean
     logSentiment?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7567,17 +7627,6 @@ export namespace Prisma {
     not?: NestedEnumInvoiceStatusFilter<$PrismaModel> | $Enums.InvoiceStatus
   }
 
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
   export type IntNullableFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -7587,6 +7636,17 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
   }
 
   export type IntNullableListFilter<$PrismaModel = never> = {
@@ -7755,22 +7815,6 @@ export namespace Prisma {
     _max?: NestedEnumInvoiceStatusFilter<$PrismaModel>
   }
 
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
-  }
-
   export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -7785,6 +7829,22 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -7862,9 +7922,14 @@ export namespace Prisma {
     dataDeletion?: SortOrder
     readWebhook?: SortOrder
     writeWebhook?: SortOrder
+    followupStartDelayDays?: SortOrder
     syncActivity?: SortOrder
     logSentiment?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type GlobalSettingAvgOrderByAggregateInput = {
+    followupStartDelayDays?: SortOrder
   }
 
   export type GlobalSettingMaxOrderByAggregateInput = {
@@ -7876,6 +7941,7 @@ export namespace Prisma {
     dataDeletion?: SortOrder
     readWebhook?: SortOrder
     writeWebhook?: SortOrder
+    followupStartDelayDays?: SortOrder
     syncActivity?: SortOrder
     logSentiment?: SortOrder
     updatedAt?: SortOrder
@@ -7890,9 +7956,14 @@ export namespace Prisma {
     dataDeletion?: SortOrder
     readWebhook?: SortOrder
     writeWebhook?: SortOrder
+    followupStartDelayDays?: SortOrder
     syncActivity?: SortOrder
     logSentiment?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type GlobalSettingSumOrderByAggregateInput = {
+    followupStartDelayDays?: SortOrder
   }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -8064,16 +8135,16 @@ export namespace Prisma {
     set?: $Enums.InvoiceStatus
   }
 
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
     increment?: number
     decrement?: number
     multiply?: number
     divide?: number
   }
 
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
     increment?: number
     decrement?: number
     multiply?: number
@@ -8332,22 +8403,6 @@ export namespace Prisma {
     _max?: NestedEnumInvoiceStatusFilter<$PrismaModel>
   }
 
-  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
-  }
-
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -8373,6 +8428,22 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -8412,7 +8483,7 @@ export namespace Prisma {
     dueDate?: Date | string | null
     issueDate: Date | string
     status?: $Enums.InvoiceStatus
-    startFollowups?: number
+    startFollowups?: number | null
     followupStartDate?: Date | string | null
     currentStage?: number
     nextActionAt?: Date | string | null
@@ -8436,7 +8507,7 @@ export namespace Prisma {
     dueDate?: Date | string | null
     issueDate: Date | string
     status?: $Enums.InvoiceStatus
-    startFollowups?: number
+    startFollowups?: number | null
     followupStartDate?: Date | string | null
     currentStage?: number
     nextActionAt?: Date | string | null
@@ -8489,7 +8560,7 @@ export namespace Prisma {
     dueDate?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     issueDate?: DateTimeFilter<"Invoice"> | Date | string
     status?: EnumInvoiceStatusFilter<"Invoice"> | $Enums.InvoiceStatus
-    startFollowups?: IntFilter<"Invoice"> | number
+    startFollowups?: IntNullableFilter<"Invoice"> | number | null
     followupStartDate?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     currentStage?: IntFilter<"Invoice"> | number
     nextActionAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
@@ -8626,7 +8697,7 @@ export namespace Prisma {
     dueDate?: Date | string | null
     issueDate: Date | string
     status?: $Enums.InvoiceStatus
-    startFollowups?: number
+    startFollowups?: number | null
     followupStartDate?: Date | string | null
     currentStage?: number
     nextActionAt?: Date | string | null
@@ -8650,7 +8721,7 @@ export namespace Prisma {
     dueDate?: Date | string | null
     issueDate: Date | string
     status?: $Enums.InvoiceStatus
-    startFollowups?: number
+    startFollowups?: number | null
     followupStartDate?: Date | string | null
     currentStage?: number
     nextActionAt?: Date | string | null
@@ -8690,7 +8761,7 @@ export namespace Prisma {
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
-    startFollowups?: IntFieldUpdateOperationsInput | number
+    startFollowups?: NullableIntFieldUpdateOperationsInput | number | null
     followupStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentStage?: IntFieldUpdateOperationsInput | number
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8714,7 +8785,7 @@ export namespace Prisma {
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
-    startFollowups?: IntFieldUpdateOperationsInput | number
+    startFollowups?: NullableIntFieldUpdateOperationsInput | number | null
     followupStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentStage?: IntFieldUpdateOperationsInput | number
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8738,7 +8809,7 @@ export namespace Prisma {
     dueDate?: Date | string | null
     issueDate: Date | string
     status?: $Enums.InvoiceStatus
-    startFollowups?: number
+    startFollowups?: number | null
     followupStartDate?: Date | string | null
     currentStage?: number
     nextActionAt?: Date | string | null
@@ -8761,7 +8832,7 @@ export namespace Prisma {
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
-    startFollowups?: IntFieldUpdateOperationsInput | number
+    startFollowups?: NullableIntFieldUpdateOperationsInput | number | null
     followupStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentStage?: IntFieldUpdateOperationsInput | number
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8785,7 +8856,7 @@ export namespace Prisma {
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
-    startFollowups?: IntFieldUpdateOperationsInput | number
+    startFollowups?: NullableIntFieldUpdateOperationsInput | number | null
     followupStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentStage?: IntFieldUpdateOperationsInput | number
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8809,7 +8880,7 @@ export namespace Prisma {
     dueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     issueDate?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumInvoiceStatusFieldUpdateOperationsInput | $Enums.InvoiceStatus
-    startFollowups?: IntFieldUpdateOperationsInput | number
+    startFollowups?: NullableIntFieldUpdateOperationsInput | number | null
     followupStartDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     currentStage?: IntFieldUpdateOperationsInput | number
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

@@ -40,7 +40,8 @@ model Invoice {
   status             InvoiceStatus @default(PENDING)
 
   // Follow-up config (days AFTER issueDate)
-  startFollowups     Int           @default(0)
+  // Null means use GlobalSetting.followupStartDelayDays
+  startFollowups     Int?
 
   // Computed fields
   followupStartDate  DateTime?
@@ -92,6 +93,7 @@ model GlobalSetting {
   dataDeletion      Boolean @default(true)
   readWebhook       String? @default("https://n8n.your-site.com/webhook/read-sheet")
   writeWebhook      String? @default("https://n8n.your-site.com/webhook/send-reminder")
+  followupStartDelayDays Int @default(0)
   syncActivity      Boolean @default(true)
   logSentiment      Boolean @default(true)
 

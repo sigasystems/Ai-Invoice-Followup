@@ -234,12 +234,12 @@ export default function SettingsPage() {
                     </div>
                   ))}
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10 pt-10 border-t border-border/50">
+                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-10 pt-10 border-t border-border/50">
                     {[
                       { id: 'createDraftsOnly', label: 'Human Review', sub: 'Queue as Gmail drafts', icon: ShieldCheck, color: 'text-emerald-500' },
                       { id: 'smartEscalation', label: 'Smart Direct', sub: 'Auto-detect owner mail', icon: BrainCircuit, color: 'text-indigo-500' },
                       { id: 'beforeDueReminder', label: 'Early Alerts', sub: 'Courtesy pre-due ping', icon: Bell, color: 'text-amber-500' }
-                    ].map((opt) => (
+                    ].map((opt: any) => (
                       <div key={opt.id} className="p-5 rounded-[2rem] border border-border bg-card hover:border-primary/20 transition-all group flex flex-col gap-4">
                         <div className="flex items-center justify-between">
                           <div className={cn("h-10 w-10 rounded-2xl flex items-center justify-center bg-muted group-hover:bg-primary/5 transition-colors", opt.color)}>
@@ -257,6 +257,28 @@ export default function SettingsPage() {
                         </div>
                       </div>
                     ))}
+
+                    {/* Global Follow-up Delay */}
+                    <div className="p-5 rounded-[2rem] border border-border bg-card hover:border-primary/20 transition-all group flex flex-col gap-4">
+                      <div className="flex items-center justify-between">
+                        <div className="h-10 w-10 rounded-2xl flex items-center justify-center bg-muted group-hover:bg-primary/5 transition-colors text-blue-500">
+                          <Clock className="h-5 w-5" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="number"
+                            value={settings?.followupStartDelayDays ?? 0}
+                            onChange={(e) => updateField('followupStartDelayDays', parseInt(e.target.value) || 0)}
+                            className="w-16 h-8 text-center font-bold rounded-lg border-border"
+                          />
+                          <span className="text-[10px] font-black uppercase text-muted-foreground">Days</span>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase text-foreground">Global Start Delay</p>
+                        <p className="text-[12px] font-medium text-muted-foreground mt-1">Wait X days after issue before follow-ups begin.</p>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
