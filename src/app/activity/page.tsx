@@ -279,7 +279,7 @@ export default function ActivityPage() {
 
 function QuickStat({ label, value, icon: Icon, color, bgColor }: any) {
    return (
-      <Card className="p-5 rounded-3xl border border-border shadow-xs group">
+      <Card className="p-5  border border-border shadow-xs group">
          <div className="flex items-center gap-4">
             <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center ", bgColor)}>
                <Icon className={cn("w-6 h-6", color)} />

@@ -55,17 +55,44 @@ export default function SettingsPage() {
   }, []);
 
   const handleSave = async () => {
+    // Validation: Check for duplicate delay days
+    const days = settings?.escalationLadder?.map((s: any) => s.delayDays) || [];
+    const duplicateDay = days.find((day : any , index : any) => days.indexOf(day) !== index);
+    
+    if (duplicateDay !== undefined) {
+      toast.error(`Validation Error: Multiple stages set for Day ${duplicateDay}. Protocols must have unique delays.`);
+      return;
+    }
+
+    // Validation: Check for empty labels
+    if (settings?.escalationLadder?.some((s: any) => !s.label?.trim())) {
+      toast.error('Validation Error: All protocol stages must have a label.');
+      return;
+    }
+
     setSaving(true);
     try {
+      // Sanitize manager emails (remove duplicates and empty spaces)
+      const sanitizedEmails = Array.from(new Set(
+        (settings.managerEmails || '').split(',')
+          .map((e: string) => e.trim())
+          .filter((e: string) => e)
+      )).join(', ');
+
+      const payload = { ...settings, managerEmails: sanitizedEmails };
+
       const res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error();
-      toast.success('Settings updated successfully!');
+      
+      // Update local state with sanitized emails
+      setSettings(payload);
+      toast.success('Settings synchronized successfully!');
     } catch (err) {
-      toast.error('Failed to save settings');
+      toast.error('Network Error: Failed to synchronize preferences.');
     } finally {
       setSaving(false);
     }
@@ -76,10 +103,16 @@ export default function SettingsPage() {
   };
 
   const addLadderStep = () => {
-    const newStep = { delayDays: 1, tone: 'Neutral', label: 'New Reminder' };
+    const existingDays = settings?.escalationLadder?.map((s: any) => s.delayDays) || [];
+    let nextDay = 1;
+    while (existingDays.includes(nextDay)) {
+      nextDay++;
+    }
+    
+    const newStep = { delayDays: nextDay, tone: 'Neutral', label: `Day ${nextDay} Reminder` };
     setSettings((prev: any) => ({
       ...prev,
-      escalationLadder: [...(prev.escalationLadder || []), newStep]
+      escalationLadder: [...(prev.escalationLadder || []), newStep].sort((a, b) => a.delayDays - b.delayDays)
     }));
   };
 
@@ -91,8 +124,21 @@ export default function SettingsPage() {
   };
 
   const updateLadderStep = (index: number, field: string, value: any) => {
+    if (field === 'delayDays') {
+      const isDuplicate = settings.escalationLadder.some((s: any, i: number) => i !== index && s.delayDays === value);
+      if (isDuplicate) {
+        toast.error(`A protocol for Day ${value} already exists. Please choose a unique delay.`);
+        return;
+      }
+    }
     const newLadder = [...settings.escalationLadder];
     newLadder[index] = { ...newLadder[index], [field]: value };
+    
+    // Auto-sort if delay changed
+    if (field === 'delayDays') {
+      newLadder.sort((a, b) => a.delayDays - b.delayDays);
+    }
+    
     updateField('escalationLadder', newLadder);
   };
 
@@ -101,7 +147,7 @@ export default function SettingsPage() {
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center p-40 gap-4">
           <div className="h-10 w-10 border-4 border-primary/10 border-t-primary rounded-full animate-spin" />
-          <p className="text-[12px] font-black uppercase text-muted-foreground">Initializing Preferences</p>
+          <p className="text-[12px] font-bold uppercase text-muted-foreground">Initializing Preferences</p>
         </div>
       </DashboardLayout>
     );
@@ -123,7 +169,7 @@ export default function SettingsPage() {
         <Button
           onClick={handleSave}
           disabled={saving}
-          className="rounded-xl h-11 px-6 font-black text-[12px] uppercase  shadow-xl shadow-primary/20 flex items-center gap-2"
+          className="rounded-xl h-11 px-6 font-bold text-[12px] uppercase  shadow-xl shadow-primary/20 flex items-center gap-2"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {saving ? 'Synchronizing...' : 'Save Configuration'}
@@ -134,7 +180,7 @@ export default function SettingsPage() {
 
         {/* Sidebar Nav */}
         <div className="lg:col-span-3 space-y-1">
-          <p className="px-4 text-[12px] font-black text-muted-foreground uppercase mb-4">Configuration</p>
+          <p className="px-4 text-[12px] font-bold text-muted-foreground uppercase mb-4">Configuration</p>
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -161,78 +207,106 @@ export default function SettingsPage() {
 
           {activeTab === 'ladder' && (
             <div className="space-y-8">
-              <Card className="rounded-[2.5rem] border border-border shadow-2xl shadow-neutral-500/5 overflow-hidden bg-card">
+              <Card className=" border border-border shadow-2xl shadow-neutral-500/5 overflow-hidden bg-card">
                 <CardHeader className="p-10 pb-2">
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
                       <CardTitle className="text-2xl font-bold">Escalation Protocol</CardTitle>
                       <CardDescription className="text-sm font-medium text-muted-foreground">Design the sequence of autonomous reminders and tone transitions.</CardDescription>
                     </div>
-                    <Button onClick={addLadderStep} variant="outline" className="rounded-xl h-10 px-4 font-black text-[12px] uppercase  border-primary/20 text-primary hover:bg-primary/5">
+                    <Button onClick={addLadderStep} variant="outline" className="rounded-xl h-10 px-4 font-bold text-[12px] uppercase  border-primary/20 text-primary hover:bg-primary/5">
                       <Plus className="w-4 h-4 mr-2" /> New Stage
                     </Button>
                   </div>
                 </CardHeader>
                 <CardContent className="p-10 pt-8 space-y-4">
-                  {settings?.escalationLadder && settings.escalationLadder.map((step: any, index: number) => (
-                    <div key={index} className="group relative flex flex-col sm:flex-row items-center gap-6 p-6 rounded-3xl bg-muted/30 border border-border/50 hover:border-primary/20 transition-all duration-300">
-                      <div className="flex flex-col gap-2 flex-1 w-full">
-                        <Label className="text-[12px] font-black text-muted-foreground uppercase ">Protocol Identifier</Label>
-                        <Input
-                          value={step.label}
-                          onChange={(e) => updateLadderStep(index, 'label', e.target.value)}
-                          className="bg-background border-none shadow-sm rounded-xl h-11 font-bold focus:ring-primary h-11"
-                          placeholder="e.g. Day 1 Courtesy"
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2 w-full sm:w-28">
-                        <Label className="text-[12px] font-black text-muted-foreground uppercase ">Delay (Days)</Label>
-                        <Input
-                          type="number"
-                          value={step.delayDays ?? 0}
-                          onChange={(e) => updateLadderStep(index, 'delayDays', parseInt(e.target.value) || 0)}
-                          className="bg-background border-none shadow-sm rounded-xl h-11 font-black focus:ring-primary text-center"
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2 w-full sm:w-40">
-                        <Label className="text-[12px] font-black text-muted-foreground uppercase ">Communication Tone</Label>
-                        <Select
-                          value={step.tone}
-                          onValueChange={(val) => updateLadderStep(index, 'tone', val)}
-                        >
-                          <SelectTrigger className="bg-background border-none shadow-sm rounded-xl h-11 font-bold focus:ring-primary transition-all">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="rounded-2xl border-border shadow-2xl p-2">
-                            {['Gentle', 'Neutral', 'Firm', 'Urgent', 'Legal', 'Manager Escalation'].map(t => (
-                              <SelectItem key={t} value={t} className="rounded-xl font-bold text-xs py-2 px-3">{t}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      {step.tone === 'Manager Escalation' && (
-                        <div className="flex flex-col gap-2 flex-1 w-full animate-in zoom-in-95 duration-200">
-                          <Label className="text-[12px] font-black text-rose-500 uppercase ">Escalation Contact</Label>
+                  {settings?.escalationLadder && settings.escalationLadder.map((step: any, index: number) => {
+                    const isDuplicate = settings.escalationLadder.some((s: any, i: number) => i !== index && s.delayDays === step.delayDays);
+                    
+                    return (
+                      <div key={index} className={cn(
+                        "group relative flex flex-col sm:flex-row items-center gap-6 p-6 rounded-3xl bg-muted/30 border transition-all duration-300",
+                        isDuplicate ? "border-rose-500/50 bg-rose-500/5" : "border-border/50 hover:border-primary/20"
+                      )}>
+                        <div className="flex flex-col gap-2 flex-1 w-full">
+                          <Label className="text-[12px] font-bold text-muted-foreground uppercase ">Protocol Identifier</Label>
                           <Input
-                            value={step.escalationContact || ''}
-                            onChange={(e) => updateLadderStep(index, 'escalationContact', e.target.value)}
-                            className="bg-rose-500/5 border border-rose-500/10 shadow-sm rounded-xl h-11 font-bold focus:ring-rose-500"
-                            placeholder="e.g. Finance VP / Legal"
+                            value={step.label}
+                            onChange={(e) => updateLadderStep(index, 'label', e.target.value)}
+                            className="bg-background border-none shadow-sm rounded-xl h-11 font-bold focus:ring-primary h-11"
+                            placeholder="e.g. Day 1 Courtesy"
                           />
                         </div>
-                      )}
-                      <div className="sm:pt-6">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 rounded-xl h-11 w-11"
-                          onClick={() => removeLadderStep(index)}
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </Button>
+                        <div className="flex flex-col gap-2 w-full sm:w-28">
+                          <Label className={cn("text-[12px] font-bold uppercase", isDuplicate ? "text-rose-500" : "text-muted-foreground")}>
+                            Delay (Days) {isDuplicate && "⚠️"}
+                          </Label>
+                          <Input
+                            type="number"
+                            value={step.delayDays ?? 0}
+                            onChange={(e) => updateLadderStep(index, 'delayDays', parseInt(e.target.value) || 0)}
+                            className={cn(
+                              "bg-background border-none shadow-sm rounded-xl h-11 font-bold focus:ring-primary text-center",
+                              isDuplicate && "text-rose-600 ring-2 ring-rose-500/20"
+                            )}
+                          />
+                        </div>
+                        <div className="flex flex-col gap-2 w-full sm:w-40">
+                          <Label className="text-[12px] font-bold text-muted-foreground uppercase ">Communication Tone</Label>
+                          <Select
+                            value={step.tone}
+                            onValueChange={(val) => updateLadderStep(index, 'tone', val)}
+                          >
+                            <SelectTrigger className="bg-background border-none shadow-sm rounded-xl h-11 font-bold focus:ring-primary transition-all">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-2xl border-border shadow-2xl p-2">
+                              {['Gentle', 'Neutral', 'Firm', 'Urgent', 'Legal', 'Manager Escalation'].map(t => (
+                                <SelectItem key={t} value={t} className="rounded-xl font-semibold text-xs py-2 px-3">{t}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        {step.tone === 'Manager Escalation' && (
+                          <div className="flex flex-col gap-2 flex-1 w-full animate-in zoom-in-95 duration-200">
+                            <Label className="text-[12px] font-bold text-rose-500 uppercase ">Escalation Contact</Label>
+                            <Select
+                              value={step.escalationContact || ''}
+                              onValueChange={(val) => updateLadderStep(index, 'escalationContact', val)}
+                            >
+                              <SelectTrigger className="bg-rose-500/5 border border-rose-500/10 shadow-sm rounded-xl h-11 font-bold focus:ring-rose-500">
+                                <SelectValue placeholder="Select Manager" />
+                              </SelectTrigger>
+                              <SelectContent className="rounded-2xl border-border shadow-2xl p-2">
+                                {settings?.managerEmails?.split(',').map((email: string) => {
+                                  const cleanEmail = email.trim();
+                                  if (!cleanEmail) return null;
+                                  return (
+                                    <SelectItem key={cleanEmail} value={cleanEmail} className="rounded-xl font-semibold text-xs py-2 px-3">
+                                      {cleanEmail}
+                                    </SelectItem>
+                                  );
+                                })}
+                                <SelectItem value="custom" className="rounded-xl font-semibold text-xs py-2 px-3 text-muted-foreground italic">
+                                  Add more in Directory
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                        <div className="sm:pt-6">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 rounded-xl h-11 w-11"
+                            onClick={() => removeLadderStep(index)}
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
 
                   <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-10 pt-10 border-t border-border/50">
                     {[
@@ -271,7 +345,7 @@ export default function SettingsPage() {
                             onChange={(e) => updateField('followupStartDelayDays', parseInt(e.target.value) || 0)}
                             className="w-16 h-8 text-center font-bold rounded-lg border-border"
                           />
-                          <span className="text-[10px] font-black uppercase text-muted-foreground">Days</span>
+                          <span className="text-[10px] font-bold uppercase text-muted-foreground">Days</span>
                         </div>
                       </div>
                       <div>
@@ -282,18 +356,45 @@ export default function SettingsPage() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Manager Emails Directory */}
+              <Card className=" border border-border shadow-2xl shadow-neutral-500/5 overflow-hidden bg-card">
+                <CardHeader className="p-10 pb-0">
+                  <div className="flex items-center gap-4 mb-2">
+                    <div className="h-12 w-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-600">
+                      <ShieldCheck className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-xl font-bold">Manager Directory</CardTitle>
+                      <CardDescription className="text-sm font-medium">Authorized emails for high-priority escalation protocols.</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-10 pt-6 space-y-6">
+                   <div className="space-y-3">
+                    <Label className="text-[12px] font-bold text-muted-foreground uppercase ml-1">Verified Manager Recipients</Label>
+                    <Input
+                      value={settings?.managerEmails || ''}
+                      onChange={(e) => updateField('managerEmails', e.target.value)}
+                      placeholder="manager1@company.com, manager2@company.com"
+                      className="rounded-2xl h-14 bg-muted/50 border-border font-medium focus:ring-primary px-6"
+                    />
+                    <p className="text-[11px] text-muted-foreground italic ml-1">Separate multiple emails with commas. These will appear in the escalation dropdown above.</p>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
 
           {activeTab === 'n8n' && (
-            <Card className="rounded-[2.5rem] border border-border shadow-2xl shadow-neutral-500/5 bg-card animate-in fade-in slide-in-from-bottom-2">
+            <Card className=" border border-border shadow-2xl shadow-neutral-500/5 bg-card animate-in fade-in slide-in-from-bottom-2">
               <CardHeader className="p-10">
                 <div className="flex items-center gap-4 mb-2">
                   <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
                     <BrainCircuit className="h-6 w-6" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl font-black ">Automation Engine</CardTitle>
+                    <CardTitle className="text-2xl font-semibold ">Automation Engine</CardTitle>
                     <CardDescription className="text-sm font-medium">Bridge your financial data with autonomous collection workflows via n8n.</CardDescription>
                   </div>
                 </div>
@@ -321,14 +422,14 @@ export default function SettingsPage() {
                     <div className="mt-4 p-5 rounded-3xl bg-amber-500/5 border border-amber-500/10 flex items-start gap-4">
                       <Zap className="h-5 w-5 text-amber-600 mt-1" />
                       <div className="space-y-2">
-                        <p className="text-xs font-black uppercase  text-amber-700">Environment Mismatch</p>
+                        <p className="text-xs font-bold uppercase  text-amber-700">Environment Mismatch</p>
                         <p className="text-[11px] font-medium text-amber-800/80 leading-relaxed">
                           Detected a test webhook. Production automation requires a permanent, active workflow URL.
                         </p>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="bg-amber-100 border-amber-200 text-amber-800 font-black text-[9px] uppercase  rounded-xl"
+                          className="bg-amber-100 border-amber-200 text-amber-800 font-bold text-[9px] uppercase  rounded-xl"
                           onClick={() => {
                             const prodUrl = settings.writeWebhook.replace('/webhook-test/', '/webhook/');
                             updateField('writeWebhook', prodUrl);
@@ -359,9 +460,9 @@ export default function SettingsPage() {
 
           {/* Placeholder for other tabs to keep UI consistent */}
           {['channels', 'security'].includes(activeTab) && (
-            <div className="h-96 w-full rounded-[2.5rem] border-2 border-dashed border-border flex flex-col items-center justify-center gap-4 bg-muted/20">
+            <div className="h-96 w-full  border-2 border-dashed border-border flex flex-col items-center justify-center gap-4 bg-muted/20">
               <Settings2 className="h-10 w-10 text-muted-foreground opacity-20" />
-              <p className="text-[12px] font-black uppercase text-muted-foreground">Advanced module coming soon</p>
+              <p className="text-[12px] font-bold uppercase text-muted-foreground">Advanced module coming soon</p>
             </div>
           )}
 

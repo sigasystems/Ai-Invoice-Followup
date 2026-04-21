@@ -95,6 +95,7 @@ model GlobalSetting {
   writeWebhook      String? @default("https://n8n.your-site.com/webhook/send-reminder")
   followupStartDelayDays Int @default(0)
   syncActivity      Boolean @default(true)
+  managerEmails     String? @default("manager@company.com, finance@company.com")
   logSentiment      Boolean @default(true)
 
   updatedAt DateTime @updatedAt

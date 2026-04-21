@@ -279,6 +279,7 @@ export async function POST(request: Request) {
       startFollowup: invoice?.followUp?.startFollowups ?? payload.startFollowup ?? payload.startFollowups ?? 0,
       reminder_stage: invoice?.followUp?.currentStage ?? payload.reminder_stage ?? 0,
       current_tone:   actualTone,
+      escalation_contact: currentStep?.escalationContact || null,
 
       // Deep context still available if needed
       context,

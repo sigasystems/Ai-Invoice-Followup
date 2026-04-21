@@ -102,13 +102,13 @@ export default function InvoicesPage() {
         const startDate = addDays(issueDate, Number(newOffset));
         const formattedStartDate = startDate.toISOString().split('T')[0];
 
-        await triggerN8nWorkflow('UPDATE_INVOICE', {
-          id: invoiceId,
-          invoice_number: invoice.invoice_number,
-          client_email: invoice.customerEmail,
-          followup_start_date: formattedStartDate,
-          ...updates
-        });
+        // await triggerN8nWorkflow('UPDATE_INVOICE', {
+        //   id: invoiceId,
+        //   invoice_number: invoice.invoice_number,
+        //   client_email: invoice.customerEmail,
+        //   followup_start_date: formattedStartDate,
+        //   ...updates
+        // });
       }
 
       // Update local state to reflect change immediately
@@ -558,16 +558,16 @@ export default function InvoicesPage() {
             <Users className="w-4 h-4 mr-2" />
             Refresh Sync
           </Button>
-          <Button variant="outline" size="sm" className="h-10 rounded-xl hidden sm:flex">
+          {/* <Button variant="outline" size="sm" className="h-10 rounded-xl hidden sm:flex">
             <Download className="w-4 h-4 mr-2" />
             Export
-          </Button>
+          </Button> */}
           <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-            <DialogTrigger render={<Button variant="default" size="sm" className="h-10 rounded-xl" />}>
+            <DialogTrigger render={<Button variant="default" size="sm" className="h-10" />}>
               <Plus className="w-4 h-4 mr-2" />
               New Invoice
             </DialogTrigger>
-            <DialogContent className="rounded-2xl max-w-lg border-border bg-card shadow-2xl p-0 overflow-hidden">
+            <DialogContent className="rounded-2xl max-w-2xl border-border bg-card shadow-2xl p-0 overflow-hidden">
               <div className="p-8 bg-linear-to-br from-primary/5 via-transparent to-transparent">
                 <DialogHeader className="space-y-1 mb-8 text-left">
                   <DialogTitle className="text-2xl font-bold  text-foreground">Create New Invoice</DialogTitle>
@@ -577,32 +577,32 @@ export default function InvoicesPage() {
                 <form onSubmit={handleCreateInvoice} className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="invoice_number" className="text-xs font-black uppercase  text-muted-foreground">Invoice ID</Label>
+                      <Label htmlFor="invoice_number" className="text-xs font-bold   uppercase  text-muted-foreground">Invoice ID</Label>
                       <Input id="invoice_number" name="invoice_number" placeholder="INV-2024-001" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="amount" className="text-xs font-black uppercase  text-muted-foreground">Amount (₹)</Label>
+                      <Label htmlFor="amount" className="text-xs font-bold uppercase  text-muted-foreground">Amount (₹)</Label>
                       <Input id="amount" name="amount" type="number" placeholder="0.00" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="customer_name" className="text-xs font-black uppercase  text-muted-foreground">Customer Name</Label>
+                    <Label htmlFor="customer_name" className="text-xs font-bold uppercase  text-muted-foreground">Customer Name</Label>
                     <Input id="customer_name" name="customer_name" placeholder="John Doe Services" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="customer_email" className="text-xs font-black uppercase  text-muted-foreground">Customer Email</Label>
+                    <Label htmlFor="customer_email" className="text-xs font-bold uppercase  text-muted-foreground">Customer Email</Label>
                     <Input id="customer_email" name="customer_email" type="email" placeholder="client@example.com" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="due_date" className="text-xs font-black uppercase  text-muted-foreground">Issue Date</Label>
+                      <Label htmlFor="due_date" className="text-xs font-bold uppercase  text-muted-foreground">Issue Date</Label>
                       <Input id="due_date" name="due_date" type="date" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="start_followups" className="text-xs font-black uppercase text-muted-foreground">Follow-up Days</Label>
+                      <Label htmlFor="start_followups" className="text-xs font-bold uppercase text-muted-foreground">Follow-up Days</Label>
                       <Input 
                         id="start_followups" 
                         name="start_followups" 
@@ -614,7 +614,7 @@ export default function InvoicesPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="notes" className="text-xs font-black uppercase  text-muted-foreground">Notes (Optional)</Label>
+                    <Label htmlFor="notes" className="text-xs font-bold uppercase  text-muted-foreground">Notes (Optional)</Label>
                     <Input id="notes" name="notes" placeholder="e.g. Monthly maintenance retainer" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" />
                   </div>
 

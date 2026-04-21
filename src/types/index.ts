@@ -1,5 +1,3 @@
-import { ReactNode } from "react";
-
 export type InvoiceStatus = 'Paid' | 'Pending' | 'Overdue' | 'In Plan';
 
 export interface Installment {
@@ -93,6 +91,7 @@ export interface GlobalSetting {
   }>;
   beforeDueReminder: boolean;
   smartEscalation: boolean;
+  managerEmails?: string;
   updatedAt: string;
 }
 

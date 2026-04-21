@@ -4363,6 +4363,7 @@ export namespace Prisma {
     writeWebhook: string | null
     followupStartDelayDays: number | null
     syncActivity: boolean | null
+    managerEmails: string | null
     logSentiment: boolean | null
     updatedAt: Date | null
   }
@@ -4378,6 +4379,7 @@ export namespace Prisma {
     writeWebhook: string | null
     followupStartDelayDays: number | null
     syncActivity: boolean | null
+    managerEmails: string | null
     logSentiment: boolean | null
     updatedAt: Date | null
   }
@@ -4394,6 +4396,7 @@ export namespace Prisma {
     writeWebhook: number
     followupStartDelayDays: number
     syncActivity: number
+    managerEmails: number
     logSentiment: number
     updatedAt: number
     _all: number
@@ -4419,6 +4422,7 @@ export namespace Prisma {
     writeWebhook?: true
     followupStartDelayDays?: true
     syncActivity?: true
+    managerEmails?: true
     logSentiment?: true
     updatedAt?: true
   }
@@ -4434,6 +4438,7 @@ export namespace Prisma {
     writeWebhook?: true
     followupStartDelayDays?: true
     syncActivity?: true
+    managerEmails?: true
     logSentiment?: true
     updatedAt?: true
   }
@@ -4450,6 +4455,7 @@ export namespace Prisma {
     writeWebhook?: true
     followupStartDelayDays?: true
     syncActivity?: true
+    managerEmails?: true
     logSentiment?: true
     updatedAt?: true
     _all?: true
@@ -4553,6 +4559,7 @@ export namespace Prisma {
     writeWebhook: string | null
     followupStartDelayDays: number
     syncActivity: boolean
+    managerEmails: string | null
     logSentiment: boolean
     updatedAt: Date
     _count: GlobalSettingCountAggregateOutputType | null
@@ -4588,6 +4595,7 @@ export namespace Prisma {
     writeWebhook?: boolean
     followupStartDelayDays?: boolean
     syncActivity?: boolean
+    managerEmails?: boolean
     logSentiment?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["globalSetting"]>
@@ -4604,6 +4612,7 @@ export namespace Prisma {
     writeWebhook?: boolean
     followupStartDelayDays?: boolean
     syncActivity?: boolean
+    managerEmails?: boolean
     logSentiment?: boolean
     updatedAt?: boolean
   }
@@ -4624,6 +4633,7 @@ export namespace Prisma {
       writeWebhook: string | null
       followupStartDelayDays: number
       syncActivity: boolean
+      managerEmails: string | null
       logSentiment: boolean
       updatedAt: Date
     }, ExtArgs["result"]["globalSetting"]>
@@ -5031,6 +5041,7 @@ export namespace Prisma {
     readonly writeWebhook: FieldRef<"GlobalSetting", 'String'>
     readonly followupStartDelayDays: FieldRef<"GlobalSetting", 'Int'>
     readonly syncActivity: FieldRef<"GlobalSetting", 'Boolean'>
+    readonly managerEmails: FieldRef<"GlobalSetting", 'String'>
     readonly logSentiment: FieldRef<"GlobalSetting", 'Boolean'>
     readonly updatedAt: FieldRef<"GlobalSetting", 'DateTime'>
   }
@@ -6335,6 +6346,7 @@ export namespace Prisma {
     writeWebhook: 'writeWebhook',
     followupStartDelayDays: 'followupStartDelayDays',
     syncActivity: 'syncActivity',
+    managerEmails: 'managerEmails',
     logSentiment: 'logSentiment',
     updatedAt: 'updatedAt'
   };
@@ -6777,6 +6789,7 @@ export namespace Prisma {
     writeWebhook?: StringNullableFilter<"GlobalSetting"> | string | null
     followupStartDelayDays?: IntFilter<"GlobalSetting"> | number
     syncActivity?: BoolFilter<"GlobalSetting"> | boolean
+    managerEmails?: StringNullableFilter<"GlobalSetting"> | string | null
     logSentiment?: BoolFilter<"GlobalSetting"> | boolean
     updatedAt?: DateTimeFilter<"GlobalSetting"> | Date | string
   }
@@ -6793,6 +6806,7 @@ export namespace Prisma {
     writeWebhook?: SortOrderInput | SortOrder
     followupStartDelayDays?: SortOrder
     syncActivity?: SortOrder
+    managerEmails?: SortOrderInput | SortOrder
     logSentiment?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6812,6 +6826,7 @@ export namespace Prisma {
     writeWebhook?: StringNullableFilter<"GlobalSetting"> | string | null
     followupStartDelayDays?: IntFilter<"GlobalSetting"> | number
     syncActivity?: BoolFilter<"GlobalSetting"> | boolean
+    managerEmails?: StringNullableFilter<"GlobalSetting"> | string | null
     logSentiment?: BoolFilter<"GlobalSetting"> | boolean
     updatedAt?: DateTimeFilter<"GlobalSetting"> | Date | string
   }, "id">
@@ -6828,6 +6843,7 @@ export namespace Prisma {
     writeWebhook?: SortOrderInput | SortOrder
     followupStartDelayDays?: SortOrder
     syncActivity?: SortOrder
+    managerEmails?: SortOrderInput | SortOrder
     logSentiment?: SortOrder
     updatedAt?: SortOrder
     _count?: GlobalSettingCountOrderByAggregateInput
@@ -6852,6 +6868,7 @@ export namespace Prisma {
     writeWebhook?: StringNullableWithAggregatesFilter<"GlobalSetting"> | string | null
     followupStartDelayDays?: IntWithAggregatesFilter<"GlobalSetting"> | number
     syncActivity?: BoolWithAggregatesFilter<"GlobalSetting"> | boolean
+    managerEmails?: StringNullableWithAggregatesFilter<"GlobalSetting"> | string | null
     logSentiment?: BoolWithAggregatesFilter<"GlobalSetting"> | boolean
     updatedAt?: DateTimeWithAggregatesFilter<"GlobalSetting"> | Date | string
   }
@@ -7264,6 +7281,7 @@ export namespace Prisma {
     writeWebhook?: string | null
     followupStartDelayDays?: number
     syncActivity?: boolean
+    managerEmails?: string | null
     logSentiment?: boolean
     updatedAt?: Date | string
   }
@@ -7280,6 +7298,7 @@ export namespace Prisma {
     writeWebhook?: string | null
     followupStartDelayDays?: number
     syncActivity?: boolean
+    managerEmails?: string | null
     logSentiment?: boolean
     updatedAt?: Date | string
   }
@@ -7296,6 +7315,7 @@ export namespace Prisma {
     writeWebhook?: NullableStringFieldUpdateOperationsInput | string | null
     followupStartDelayDays?: IntFieldUpdateOperationsInput | number
     syncActivity?: BoolFieldUpdateOperationsInput | boolean
+    managerEmails?: NullableStringFieldUpdateOperationsInput | string | null
     logSentiment?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7312,6 +7332,7 @@ export namespace Prisma {
     writeWebhook?: NullableStringFieldUpdateOperationsInput | string | null
     followupStartDelayDays?: IntFieldUpdateOperationsInput | number
     syncActivity?: BoolFieldUpdateOperationsInput | boolean
+    managerEmails?: NullableStringFieldUpdateOperationsInput | string | null
     logSentiment?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7328,6 +7349,7 @@ export namespace Prisma {
     writeWebhook?: string | null
     followupStartDelayDays?: number
     syncActivity?: boolean
+    managerEmails?: string | null
     logSentiment?: boolean
     updatedAt?: Date | string
   }
@@ -7344,6 +7366,7 @@ export namespace Prisma {
     writeWebhook?: NullableStringFieldUpdateOperationsInput | string | null
     followupStartDelayDays?: IntFieldUpdateOperationsInput | number
     syncActivity?: BoolFieldUpdateOperationsInput | boolean
+    managerEmails?: NullableStringFieldUpdateOperationsInput | string | null
     logSentiment?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7360,6 +7383,7 @@ export namespace Prisma {
     writeWebhook?: NullableStringFieldUpdateOperationsInput | string | null
     followupStartDelayDays?: IntFieldUpdateOperationsInput | number
     syncActivity?: BoolFieldUpdateOperationsInput | boolean
+    managerEmails?: NullableStringFieldUpdateOperationsInput | string | null
     logSentiment?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7924,6 +7948,7 @@ export namespace Prisma {
     writeWebhook?: SortOrder
     followupStartDelayDays?: SortOrder
     syncActivity?: SortOrder
+    managerEmails?: SortOrder
     logSentiment?: SortOrder
     updatedAt?: SortOrder
   }
@@ -7943,6 +7968,7 @@ export namespace Prisma {
     writeWebhook?: SortOrder
     followupStartDelayDays?: SortOrder
     syncActivity?: SortOrder
+    managerEmails?: SortOrder
     logSentiment?: SortOrder
     updatedAt?: SortOrder
   }
@@ -7958,6 +7984,7 @@ export namespace Prisma {
     writeWebhook?: SortOrder
     followupStartDelayDays?: SortOrder
     syncActivity?: SortOrder
+    managerEmails?: SortOrder
     logSentiment?: SortOrder
     updatedAt?: SortOrder
   }

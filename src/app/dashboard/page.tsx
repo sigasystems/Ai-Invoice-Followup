@@ -170,10 +170,17 @@ export default function DashboardPage() {
 
   /* ── Metrics ── */
   const totalOutstanding = invoices.reduce((a, i) => i.status !== 'Paid' ? a + i.amount : a, 0);
+  
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
   const collectedThisMonth = invoices.reduce((a, i) => {
-    const paid = i.status === 'Paid';
-    const curMonth = i.dueDate && new Date(i.dueDate).getMonth() === new Date().getMonth();
-    return paid && curMonth ? a + i.amount : a;
+    if (i.status !== 'Paid') return a;
+    // Use updatedAt as a proxy for payment date
+    const paymentDate = new Date(i.updatedAt);
+    const isThisMonth = paymentDate.getMonth() === currentMonth && paymentDate.getFullYear() === currentYear;
+    return isThisMonth ? a + i.amount : a;
   }, 0);
   const overdueCount = invoices.filter(i => i.status === 'Overdue').length;
   const pendingDrafts = invoices.filter(i => i.hasPendingDraft).length;
@@ -188,14 +195,22 @@ export default function DashboardPage() {
     return Array.from({ length: 6 }, (_, i) => {
       const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
       const [tm, ty] = [d.getMonth(), d.getFullYear()];
-      const monthly = invoices.filter(inv => {
+      
+      const invoicedInMonth = invoices.filter(inv => {
         const id = new Date(inv.issueDate);
         return id.getMonth() === tm && id.getFullYear() === ty;
-      });
+      }).reduce((s, inv) => s + inv.amount, 0);
+
+      const recoveredInMonth = invoices.filter(inv => {
+        if (inv.status !== 'Paid') return false;
+        const pd = new Date(inv.updatedAt);
+        return pd.getMonth() === tm && pd.getFullYear() === ty;
+      }).reduce((s, inv) => s + inv.amount, 0);
+
       return {
         name: MONTHS[tm],
-        invoiced: monthly.reduce((s, inv) => s + inv.amount, 0),
-        collected: monthly.filter(inv => inv.status === 'Paid').reduce((s, inv) => s + inv.amount, 0),
+        invoiced: invoicedInMonth,
+        collected: recoveredInMonth,
       };
     });
   }, [invoices]);

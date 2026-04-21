@@ -1,94 +1,63 @@
-# 🚀 PayPilot: Smart AI Receivables Dashboard 
+# 🚀 PayPilot: Autonomous Debt Recovery & AI Follow-up
 
-**PayPilot** is a high-performance, production-ready SaaS dashboard designed for AI-driven collections automation. It acts as the command center for your **n8n automation workflows**, turning raw invoices into actionable financial insights.
-
----
-
-## 🏛 The Ecosystem Architecture
-PayPilot operates as a **State-of-the-Art Frontend** synchronized with an **n8n Automation Engine**.
-
-### 1. Dashboard (The Command Center)
-Built with **Next.js 15+**, **Tailwind CSS v4**, and **shadcn/ui**, it provides:
-- **AI Forecast Engine**: Real-time payment probability scoring (e.g., "82% Likely to Pay").
-- **Customer Health**: Deep tracking of **On-Time Rates** and **Behavior Scores**.
-- **Unified Activity Logs**: A full audit trail of every Email, WhatsApp, and SMS sent by n8n.
-- **Privacy Controls**: Native GDPR compliance toggles and consent management.
-
-### 2. n8n Workflow (The Automation Brain)
-Your n8n flow handles the heavy lifting:
-- **Scheduled Invoicing**: Reads Google Sheets, decides the "Reminder Stage" (Mild, Firm, Urgent).
-- **LLM Content Generation**: Dynamically crafts personalized messages based on customer history and your set **"Tone"**.
-- **Sentiment Loop**: Listens to incoming Gmail/WhatsApp replies and uses an LLM to detect frustration or payment intent.
-- **Auto-Logging**: Appends logs back to your systems to close the data loop.
+**PayPilot** is an intelligent AI-powered platform designed to automate the painful process of chasing unpaid invoices. It serves as the "Command Center" for your accounts receivable, using artificial intelligence to recover debt faster, improve cash flow, and eliminate the need for manual emailing.
 
 ---
 
-## 🔗 n8n Integration Mapping
+## 🌟 What is PayPilot? (The Summary)
+Chasing payments is usually slow, manual, and uncomfortable. PayPilot solves this by acting as an **Autonomous Collection Agent**. It monitors your invoices 24/7, decides who needs a reminder, and uses AI to write and send personalized emails that sound like they came from your finance team.
 
-### 📤 What the Dashboard sends to n8n:
-Triggered via `src/lib/n8n.ts` webhooks.
-| Field | Purpose | Example |
-| :--- | :--- | :--- |
-| `invoiceId` | Uniquely identify the context | `INV-102` |
-| `customerEmail` | Destination for Gmail nodes | `finance@buyer.com` |
-| `amount` | Injected into LLM prompts | `₹15,400` |
-| `tone` | Instructs the "Message a Model" node | `Friendly` / `Firm` |
-| `action` | Determines the n8n branch to take | `SEND_FOLLOWUP` |
-
-### 📥 What n8n sends back to the Dashboard:
-Resulting in direct UI updates.
-| Dashboard Field | Source from n8n | Logic |
-| :--- | :--- | :--- |
-| **Behavior Score** | `ai_sentiment_score` | LLM analysis of incoming replies (0-100) |
-| **AI Insight** | `llm_summary` | One-sentence summary of customer health |
-| **On-Time Rate** | `payment_history_calc` | Calculated based on GSheet payment logs |
-| **Activity Status** | `message_delivery_callback` | Real-time "Delivered" or "Failed" status |
+Instead of your team spending hours in their inbox, they simply check the PayPilot Dashboard to see how much money has been recovered automatically.
 
 ---
 
-## 🧠 AI Predictions & Tracking
-We track three critical "Predictive" metrics to help you recover debt faster:
-1.  **Payment Probability**: Calculated by analyzing historical "Average Delay" in your sheets.
-2.  **Tone Adaptation**: The dashboard tells n8n whether to be *Friendly*, *Firm*, or *Neutral* based on the customer's behavior score.
-3.  **Risk Profiling**: Customers are automatically tagged as **Low**, **Medium**, or **High Risk** based on the frequency of n8n escalations.
+## 🛠️ Main Dashboard Features
+
+### 1. **Executive Dashboard (The Nerve Center)**
+*   **Cash Flow Monitoring**: See exactly how much is outstanding and how much was collected this month.
+*   **Revenue Dynamics**: A visual comparison of your sales (Invoiced) vs. actual cash received (Recovered).
+*   **Risk Triage**: Automatically flags "High Risk" accounts that need your attention before they default.
+
+### 2. **Invoices Management (Automation Control)**
+*   **Lifecycle Tracking**: Every invoice has a "Journey" bar showing exactly which reminder stage it is currently in.
+*   **Next Action Prediction**: The system tells you exactly when the next reminder will be sent (e.g., "Tomorrow at 12:00 AM").
+*   **Manual Overrides**: Pause automation or "Snooze" reminders for specific VIP clients with a single click.
+
+### 3. **Customer Intelligence (Behavioral Analysis)**
+*   **Behavior Scoring**: Customers are scored (0-100) based on their payment habits.
+*   **Collection Journey**: See at a glance how many reminders a specific customer usually takes before they pay.
+*   **Risk Profile**: Automatic categorization into Low, Medium, or High risk based on historical delays.
+
+### 4. **Activity Engine (The Audit Trail)**
+*   **Real-Time Logs**: A live stream of every email drafted, every reminder sent, and every customer reply received.
+*   **AI Efficiency Tracking**: Monitors how well the AI is performing so you can trust the automation.
 
 ---
 
-## 🛠 Setup & Installation
+## 🧠 The Escalation Strategy (How it works)
+The "Brain" of the platform is the **Escalation Ladder** (found in Settings). You define a series of steps:
+1.  **Stage 1 (Day 1)**: A "Gentle" email created as a draft.
+2.  **Stage 2 (Day 10)**: A "Firm" follow-up sent automatically.
+3.  **Final Stage**: A "Manager Escalation" where leadership is notified to step in.
 
-### 1. Clone & Install
-```bash
-# Install dependencies
-npm install
-
-# Run the developer server
-npm run dev
-```
-
-### 2. Configure n8n Webhook
-1. Go to **Settings > n8n Integration** in the dashboard.
-2. Paste your **n8n Webhook URL** (e.g., `https://n8n.yourdomain.com/webhook/your-id`).
-3. Ensure your n8n flow is active.
-
-### 3. Data Integration
-PayPilot is designed to be connected to a database (like Supabase or Postgres). Your n8n flow should:
-1. **Read from Sheets** as it does currently.
-2. **Post to the Dashboard API** (or shared Database) to update the metrics you see.
+The system handles the timing, the tone, and the delivery with zero manual effort required.
 
 ---
 
-## 🛡 Privacy & Compliance
-- **Opt-Out Logic**: n8n workflows should check the `consent_verified` field before sending WhatsApp messages.
-- **GDPR Toggles**: Built-in settings for automatic data retention and consent management.
+## 🔗 How PayPilot works with n8n
+PayPilot isn't just a dashboard—it's connected to your existing tools via **n8n** (an automation bridge). Here is how they work together in simple terms:
+
+1.  **Syncing Data**: n8n pulls your latest invoices from Google Sheets or your CRM and "feeds" them into the PayPilot dashboard.
+2.  **Sending Reminders**: When PayPilot's logic says "It's time for a reminder," it sends a signal to n8n. n8n then talks to your **Gmail** to either create a draft or send the email directly.
+3.  **Closing the Loop**: Whenever a customer replies to your email, n8n detects it and updates the PayPilot **Activity Engine** so you can see the reply without leaving the dashboard.
 
 ---
 
-## 🧩 Tech Stack Summary
-- **Frontend**: Next.js (App Router), TypeScript
-- **Styling**: Tailwind CSS v4, Lucide Icons
-- **Data Management**: TanStack Table v8
-- **Visuals**: Recharts (Modern Dashboard mode)
-- **Automation Helper**: custom `triggerN8nWorkflow` utility
+## 🚀 Quick Setup
+1.  **Connect your Database**: Ensure your environment variables are set up.
+2.  **Define your Ladder**: Go to **Settings** and set your Delay Days and AI Tones.
+3.  **Link n8n**: Paste your n8n Webhook URL in the Settings page to activate the "Bridge."
+4.  **Watch it Work**: Your invoices will populate, and the automation will begin monitoring your receivables immediately.
 
 ---
-*Generated for PayPilot – Smart Receivables Automation System.*
+*Created for the Future of Finance – PayPilot.*
