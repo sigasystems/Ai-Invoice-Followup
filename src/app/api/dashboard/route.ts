@@ -46,8 +46,8 @@ export async function GET() {
         today.setHours(0,0,0,0);
         return Math.max(0, Math.floor((today.getTime() - issue.getTime()) / (1000 * 60 * 60 * 24)));
       })(),
-      createdAt: inv.createdAt.toISOString().split('T')[0],
-      updatedAt: inv.updatedAt.toISOString().split('T')[0],
+      createdAt: inv.createdAt.toISOString(),
+      updatedAt: inv.updatedAt.toISOString(),
       startFollowups: inv.startFollowups,
       currentStage: inv.currentStage,
       nextActionAt: inv.nextActionAt,

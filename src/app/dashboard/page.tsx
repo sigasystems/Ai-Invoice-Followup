@@ -313,9 +313,9 @@ export default function DashboardPage() {
       </AnimatePresence>
 
       {/* ── KPI grid ────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-7">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-7">
         <KpiCard title="Outstanding"   value={`₹${totalOutstanding.toLocaleString('en-IN')}`}  pill="Pending collection" positive={false} icon={IndianRupee} delay={0.08} />
-        <KpiCard title="AI follow-ups" value={pendingDrafts.toString()}                         pill="Needs review"       positive={false} icon={Mail}        delay={0.12} />
+        {/* <KpiCard title="AI follow-ups" value={pendingDrafts.toString()}                         pill="Needs review"       positive={false} icon={Mail}        delay={0.12} /> */}
         <KpiCard title="Collected"     value={`₹${collectedThisMonth.toLocaleString('en-IN')}`} pill="This month"         positive={true}  icon={TrendingUp}  delay={0.16} />
         <KpiCard title="At risk"       value={overdueCount.toString()}                          pill="Overdue"            positive={false} icon={AlertCircle} delay={0.2}  />
         <KpiCard title="Recovery rate" value={`${recoveryRate}%`}                               pill="Efficiency"         positive={true}  icon={Clock}       delay={0.24} />

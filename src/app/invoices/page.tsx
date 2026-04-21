@@ -21,7 +21,8 @@ import {
   ExternalLink,
   BrainCircuit,
   CheckCircle2,
-  Clock
+  Clock,
+  ArrowUpDown
 } from 'lucide-react';
 import { fetchInvoices } from '@/lib/api';
 import { triggerN8nWorkflow } from '@/lib/n8n';
@@ -130,12 +131,21 @@ export default function InvoicesPage() {
 
   const columns: ColumnDef<Invoice>[] = [
     {
-      accessorKey: 'id',
-      header: 'ID',
+      accessorKey: 'invoice_number',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0 hover:bg-transparent font-bold text-xs uppercase"
+        >
+          ID
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      ),
       cell: ({ row }) => (
         <a
           href={`/invoices/${row.original.id}`}
-          className="font-mono  font-bold text-primary hover:underline hover:text-primary transition-colors"
+          className="font-mono font-bold text-primary hover:underline transition-colors"
         >
           {row.original.invoice_number}
         </a>
@@ -143,7 +153,16 @@ export default function InvoicesPage() {
     },
     {
       accessorKey: 'customerName',
-      header: 'Customer',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0 hover:bg-transparent font-bold text-xs uppercase"
+        >
+          Customer
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      ),
       cell: ({ row }) => (
         <a href={`/invoices/${row.original.id}`} className="flex flex-col group cursor-pointer">
           <span className="font-bold text-foreground leading-none mb-1 group-hover:text-primary transition-colors underline decoration-transparent group-hover:decoration-primary/30 underline-offset-4">
@@ -155,7 +174,16 @@ export default function InvoicesPage() {
     },
     {
       accessorKey: 'amount',
-      header: 'Amount (₹)',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0 hover:bg-transparent font-bold text-xs uppercase"
+        >
+          Amount (₹)
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      ),
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue('amount'));
         const formatted = new Intl.NumberFormat('en-IN', {
@@ -168,7 +196,16 @@ export default function InvoicesPage() {
     },
     {
       accessorKey: 'issueDate',
-      header: 'Issue Date',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0 hover:bg-transparent font-bold text-xs uppercase"
+        >
+          Issue Date
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      ),
       cell: ({ row }) => (
         <span className="text-muted-foreground font-medium">{new Date(row.getValue('issueDate')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
       ),
@@ -216,7 +253,16 @@ export default function InvoicesPage() {
     },
     {
       accessorKey: 'dueDate',
-      header: 'Due Date',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0 hover:bg-transparent font-bold text-xs uppercase"
+        >
+          Due Date
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      ),
       cell: ({ row }) => (
         <span className="text-muted-foreground font-medium">
           {row.getValue('dueDate') 
@@ -227,7 +273,16 @@ export default function InvoicesPage() {
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0 hover:bg-transparent font-bold text-xs uppercase"
+        >
+          Status
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      ),
       cell: ({ row }) => {
         const status = row.getValue('status') as string;
         const plan = row.original.paymentPlan;
@@ -404,28 +459,42 @@ export default function InvoicesPage() {
                   className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-primary/5 focus:text-primary transition-colors flex items-center gap-2">
                   <Eye className="w-4 h-4" /> View Details
                 </DropdownMenuItem>
-                {row.original.status !== 'Paid' && (
-                  <DropdownMenuItem
-                    className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-primary/5 focus:text-primary transition-colors flex items-center gap-2"
-                    onClick={() => {
-                      const inv = row.original;
-                      triggerN8nWorkflow('trigger-reminder', {
-                        invoice_id: inv.id,
-                        client_name: inv.customerName,
-                        client_email: inv.customerEmail,
-                        amount: inv.amount,
-                        due_date: inv.dueDate,
-                        issue_date: inv.issueDate,
-                        status: inv.status,
-                        startFollowups: inv.startFollowups,
-                        currentStage: inv.currentStage,
-                        notes: 'Manual reminder sent from dashboard'
-                      });
-                    }}
-                  >
-                    <Send className="w-4 h-4" /> Send Reminder
-                  </DropdownMenuItem>
-                )}
+                {row.original.status !== 'Paid' && (() => {
+                  const isActionDay = row.original.nextActionAt 
+                    ? differenceInCalendarDays(new Date(row.original.nextActionAt), new Date()) <= 0 
+                    : false;
+                  
+                  return (
+                    <DropdownMenuItem
+                      disabled={!isActionDay}
+                      className={cn(
+                        "rounded-lg cursor-pointer px-2 py-2 text-sm font-medium transition-colors flex items-center justify-between gap-2",
+                        !isActionDay ? "opacity-50 cursor-not-allowed" : "focus:bg-primary/5 focus:text-primary"
+                      )}
+                      onClick={() => {
+                        if (!isActionDay) return;
+                        const inv = row.original;
+                        triggerN8nWorkflow('trigger-reminder', {
+                          invoice_id: inv.id,
+                          client_name: inv.customerName,
+                          client_email: inv.customerEmail,
+                          amount: inv.amount,
+                          due_date: inv.dueDate,
+                          issue_date: inv.issueDate,
+                          status: inv.status,
+                          startFollowups: inv.startFollowups,
+                          currentStage: inv.currentStage,
+                          notes: 'Manual reminder sent from dashboard'
+                        });
+                      }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Send className="w-4 h-4" /> Send Reminder
+                      </div>
+                      {!isActionDay && <Clock className="w-3 h-3 opacity-60" />}
+                    </DropdownMenuItem>
+                  );
+                })()}
                 {row.original.status !== 'Paid' && (
                   <DropdownMenuItem
                     className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-primary/5 focus:text-primary transition-colors flex items-center gap-2"
@@ -486,6 +555,7 @@ export default function InvoicesPage() {
       client_name: formData.get('customer_name'),
       client_email: formData.get('customer_email'),
       amount: formData.get('amount'),
+      issue_date: formData.get('issue_date'),
       due_date: formData.get('due_date'),
       start_followups: formData.get('start_followups'),
       notes: formData.get('notes'),
@@ -502,7 +572,8 @@ export default function InvoicesPage() {
       if (!res.ok) throw new Error('Failed to create invoice');
 
       // Calculate absolute followup start date for n8n
-      const issueDate = new Date(); // New invoices are issued today
+      const issueDateVal = formData.get('issue_date');
+      const issueDate = issueDateVal ? new Date(String(issueDateVal)) : new Date();
       const startOffset = payload.start_followups === '' 
         ? (settings?.followupStartDelayDays ?? 0) 
         : Number(payload.start_followups);
@@ -575,52 +646,63 @@ export default function InvoicesPage() {
                 </DialogHeader>
 
                 <form onSubmit={handleCreateInvoice} className="space-y-6">
+                  {/* Basic Info */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="invoice_number" className="text-xs font-bold   uppercase  text-muted-foreground">Invoice ID</Label>
-                      <Input id="invoice_number" name="invoice_number" placeholder="INV-2024-001" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
+                      <Label htmlFor="invoice_number" className="text-[10px] font-black uppercase text-muted-foreground/70">Invoice ID</Label>
+                      <Input id="invoice_number" name="invoice_number" placeholder="INV-2024-001" className="rounded-xl h-11 border-border focus:ring-primary shadow-xs" required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="amount" className="text-xs font-bold uppercase  text-muted-foreground">Amount (₹)</Label>
-                      <Input id="amount" name="amount" type="number" placeholder="0.00" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
+                      <Label htmlFor="amount" className="text-[10px] font-black uppercase text-muted-foreground/70">Amount (₹)</Label>
+                      <Input id="amount" name="amount" type="number" placeholder="0.00" className="rounded-xl h-11 border-border focus:ring-primary shadow-xs font-mono" required />
+                    </div>
+                  </div>
+
+                  {/* Customer Details */}
+                  <div className="p-6 rounded-3xl bg-muted/30 border border-border/50 space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="customer_name" className="text-[10px] font-black uppercase text-muted-foreground/70">Client Name</Label>
+                      <Input id="customer_name" name="customer_name" placeholder="Acme Corp" className="rounded-xl h-11 border-border focus:ring-primary bg-background shadow-xs" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="customer_email" className="text-[10px] font-black uppercase text-muted-foreground/70">Client Email</Label>
+                      <Input id="customer_email" name="customer_email" type="email" placeholder="billing@acme.com" className="rounded-xl h-11 border-border focus:ring-primary bg-background shadow-xs" required />
+                    </div>
+                  </div>
+
+                  {/* Financial Schedule */}
+                  <div className="space-y-4">
+                    <h5 className="text-[10px] font-black text-primary uppercase tracking-widest pl-1">Financial Schedule</h5>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="issue_date" className="text-[10px] font-bold uppercase text-muted-foreground">Issue Date</Label>
+                        <Input id="issue_date" name="issue_date" type="date" className="rounded-xl h-10 border-border focus:ring-primary shadow-xs text-xs" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="due_date" className="text-[10px] font-bold uppercase text-muted-foreground">Due Date</Label>
+                        <Input id="due_date" name="due_date" type="date" className="rounded-xl h-10 border-border focus:ring-primary shadow-xs text-xs" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="start_followups" className="text-[10px] font-bold uppercase text-muted-foreground">Bot Delay (Days)</Label>
+                        <Input 
+                          id="start_followups" 
+                          name="start_followups" 
+                          type="number" 
+                          placeholder={`${settings?.followupStartDelayDays ?? 0}d`} 
+                          className="rounded-xl h-10 border-border focus:ring-primary shadow-xs text-xs text-center font-bold" 
+                        />
+                      </div>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="customer_name" className="text-xs font-bold uppercase  text-muted-foreground">Customer Name</Label>
-                    <Input id="customer_name" name="customer_name" placeholder="John Doe Services" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
+                    <Label htmlFor="notes" className="text-[10px] font-black uppercase text-muted-foreground/70">Internal Notes</Label>
+                    <Input id="notes" name="notes" placeholder="e.g. Q3 Retainer billing" className="rounded-xl h-11 border-border focus:ring-primary shadow-xs" />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="customer_email" className="text-xs font-bold uppercase  text-muted-foreground">Customer Email</Label>
-                    <Input id="customer_email" name="customer_email" type="email" placeholder="client@example.com" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="due_date" className="text-xs font-bold uppercase  text-muted-foreground">Issue Date</Label>
-                      <Input id="due_date" name="due_date" type="date" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="start_followups" className="text-xs font-bold uppercase text-muted-foreground">Follow-up Days</Label>
-                      <Input 
-                        id="start_followups" 
-                        name="start_followups" 
-                        type="number" 
-                        placeholder={`Standard: ${settings?.followupStartDelayDays ?? 0} days`} 
-                        className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" 
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="notes" className="text-xs font-bold uppercase  text-muted-foreground">Notes (Optional)</Label>
-                    <Input id="notes" name="notes" placeholder="e.g. Monthly maintenance retainer" className="rounded-xl h-11 border-border focus:ring-primary shadow-sm" />
-                  </div>
-
-                  <DialogFooter className="pt-4 flex flex-col-reverse sm:flex-row gap-3">
-                    <Button type="button" variant="ghost" onClick={() => setIsCreateModalOpen(false)} className="rounded-xl h-12 flex-1 font-bold text-muted-foreground hover:bg-muted">Cancel</Button>
-                    <Button type="submit" className="rounded-xl h-12 flex-1 font-bold shadow-lg shadow-primary/20">Generate Invoice</Button>
+                  <DialogFooter className="pt-6 flex flex-col-reverse sm:flex-row gap-3">
+                    <Button type="button" variant="ghost" onClick={() => setIsCreateModalOpen(false)} className="rounded-2xl h-14 flex-1 font-bold text-muted-foreground hover:bg-muted">Discard</Button>
+                    <Button type="submit" className="rounded-2xl h-14 flex-1 font-bold shadow-2xl shadow-primary/25 bg-primary hover:scale-[1.01] transition-transform">Complete Setup</Button>
                   </DialogFooter>
                 </form>
               </div>
@@ -629,22 +711,97 @@ export default function InvoicesPage() {
         </div>
       </PageHeader>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-1 mb-6 p-1 bg-muted rounded-2xl w-fit border border-border">
-        {['All', 'Pending', 'Overdue', 'Paid', 'In Plan'].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={cn(
-              "px-6 py-2 rounded-xl text-xs font-bold transition-all",
-              activeTab === tab
-                ? "bg-background text-primary shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            )}
+      {/* Tabs & Quick Filters */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-1 p-1 bg-muted rounded-2xl w-fit border border-border">
+          {['All', 'Pending', 'Overdue', 'Paid', 'In Plan'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                "px-6 py-2 rounded-xl text-xs font-bold transition-all",
+                activeTab === tab
+                  ? "bg-background text-primary shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Quick Logic Filters */}
+          <DropdownMenu>
+            {/* <DropdownMenuTrigger render={
+              <Button variant="outline" size="sm" className="h-10 rounded-xl px-4 font-bold text-xs gap-2 bg-card">
+                <Filter className="w-3.5 h-3.5" />
+                Quick Filters
+              </Button>
+            } /> */}
+            <DropdownMenuContent align="end" className="w-48 rounded-xl">
+              <DropdownMenuLabel className="text-[10px] font-bold uppercase text-muted-foreground">Smart Views</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => {
+                  const thirtyDaysAgo = new Date();
+                  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                  setFilteredInvoices(invoices.filter(i => new Date(i.issueDate) >= thirtyDaysAgo));
+                }}
+                className="cursor-pointer"
+              >
+                Recent (Last 30d)
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => {
+                  setFilteredInvoices(invoices.filter(i => i.amount > 100000));
+                }}
+                className="cursor-pointer"
+              >
+                High Value (₹1L)
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => {
+                  setFilteredInvoices(invoices.filter(i => i.hasPendingDraft));
+                }}
+                className="cursor-pointer text-orange-500 font-bold"
+              >
+                Needs Review
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => setFilteredInvoices(invoices)}
+                className="cursor-pointer text-muted-foreground"
+              >
+                Reset All Filters
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-[11px] font-bold rounded-xl h-10 border border-border bg-card"
+            onClick={() => {
+              const sorted = [...filteredInvoices].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+              setFilteredInvoices(sorted);
+            }}
           >
-            {tab}
-          </button>
-        ))}
+            Newest First
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-[11px] font-bold rounded-xl h-10 border border-border bg-card"
+            onClick={() => {
+              const sorted = [...filteredInvoices].sort((a, b) => b.amount - a.amount);
+              setFilteredInvoices(sorted);
+            }}
+          >
+            Highest Amount
+          </Button>
+        </div>
       </div>
 
       {/* Automation Timing Note */}
