@@ -597,6 +597,7 @@ export default function InvoicesPage() {
       issue_date: formData.get('issue_date'),
       due_date: formData.get('due_date'),
       start_followups: formData.get('start_followups'),
+      client_phone: formData.get('customer_phone'),
       notes: formData.get('notes'),
     };
 
@@ -707,6 +708,10 @@ export default function InvoicesPage() {
                     <div className="space-y-2">
                       <Label htmlFor="customer_email" className="text-[10px] font-black uppercase text-muted-foreground/70">Client Email</Label>
                       <Input id="customer_email" name="customer_email" type="email" placeholder="billing@acme.com" className="rounded-xl h-11 border-border focus:ring-primary bg-background shadow-xs" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="customer_phone" className="text-[10px] font-black uppercase text-muted-foreground/70">Client Phone / WhatsApp</Label>
+                      <Input id="customer_phone" name="customer_phone" placeholder="+91 99887 76655" className="rounded-xl h-11 border-border focus:ring-primary bg-background shadow-xs" />
                     </div>
                   </div>
 
