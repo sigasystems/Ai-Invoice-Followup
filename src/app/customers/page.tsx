@@ -13,6 +13,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -75,7 +77,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { addDays } from 'date-fns';
+import router from 'next/router';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -313,7 +315,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
         const c = row.original;
         const av = getAvatarColor(c.name);
         return (
-          <a href={`/customers/${c.id}`} className="flex items-center gap-3 group min-w-0">
+          <Link href={`/cus tomers/${c.id}`} className="flex items-center gap-3 group min-w-0">
             <div
               className={cn(
                 'h-8 w-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-black',
@@ -329,7 +331,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
               </p>
               <p className="text-[11px]  truncate">{c.email}</p>
             </div>
-          </a>
+          </Link>
         );
       },
     },
@@ -448,7 +450,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  className="opacity-0 group-hover/row:opacity-100 focus:opacity-100 transition-opacity hover:bg-slate-100"
+                  className="opacity-100 sm:opacity-0 sm:group-hover/row:opacity-100 focus:opacity-100 transition-opacity hover:bg-slate-100"
                 >
                   <MoreHorizontal className="h-4 w-4" />
                   <span className="sr-only">Actions</span>
@@ -462,7 +464,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
               <DropdownMenuItem
                 className="rounded-lg cursor-pointer px-2.5 py-2 text-sm text-slate-700 flex items-center gap-2  transition-colors"
                 onClick={() => {
-                  window.location.href = `/customers/${c.id}`;
+                  router.push(`/customers/${c.id}`);
                 }}
               >
                 <Eye className="w-3.5 h-3.5 " /> View Profile
@@ -498,6 +500,7 @@ export default function CustomersPage() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const router = useRouter();
   
   // Invoice Modal State
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = React.useState(false);
@@ -782,6 +785,7 @@ export default function CustomersPage() {
                   align="end"
                   className="rounded-xl  shadow-lg p-1.5 w-48 "
                 >
+                <DropdownMenuGroup>
                   <DropdownMenuLabel className="text-[10px] font-semibold  uppercase tracking-wider px-2 py-1">
                     Toggle Columns
                   </DropdownMenuLabel>
@@ -799,6 +803,7 @@ export default function CustomersPage() {
                         {col.id.replace(/([A-Z])/g, ' $1').trim()}
                       </DropdownMenuCheckboxItem>
                     ))}
+                </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

@@ -444,7 +444,7 @@ export default function DashboardPage() {
               )}
 
               {/* Smart escalation toggle */}
-              <div className="flex items-center justify-between px-3 py-3 border-t border-neutral-100 dark:border-neutral-800 mt-1">
+              {/* <div className="flex items-center justify-between px-3 py-3 border-t border-neutral-100 dark:border-neutral-800 mt-1">
                 <div>
                   <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200">Smart escalation</p>
                   <p className="text-[12px]  mt-0.5">AI decision path</p>
@@ -460,7 +460,7 @@ export default function DashboardPage() {
                     settings?.smartEscalation ? 'translate-x-4' : 'translate-x-0'
                   )} />
                 </div>
-              </div>
+              </div> */}
 
               <button
                 onClick={() => (window.location.href = '/settings')}
@@ -479,7 +479,7 @@ export default function DashboardPage() {
               title="Exposure analysis"
               sub="Top default-risk accounts"
               action="View all"
-              onAction={() => (window.location.href = '/invoices')}
+              onAction={() => (window.location.href = '/customers')}
             />
 
             {topRisk.length === 0 ? (
