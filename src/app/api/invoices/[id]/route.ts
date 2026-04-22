@@ -114,3 +114,56 @@ export async function PATCH(
     }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+
+    try {
+      // First, delete related records that would block deletion
+      await prisma.reply.deleteMany({
+        where: { invoiceId: id }
+      });
+
+      // Attempt to delete by Primary ID
+      await prisma.invoice.delete({
+        where: { id: id },
+      });
+    } catch (e) {
+      // Fallback: Attempt to delete by Invoice Number
+      try {
+        // Find by invoice number first to get the ID for related record cleanup
+        const inv = await prisma.invoice.findUnique({
+          where: { invoice_number: id }
+        });
+
+        if (inv) {
+          await prisma.reply.deleteMany({
+            where: { invoiceId: inv.id }
+          });
+          
+          await prisma.invoice.delete({
+            where: { invoice_number: id },
+          });
+        } else {
+          throw new Error('Invoice not found');
+        }
+      } catch (innerError: any) {
+         return NextResponse.json({ 
+           error: 'Invoice not found or already deleted', 
+           details: innerError.message 
+         }, { status: 404 });
+      }
+    }
+
+    return NextResponse.json({ success: true, message: 'Invoice deleted successfully' });
+  } catch (error: any) {
+    return NextResponse.json({ 
+      error: 'Failed to delete invoice', 
+      details: error.message 
+    }, { status: 500 });
+  }
+}

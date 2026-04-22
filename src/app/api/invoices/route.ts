@@ -63,8 +63,8 @@ export async function POST(request: Request) {
         },
       });
 
-      // 3. Compute follow-up dates
-      const followupStartDate = addDays(startOfDay(issueDate), effectiveOffset);
+      // 3. Compute follow-up dates (Using actual time instead of resetting to midnight)
+      const followupStartDate = addDays(issueDate, effectiveOffset);
       const nextActionAt = followupStartDate;
 
       // 4. Upsert Invoice

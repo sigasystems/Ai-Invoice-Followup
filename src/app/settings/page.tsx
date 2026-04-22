@@ -117,10 +117,16 @@ export default function SettingsPage() {
   };
 
   const removeLadderStep = (index: number) => {
-    setSettings((prev: any) => ({
-      ...prev,
-      escalationLadder: prev.escalationLadder.filter((_: any, i: number) => i !== index)
-    }));
+    const step = settings?.escalationLadder?.[index];
+    const stepLabel = step?.label || `Day ${step?.delayDays || index} Stage`;
+
+    if (window.confirm(`Are you sure you want to remove the "${stepLabel}" protocol? This won't be saved until you click 'Save Configuration'.`)) {
+      setSettings((prev: any) => ({
+        ...prev,
+        escalationLadder: prev.escalationLadder.filter((_: any, i: number) => i !== index)
+      }));
+      toast.success('Stage removed from protocol ladder.');
+    }
   };
 
   const updateLadderStep = (index: number, field: string, value: any) => {

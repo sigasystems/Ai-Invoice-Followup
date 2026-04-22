@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
   Plus,
-  Download,
   MoreHorizontal,
   Eye,
   Send,
@@ -17,7 +16,6 @@ import {
   Filter,
   Users,
   Zap,
-  Mail,
   ExternalLink,
   BrainCircuit,
   CheckCircle2,
@@ -49,7 +47,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { addDays, parseISO, isBefore, startOfDay, differenceInCalendarDays, format } from 'date-fns';
+import { addDays, parseISO, isBefore, startOfDay, differenceInCalendarDays, format, isSameDay } from 'date-fns';
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = React.useState<Invoice[]>([]);
@@ -63,20 +61,21 @@ export default function InvoicesPage() {
 
   let formattedDate: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined;
 
-  React.useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      const [invoiceData, settingsRes] = await Promise.all([
-        fetchInvoices(),
-        fetch('/api/settings').then(res => res.json())
-      ]);
-      setInvoices(invoiceData);
-      setFilteredInvoices(invoiceData);
-      setSettings(settingsRes);
-      setLoading(false);
-    }
-    loadData();
+  const loadData = React.useCallback(async () => {
+    setLoading(true);
+    const [invoiceData, settingsRes] = await Promise.all([
+      fetchInvoices(),
+      fetch('/api/settings').then(res => res.json())
+    ]);
+    setInvoices(invoiceData);
+    setFilteredInvoices(invoiceData);
+    setSettings(settingsRes);
+    setLoading(false);
   }, []);
+
+  React.useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const updateInvoice = async (invoiceId: string, updates: any) => {
     try {
@@ -118,6 +117,31 @@ export default function InvoicesPage() {
       ));
     } catch (err: any) {
       toast.error(`Update Failed: ${err.message}`);
+    }
+  };
+
+  const handleDeleteInvoice = async (invoiceId: string, invoiceNumber: string) => {
+    if (!window.confirm(`Are you sure you want to PERMANENTLY DELETE invoice ${invoiceNumber}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/invoices/${invoiceId}`, {
+        method: 'DELETE',
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.details || 'Failed to delete invoice');
+      }
+
+      toast.success(`Invoice ${invoiceNumber} deleted successfully`);
+      loadData(); // Refresh list
+    } catch (err: any) {
+      toast.error(`Delete Failed: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -432,12 +456,12 @@ export default function InvoicesPage() {
           <div className="flex flex-col">
             <div className="flex items-center gap-1.5 text-blue-600 mb-0.5">
               <Clock className="w-3 h-3" />
-              <span className="text-[11px] font-black uppercase">Start of Day</span>
+              <span className="text-[11px] font-black uppercase tracking-tighter">Scheduled At</span>
             </div>
             <span className="text-[12px] font-bold text-foreground">
-              {format(new Date(nextDate), 'dd MMM')} @ 12:00 AM
+              {format(new Date(nextDate), 'dd MMM')} @ {format(new Date(nextDate), 'hh:mm a')}
             </span>
-            <span className="text-[9px] text-muted-foreground font-black uppercase mt-0.5 tracking-tight italic">24/7 Monitoring Active</span>
+            <span className="text-[9px] text-muted-foreground font-black uppercase mt-0.5 tracking-tight italic">AI 24/7 Monitoring Active</span>
           </div>
         );
       }
@@ -460,10 +484,18 @@ export default function InvoicesPage() {
                   <Eye className="w-4 h-4" /> View Details
                 </DropdownMenuItem>
                 {row.original.status !== 'Paid' && (() => {
-                  const isActionDay = row.original.nextActionAt 
-                    ? differenceInCalendarDays(new Date(row.original.nextActionAt), new Date()) <= 0 
-                    : false;
+                  const nextDate = row.original.nextActionAt;
+                  const lastSentAt = row.original.lastSentAt;
+                  const currentStage = row.original.currentStage;
+                  const lastSentStage = row.original.lastSentStage;
                   
+                  const isFutureDay = nextDate ? differenceInCalendarDays(new Date(nextDate), new Date()) > 0 : false;
+                  const sameStageAlreadySentToday = lastSentAt && lastSentStage !== null && 
+                                                    isSameDay(new Date(lastSentAt), new Date()) && 
+                                                    lastSentStage === currentStage;
+                                                    
+                  const isActionDay = !isFutureDay && !sameStageAlreadySentToday;
+
                   return (
                     <DropdownMenuItem
                       disabled={!isActionDay}
@@ -471,10 +503,10 @@ export default function InvoicesPage() {
                         "rounded-lg cursor-pointer px-2 py-2 text-sm font-medium transition-colors flex items-center justify-between gap-2",
                         !isActionDay ? "opacity-50 cursor-not-allowed" : "focus:bg-primary/5 focus:text-primary"
                       )}
-                      onClick={() => {
+                      onClick={async () => {
                         if (!isActionDay) return;
                         const inv = row.original;
-                        triggerN8nWorkflow('trigger-reminder', {
+                        const result = await triggerN8nWorkflow('trigger-reminder', {
                           invoice_id: inv.id,
                           client_name: inv.customerName,
                           client_email: inv.customerEmail,
@@ -486,6 +518,10 @@ export default function InvoicesPage() {
                           currentStage: inv.currentStage,
                           notes: 'Manual reminder sent from dashboard'
                         });
+
+                        if (result) {
+                          loadData(); // Refresh UI to show updated timestamps
+                        }
                       }}
                     >
                       <div className="flex items-center gap-2">
@@ -534,8 +570,11 @@ export default function InvoicesPage() {
                 )}
               </DropdownMenuGroup>
               <DropdownMenuSeparator className="bg-border" />
-              <DropdownMenuGroup>
-                <DropdownMenuItem className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-rose-50 focus:text-rose-600 transition-colors flex items-center gap-2 text-rose-500">
+              <DropdownMenuGroup >
+                <DropdownMenuItem 
+                  onClick={() => handleDeleteInvoice(row.original.id, row.original.invoice_number)}
+                  className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-rose-50 focus:text-rose-600 transition-colors flex items-center gap-2 text-rose-500"
+                >
                   <Trash className="w-4 h-4" /> Delete Invoice
                 </DropdownMenuItem>
               </DropdownMenuGroup>
@@ -581,16 +620,17 @@ export default function InvoicesPage() {
       const formattedStartDate = startDate.toISOString().split('T')[0];
 
       // ✅ AUTOMATIC N8N TRIGGER on creation
-      await triggerN8nWorkflow('CREATE_INVOICE', {
-        ...payload,
-        followup_start_date: formattedStartDate
-      });
+      // await triggerN8nWorkflow('CREATE_INVOICE', {
+      //   ...payload,
+      //   followup_start_date: formattedStartDate
+      // });
 
       setIsCreateModalOpen(false);
 
       // Refresh the list
       const data = await fetchInvoices();
       setInvoices(data);
+      toast.success("Invoice created successfully");
     } catch (err: any) {
       toast.error(`Creation failed: ${err.message}`);
     } finally {
@@ -946,4 +986,5 @@ export default function InvoicesPage() {
       )}
     </DashboardLayout>
   );
-}
+} 
+
