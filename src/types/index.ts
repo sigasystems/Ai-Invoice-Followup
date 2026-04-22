@@ -40,6 +40,7 @@ export interface Invoice {
   customerId: string;
   customerName?: string; // These are often flattened in API responses
   customerEmail?: string;
+  customerPhone?: string;
   daysOverdue: number;
   createdAt: string;
   updatedAt: string;

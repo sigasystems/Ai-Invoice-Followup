@@ -35,6 +35,7 @@ export async function GET() {
       invoice_number: inv.invoice_number,
       customerName: inv.customer.name,
       customerEmail: inv.customer.email,
+      customerPhone: inv.customer.phone || '',
       amount: inv.amount,
       dueDate: inv.dueDate ? inv.dueDate.toISOString().split('T')[0] : null,
       issueDate: inv.issueDate.toISOString().split('T')[0],

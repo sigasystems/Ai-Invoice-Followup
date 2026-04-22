@@ -197,6 +197,15 @@ export default function InvoicesPage() {
       ),
     },
     {
+      accessorKey: 'customerPhone',
+      header: 'Mobile Number',
+      cell: ({ row }) => (
+        <span className="text-[12px] font-bold text-muted-foreground flex items-center gap-1.5">
+          {row.original.customerPhone || <span className="opacity-30 italic font-medium">No Phone</span>}
+        </span>
+      ),
+    },
+    {
       accessorKey: 'amount',
       header: ({ column }) => (
         <Button
