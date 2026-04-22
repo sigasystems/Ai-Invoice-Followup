@@ -188,7 +188,7 @@ export default function LoginPage() {
                  </div>
               </div>
               <h2 className="text-3xl font-bold tracking-tight text-white">Welcome back</h2>
-              <p className="mt-2  font-medium">Please enter your details to sign in.</p>
+              <p className="mt-2  font-medium text-neutral-400">Please enter your details to sign in.</p>
             </div>
 
             <Form {...form}>
@@ -263,7 +263,7 @@ export default function LoginPage() {
                           />
                         </FormControl>
                         <div className="space-y-1 leading-none">
-                          <FormLabel className="text-sm font-medium  cursor-pointer">
+                          <FormLabel className="text-sm font-medium  cursor-pointer text-neutral-400">
                             Keep me logged in for 30 days
                           </FormLabel>
                         </div>
@@ -322,7 +322,7 @@ export default function LoginPage() {
                   </Button>
                 </div> */}
 
-                <p className="text-center text-sm  font-medium pt-4">
+                <p className="text-center text-sm  font-medium pt-4 text-neutral-400">
                   Don&apos;t have an account?{' '}
                   <Link href="/auth/signup" className="text-primary font-bold hover:underline underline-offset-4">
                     Get started for free
