@@ -61,8 +61,21 @@ import {
   UserCheck2,
   FileWarning,
   Search,
+  FilePlus,
+  Plus,
 } from 'lucide-react';
 import { PageHeader } from '@/components/shared/page-header';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
+import { addDays } from 'date-fns';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -454,6 +467,20 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
               >
                 <Eye className="w-3.5 h-3.5 " /> View Profile
               </DropdownMenuItem>
+              <DropdownMenuItem
+                className="rounded-lg cursor-pointer px-2.5 py-2 text-sm text-indigo-600 flex items-center gap-2 transition-colors font-semibold focus:text-indigo-700 focus:bg-indigo-50"
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('open-invoice-modal', { 
+                    detail: { 
+                      name: c.name, 
+                      email: c.email,
+                      phone: c.phone
+                    } 
+                  }));
+                }}
+              >
+                <FilePlus className="w-3.5 h-3.5 " /> Issue Invoice
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -471,6 +498,19 @@ export default function CustomersPage() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  
+  // Invoice Modal State
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = React.useState(false);
+  const [prefilledCustomer, setPrefilledCustomer] = React.useState<{name: string, email: string, phone: string} | null>(null);
+
+  React.useEffect(() => {
+    const handleOpenModal = (e: any) => {
+      setPrefilledCustomer(e.detail);
+      setIsInvoiceModalOpen(true);
+    };
+    window.addEventListener('open-invoice-modal', handleOpenModal);
+    return () => window.removeEventListener('open-invoice-modal', handleOpenModal);
+  }, []);
 
   React.useEffect(() => {
     async function load() {
@@ -518,6 +558,37 @@ export default function CustomersPage() {
     }
     load();
   }, []);
+
+  const handleCreateInvoice = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const payload = {
+      invoice_number: formData.get('invoice_number'),
+      client_name: formData.get('customer_name'),
+      client_email: formData.get('customer_email'),
+      amount: formData.get('amount'),
+      issue_date: formData.get('issue_date'),
+      due_date: formData.get('due_date'),
+      start_followups: formData.get('start_followups'),
+      client_phone: formData.get('customer_phone'),
+      notes: formData.get('notes'),
+    };
+
+    try {
+      const res = await fetch('/api/invoices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error('Failed to create invoice');
+      
+      setIsInvoiceModalOpen(false);
+      toast.success("Invoice issued successfully");
+    } catch (err: any) {
+      toast.error(`Failed to issue invoice: ${err.message}`);
+    }
+  };
 
   // Derived metrics
   const total = customers.length;
@@ -838,6 +909,67 @@ export default function CustomersPage() {
             </div>
           )}
         </div>
+        {/* Invoice Creation Modal */}
+        <Dialog open={isInvoiceModalOpen} onOpenChange={setIsInvoiceModalOpen}>
+          <DialogContent className="rounded-2xl max-w-2xl border-border bg-card shadow-2xl p-0 overflow-hidden">
+            <div className="p-8 bg-linear-to-br from-primary/5 via-transparent to-transparent">
+              <DialogHeader className="space-y-1 mb-8 text-left">
+                <DialogTitle className="text-2xl font-bold">Issue New Invoice</DialogTitle>
+                <DialogDescription className="font-medium">Creating a billing record for {prefilledCustomer?.name || 'this customer'}.</DialogDescription>
+              </DialogHeader>
+
+              <form onSubmit={handleCreateInvoice} className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="invoice_number" className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest">Invoice ID</Label>
+                    <Input id="invoice_number" name="invoice_number" placeholder="INV-2024-001" className="rounded-xl h-11 border-border shadow-xs" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="amount" className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest">Amount (₹)</Label>
+                    <Input id="amount" name="amount" type="number" placeholder="0.00" className="rounded-xl h-11 border-border shadow-xs font-mono" required />
+                  </div>
+                </div>
+
+                <div className="p-6 rounded-3xl bg-muted/30 border border-border/50 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="customer_name" className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest">Client Name</Label>
+                    <Input id="customer_name" name="customer_name" defaultValue={prefilledCustomer?.name || ''} className="rounded-xl h-11 bg-background border-border shadow-xs" required />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="customer_email" className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest">Client Email</Label>
+                      <Input id="customer_email" name="customer_email" type="email" defaultValue={prefilledCustomer?.email || ''} className="rounded-xl h-11 bg-background border-border shadow-xs" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="customer_phone" className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest">Client Phone</Label>
+                      <Input id="customer_phone" name="customer_phone" defaultValue={prefilledCustomer?.phone || ''} className="rounded-xl h-11 bg-background border-border shadow-xs" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="issue_date" className="text-[10px] font-bold uppercase text-muted-foreground">Issue Date</Label>
+                    <Input id="issue_date" name="issue_date" type="date" defaultValue={new Date().toISOString().split('T')[0]} className="rounded-xl h-10 border-border shadow-xs text-xs" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="due_date" className="text-[10px] font-bold uppercase text-muted-foreground">Due Date</Label>
+                    <Input id="due_date" name="due_date" type="date" className="rounded-xl h-10 border-border shadow-xs text-xs" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="start_followups" className="text-[10px] font-bold uppercase text-muted-foreground">Followup Start (Days)</Label>
+                    <Input id="start_followups" name="start_followups" type="number" placeholder="Default" className="rounded-xl h-10 border-border shadow-xs text-xs" />
+                  </div>
+                </div>
+
+                <DialogFooter className="pt-4">
+                  <Button type="button" variant="outline" onClick={() => setIsInvoiceModalOpen(false)} className="rounded-xl h-12 px-6">Cancel</Button>
+                  <Button type="submit" className="rounded-xl h-12 px-8 bg-primary font-bold shadow-lg shadow-primary/20">Issue Invoice</Button>
+                </DialogFooter>
+              </form>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );

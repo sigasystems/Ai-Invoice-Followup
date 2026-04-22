@@ -688,79 +688,188 @@ export default function InvoicesPage() {
               <Plus className="w-4 h-4 mr-2" />
               New Invoice
             </DialogTrigger>
-            <DialogContent className="rounded-2xl max-w-2xl border-border bg-card shadow-2xl p-0 overflow-hidden">
-              <div className="p-8 bg-linear-to-br from-primary/5 via-transparent to-transparent">
-                <DialogHeader className="space-y-1 mb-8 text-left">
-                  <DialogTitle className="text-2xl font-bold  text-foreground">Create New Invoice</DialogTitle>
-                  <DialogDescription className="text-muted-foreground font-medium">Capture details for your records and set automation.</DialogDescription>
-                </DialogHeader>
+           <DialogContent className="max-w-3xl p-0 overflow-hidden rounded-3xl border border-border bg-card shadow-2xl">
 
-                <form onSubmit={handleCreateInvoice} className="space-y-6">
-                  {/* Basic Info */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="invoice_number" className="text-[10px] font-black uppercase text-muted-foreground/70">Invoice ID</Label>
-                      <Input id="invoice_number" name="invoice_number" placeholder="INV-2024-001" className="rounded-xl h-11 border-border focus:ring-primary shadow-xs" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="amount" className="text-[10px] font-black uppercase text-muted-foreground/70">Amount (₹)</Label>
-                      <Input id="amount" name="amount" type="number" placeholder="0.00" className="rounded-xl h-11 border-border focus:ring-primary shadow-xs font-mono" required />
-                    </div>
-                  </div>
+  {/* Header */}
+  <div className="px-8 pt-8 pb-6 bg-gradient-to-br from-primary/5 via-transparent to-transparent">
+    <DialogHeader className="space-y-1 text-left">
+      <DialogTitle className="text-2xl font-bold text-foreground">
+        Create New Invoice
+      </DialogTitle>
+      <DialogDescription className="text-sm text-muted-foreground">
+        Add invoice details and configure automated follow-ups.
+      </DialogDescription>
+    </DialogHeader>
+  </div>
 
-                  {/* Customer Details */}
-                  <div className="p-6 rounded-3xl bg-muted/30 border border-border/50 space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="customer_name" className="text-[10px] font-black uppercase text-muted-foreground/70">Client Name</Label>
-                      <Input id="customer_name" name="customer_name" placeholder="Acme Corp" className="rounded-xl h-11 border-border focus:ring-primary bg-background shadow-xs" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="customer_email" className="text-[10px] font-black uppercase text-muted-foreground/70">Client Email</Label>
-                      <Input id="customer_email" name="customer_email" type="email" placeholder="billing@acme.com" className="rounded-xl h-11 border-border focus:ring-primary bg-background shadow-xs" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="customer_phone" className="text-[10px] font-black uppercase text-muted-foreground/70">Client Phone / WhatsApp</Label>
-                      <Input id="customer_phone" name="customer_phone" placeholder="+91 99887 76655" className="rounded-xl h-11 border-border focus:ring-primary bg-background shadow-xs" />
-                    </div>
-                  </div>
+  <form onSubmit={handleCreateInvoice} className="px-8 pb-8 space-y-8">
 
-                  {/* Financial Schedule */}
-                  <div className="space-y-4">
-                    <h5 className="text-[10px] font-black text-primary uppercase tracking-widest pl-1">Financial Schedule</h5>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="issue_date" className="text-[10px] font-bold uppercase text-muted-foreground">Issue Date</Label>
-                        <Input id="issue_date" name="issue_date" type="date" className="rounded-xl h-10 border-border focus:ring-primary shadow-xs text-xs" required />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="due_date" className="text-[10px] font-bold uppercase text-muted-foreground">Due Date</Label>
-                        <Input id="due_date" name="due_date" type="date" className="rounded-xl h-10 border-border focus:ring-primary shadow-xs text-xs" required />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="start_followups" className="text-[10px] font-bold uppercase text-muted-foreground">Bot Delay (Days)</Label>
-                        <Input 
-                          id="start_followups" 
-                          name="start_followups" 
-                          type="number" 
-                          placeholder={`${settings?.followupStartDelayDays ?? 0}d`} 
-                          className="rounded-xl h-10 border-border focus:ring-primary shadow-xs text-xs text-center font-bold" 
-                        />
-                      </div>
-                    </div>
-                  </div>
+    {/* ================= BASIC INFO ================= */}
+    <div className="space-y-4">
+      <h4 className="text-xs font-semibold tracking-widest text-primary uppercase">
+        Basic Information
+      </h4>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="notes" className="text-[10px] font-black uppercase text-muted-foreground/70">Internal Notes</Label>
-                    <Input id="notes" name="notes" placeholder="e.g. Q3 Retainer billing" className="rounded-xl h-11 border-border focus:ring-primary shadow-xs" />
-                  </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="invoice_number" className="text-xs font-medium text-muted-foreground">
+            Invoice ID
+          </Label>
+          <Input
+            id="invoice_number"
+            name="invoice_number"
+            placeholder="INV-2026-001"
+            className="h-11 rounded-xl"
+            required
+          />
+        </div>
 
-                  <DialogFooter className="pt-6 flex flex-col-reverse sm:flex-row gap-3">
-                    <Button type="button" variant="ghost" onClick={() => setIsCreateModalOpen(false)} className="rounded-2xl h-14 flex-1 font-bold text-muted-foreground hover:bg-muted">Discard</Button>
-                    <Button type="submit" className="rounded-2xl h-14 flex-1 font-bold shadow-2xl shadow-primary/25 bg-primary hover:scale-[1.01] transition-transform">Complete Setup</Button>
-                  </DialogFooter>
-                </form>
-              </div>
-            </DialogContent>
+        <div className="space-y-1.5">
+          <Label htmlFor="amount" className="text-xs font-medium text-muted-foreground">
+            Amount (₹)
+          </Label>
+          <Input
+            id="amount"
+            name="amount"
+            type="number"
+            placeholder="0.00"
+            className="h-11 rounded-xl font-mono"
+            required
+          />
+        </div>
+      </div>
+    </div>
+
+    {/* ================= CUSTOMER ================= */}
+    <div className="p-6 space-y-4 border rounded-2xl bg-muted/30 border-border">
+      <h4 className="text-xs font-semibold tracking-widest text-primary uppercase">
+        Client Details
+      </h4>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="customer_name" className="text-xs text-muted-foreground">
+            Client Name
+          </Label>
+          <Input
+            id="customer_name"
+            name="customer_name"
+            placeholder="Acme Corp"
+            className="h-11 rounded-xl bg-background"
+            required
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="customer_email" className="text-xs text-muted-foreground">
+            Client Email
+          </Label>
+          <Input
+            id="customer_email"
+            name="customer_email"
+            type="email"
+            placeholder="billing@acme.com"
+            className="h-11 rounded-xl bg-background"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="customer_phone" className="text-xs text-muted-foreground">
+          Phone / WhatsApp
+        </Label>
+        <Input
+          id="customer_phone"
+          name="customer_phone"
+          placeholder="+91 98765 43210"
+          className="h-11 rounded-xl bg-background"
+        />
+      </div>
+    </div>
+
+    {/* ================= SCHEDULE ================= */}
+    <div className="space-y-4">
+      <h4 className="text-xs font-semibold tracking-widest text-primary uppercase">
+        Schedule & Automation
+      </h4>
+
+      <div className="grid grid-cols-3 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="issue_date" className="text-xs text-muted-foreground">
+            Issue Date
+          </Label>
+          <Input
+            id="issue_date"
+            name="issue_date"
+            type="date"
+            className="h-10 rounded-xl text-xs"
+            required
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="due_date" className="text-xs text-muted-foreground">
+            Due Date
+          </Label>
+          <Input
+            id="due_date"
+            name="due_date"
+            type="date"
+            className="h-10 rounded-xl text-xs"
+            required
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="start_followups" className="text-xs text-muted-foreground">
+            Follow-up Delay
+          </Label>
+          <Input
+            id="start_followups"
+            name="start_followups"
+            type="number"
+            placeholder={`${settings?.followupStartDelayDays ?? 0}`}
+            className="h-10 text-xs font-semibold text-center rounded-xl"
+          />
+        </div>
+      </div>
+    </div>
+
+    {/* ================= NOTES ================= */}
+    <div className="space-y-1.5">
+      <Label htmlFor="notes" className="text-xs text-muted-foreground">
+        Internal Notes
+      </Label>
+      <Input
+        id="notes"
+        name="notes"
+        placeholder="Optional notes for internal tracking"
+        className="h-11 rounded-xl"
+      />
+    </div>
+
+    {/* ================= ACTIONS ================= */}
+    <DialogFooter className="flex flex-col gap-3 pt-6 sm:flex-row">
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={() => setIsCreateModalOpen(false)}
+        className="flex-1 h-12 font-medium rounded-xl"
+      >
+        Cancel
+      </Button>
+
+      <Button
+        type="submit"
+        className="flex-1 h-12 font-semibold transition-transform rounded-xl bg-primary hover:scale-[1.02]"
+      >
+        Create Invoice
+      </Button>
+    </DialogFooter>
+
+  </form>
+</DialogContent>
           </Dialog>
         </div>
       </PageHeader>
@@ -768,7 +877,7 @@ export default function InvoicesPage() {
       {/* Tabs & Quick Filters */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-1 p-1 bg-muted rounded-2xl w-fit border border-border">
-          {['All', 'Pending', 'Overdue', 'Paid', 'In Plan'].map((tab) => (
+          {['All', 'Pending', 'Overdue', 'Paid'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -787,12 +896,6 @@ export default function InvoicesPage() {
         <div className="flex flex-wrap items-center gap-2">
           {/* Quick Logic Filters */}
           <DropdownMenu>
-            {/* <DropdownMenuTrigger render={
-              <Button variant="outline" size="sm" className="h-10 rounded-xl px-4 font-bold text-xs gap-2 bg-card">
-                <Filter className="w-3.5 h-3.5" />
-                Quick Filters
-              </Button>
-            } /> */}
             <DropdownMenuContent align="end" className="w-48 rounded-xl">
               <DropdownMenuLabel className="text-[10px] font-bold uppercase text-muted-foreground">Smart Views</DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -859,7 +962,7 @@ export default function InvoicesPage() {
       </div>
 
       {/* Automation Timing Note */}
-      <div className="mb-8  border border-indigo-100 rounded-2xl p-6 flex items-start gap-5 shadow-sm">
+      {/* <div className="mb-8  border border-indigo-100 rounded-2xl p-6 flex items-start gap-5 shadow-sm">
         <div className="p-3 bg-indigo-500/10 rounded-2xl text-indigo-600 shrink-0">
           <Zap className="w-6 h-6" />
         </div>
@@ -875,7 +978,7 @@ export default function InvoicesPage() {
             </p>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {loading ? (
         <div className="flex flex-col items-center justify-center p-20 space-y-4">

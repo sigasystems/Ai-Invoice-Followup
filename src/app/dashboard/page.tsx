@@ -331,7 +331,7 @@ export default function DashboardPage() {
               <div>
                 <h3 className=" font-medium text-neutral-900 dark:text-neutral-100">Revenue dynamics</h3>
                 <p className="text-[12px]   mt-0.5">
-                  Monthly invoiced vs. recovered — last 6 months
+                  Monthly invoiced vs. recovered
                 </p>
               </div>
               <div className="flex items-center gap-4">

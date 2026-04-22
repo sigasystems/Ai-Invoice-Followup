@@ -27,58 +27,20 @@ export async function GET(request: Request) {
       include: { customer: true }
     });
 
-    const isRunMode = new URL(request.url).searchParams.get('run') === 'true';
-    const results = [];
-
-    if (isRunMode && pendingInvoices.length > 0) {
-      // ⚡ AUTO-PROCESS MODE: Trigger all pending invoices internally
-      const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
-      const host = process.env.VERCEL_URL || 'localhost:3000';
-      const triggerUrl = `${protocol}://${host}/api/automation/trigger`;
-
-      for (const inv of pendingInvoices) {
-        try {
-          const res = await fetch(triggerUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'trigger-reminder',
-              payload: {
-                invoice_id: inv.id,
-                client_name: inv.customer.name,
-                client_email: inv.customer.email,
-                amount: inv.amount,
-                due_date: inv.dueDate,
-                issue_date: inv.issueDate,
-                status: inv.status,
-                startFollowups: inv.startFollowups,
-                currentStage: inv.currentStage,
-                notes: 'Autonomous Trigger (GET ?run=true)'
-              }
-            })
-          });
-          const data = await res.json();
-          results.push({ id: inv.invoice_number, success: res.ok, status: data });
-        } catch (e: any) {
-          results.push({ id: inv.invoice_number, success: false, error: e.message });
-        }
-      }
-    }
-
     return NextResponse.json({
       count: pendingInvoices.length,
-      processed: isRunMode,
       invoices: pendingInvoices.map(i => ({
         id: i.id,
         number: i.invoice_number,
         customerName: i.customer.name,
+        customerEmail: i.customer.email,
+        amount: i.amount,
+        dueDate: i.dueDate,
         nextActionAt: i.nextActionAt,
       })),
-      results: isRunMode ? results : undefined,
       automation: {
-        mode: isRunMode ? "Active Processing" : "Passive Polling",
-        recommended_cron: "Cron (Daily) -> HTTP GET (this URL?run=true)",
-        status: "Online"
+        status: "Online",
+        tip: "n8n should poll this endpoint or query the DB to identify pending reminders."
       }
     });
   } catch (error: any) {

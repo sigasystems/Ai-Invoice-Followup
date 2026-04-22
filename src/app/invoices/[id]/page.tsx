@@ -89,10 +89,10 @@ export default function InvoiceDetailPage() {
                 <Download className="w-4 h-4" />
                 Export Ledger
              </Button>
-             <Button className="rounded-2xl h-12 px-6 bg-indigo-600 text-white hover:bg-indigo-700 font-semibold gap-2 shadow-lg shadow-indigo-600/20">
+             {/* <Button className="rounded-2xl h-12 px-6 bg-indigo-600 text-white hover:bg-indigo-700 font-semibold gap-2 shadow-lg shadow-indigo-600/20">
                 <Mail className=" transition-transform group-hover:rotate-12 " />
                 Direct Message
-             </Button>
+             </Button> */}
           </div>
         </div>
 
@@ -113,7 +113,7 @@ export default function InvoiceDetailPage() {
                      </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  {/* <div className="grid grid-cols-2 gap-4">
                      <div className="p-5 rounded-3xl border border-neutral-100/50">
                         <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Risk Profile</p>
                         <div className="flex items-center gap-2">
@@ -125,7 +125,7 @@ export default function InvoiceDetailPage() {
                         <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">Pay History</p>
                         <span className="text-sm ">82% On-Time</span>
                      </div>
-                  </div>
+                  </div> */}
 
                   <div className="divider h-[1px] bg-neutral-100" />
 
@@ -149,7 +149,7 @@ export default function InvoiceDetailPage() {
                      </div>
                   </div>
 
-                  <div className="p-6 bg-indigo-600 rounded-3xl text-white space-y-4 relative overflow-hidden ">
+                  {/* <div className="p-6 bg-indigo-600 rounded-3xl text-white space-y-4 relative overflow-hidden ">
                      <div className="absolute top-0 right-0 p-4 opacity-10">
                         <BrainCircuit className="w-16 h-16" />
                      </div>
@@ -157,7 +157,7 @@ export default function InvoiceDetailPage() {
                      <p className="text-sm font-medium leading-relaxed italic text-indigo-50">
                         "This client responds best to legal-adjacent language. Recommend immediate transition to Stage 3 if unpaid by tomorrow."
                      </p>
-                  </div>
+                  </div> */}
                </div>
             </Card>
 

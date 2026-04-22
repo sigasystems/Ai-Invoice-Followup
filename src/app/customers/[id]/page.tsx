@@ -8,7 +8,7 @@ import { DataTable } from "@/components/shared/data-table"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { ArrowLeft, Mail, TrendingUp, ShieldCheck } from "lucide-react"
+import { ArrowLeft, Mail, TrendingUp, ShieldCheck, Phone } from "lucide-react"
 import { fetchInvoices, fetchCustomers } from "@/lib/api"
 import { Customer, Invoice } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
@@ -20,6 +20,7 @@ export default function CustomerDetailPage() {
    const [customer, setCustomer] = React.useState<Customer | null>(null)
    const [invoices, setInvoices] = React.useState<Invoice[]>([])
    const [loading, setLoading] = React.useState(true)
+   console.log("customers,", customer);
 
    React.useEffect(() => {
       async function load() {
@@ -63,7 +64,7 @@ export default function CustomerDetailPage() {
       <DashboardLayout>
          <PageHeader
             title={customer.name}
-            description={`Behavioral score: ${customer.behaviorScore}/100 • Risk profile: ${customer.riskLevel}`}
+            description={`Behavioral score: ${customer.behaviorScore}/100 • Risk profile: ${customer.riskLevel} • ${customer.phone || 'No phone recorded'}`}
          >
             <Button variant="ghost" onClick={() => router.back()} className="rounded-xl h-10 px-4">
                <ArrowLeft className="w-4 h-4 mr-2" />
@@ -94,30 +95,37 @@ export default function CustomerDetailPage() {
 
                {/* Contact Info */}
                <Card className="rounded-3xl border-none shadow-xl shadow-primary/5  p-6">
-                  <h4 className="text-xs font-bold text-muted-foreground uppercase mb-4">Contract Details</h4>
-                  <div className="space-y-4">
-                     <div>
-                        <p className="text-[12px] font-semibold uppercase text-muted-foreground mb-0.5">Email</p>
-                        <p className="text-sm font-bold  border-b border-neutral-50 pb-2">{customer.email}</p>
+                  <h4 className="text-xs font-bold text-muted-foreground uppercase mb-6">Contact Channels</h4>
+                  <div className="space-y-5">
+                     <div className="flex items-start gap-3">
+                        <div className="h-8 w-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
+                           <Mail className="w-4 h-4 text-indigo-600" />
+                        </div>
+                        <div className="min-w-0">
+                           <p className="text-[10px] font-bold uppercase text-muted-foreground leading-none mb-1">Email System</p>
+                           <p className="text-sm font-black truncate">{customer.email}</p>
+                        </div>
                      </div>
-                     <div>
-                        <p className="text-[12px] font-semibold uppercase text-muted-foreground mb-0.5">Phone</p>
-                        <p className="text-sm font-bold  border-b border-neutral-50 pb-2">{customer.phone}</p>
+
+                     <div className="flex items-start gap-3">
+                        <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
+                           <Phone className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <div className="min-w-0">
+                           <p className="text-[10px] font-bold uppercase text-muted-foreground leading-none mb-1">Mobile / WhatsApp</p>
+                           <p className="text-sm font-black truncate">{customer.phone || 'Not available'}</p>
+                        </div>
                      </div>
-                     <div>
-                        <p className="text-[12px] font-semibold uppercase text-muted-foreground mb-0.5">Performance</p>
-                        <div className="flex items-center gap-2 mt-1">
-                           <TrendingUp className="w-4 h-4 text-emerald-500" />
-                           <span className="text-xs font-bold text-emerald-600">{customer.onTimeRate}% On-time rate</span>
+
+                     <div className="pt-2">
+                        <p className="text-[10px] font-bold uppercase text-muted-foreground mb-2 px-1">Engagement</p>
+                        <div className="flex items-center gap-2 bg-emerald-50/50 p-2 rounded-xl">
+                           <TrendingUp className="w-4 h-4 text-emerald-600" />
+                           <span className="text-xs font-black text-emerald-700">{customer.onTimeRate}% Success Rate</span>
                         </div>
                      </div>
                   </div>
                </Card>
-
-               <Button variant="default" className="w-full rounded-2xl h-12 font-bold shadow-lg shadow-primary/20">
-                  <Mail className="w-4 h-4 mr-2" />
-                  Contact Customer
-               </Button>
             </div>
 
             <div className="lg:col-span-3 space-y-8">

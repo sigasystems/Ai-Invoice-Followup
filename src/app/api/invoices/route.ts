@@ -124,41 +124,6 @@ export async function POST(request: Request) {
 
       results.push({ id: invoiceNumber, success: true, db_id: invoice.id });
 
-      // 5. ⚡ INSTANT AUTOMATION CHECK
-      // If the invoice is already due for action (past mockupStartDate or nextActionAt)
-      // we trigger the automation immediately so the user doesn't have to wait.
-      const isOverdueForAction = invoice.nextActionAt && new Date(invoice.nextActionAt) <= new Date();
-      if (isOverdueForAction && invoice.status !== 'PAID') {
-        const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
-        const host = process.env.VERCEL_URL || 'localhost:3000';
-        const triggerUrl = `${protocol}://${host}/api/automation/trigger`;
-
-        try {
-           // Fire and forget (don't block the sync response)
-           fetch(triggerUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'trigger-reminder',
-              payload: {
-                invoice_id: invoice.id,
-                client_name: customer.name,
-                client_email: customer.email,
-                amount: invoice.amount,
-                due_date: invoice.dueDate,
-                issue_date: invoice.issueDate,
-                status: invoice.status,
-                startFollowups: invoice.startFollowups,
-                currentStage: invoice.currentStage,
-                notes: 'Instant Automation (Triggered on Sync)'
-              }
-            })
-          });
-          console.log(`[Instant Trigger] Successfully queued automation for ${invoice.invoice_number}`);
-        } catch (autoErr) {
-          console.error(`[Instant Trigger Error] ${invoice.invoice_number}:`, autoErr);
-        }
-      }
     }
 
     return NextResponse.json({ 

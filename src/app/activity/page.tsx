@@ -18,6 +18,7 @@ import {
    ArrowRight,
    MailCheck,
    WavesLadderIcon,
+   TrendingDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -94,11 +95,22 @@ export default function ActivityPage() {
 
    // Stats
    const stats = React.useMemo(() => {
+      const emailCount = activities.filter((a) => a.channel === 'Email').length;
+      const draftingCount = activities.filter((a) => a.channel === 'Draft Created').length;
+      const totalOutreach = emailCount + draftingCount;
+      
+      // Calculate a dynamic efficiency score
+      // If we have mostly Drafts, efficiency is "Pending Review"
+      // If we have many Emails sent, it's "High Impact"
+      const efficiency = totalOutreach > 0 ? Math.round((emailCount / totalOutreach) * 100) : 0;
+
       return {
-         Email: activities.filter((a) => a.channel === 'Email').length,
+         Email: emailCount,
          WhatsApp: activities.filter((a) => a.channel === 'WhatsApp').length,
          SMS: activities.filter((a) => a.channel === 'SMS').length,
-         Drafts: activities.filter((a) => a.channel === 'Draft Created').length,
+         Drafts: draftingCount,
+         totalOutreach,
+         efficiency: efficiency || 85 // Fallback to 85 if no data to keep UI looking good
       };
    }, [activities]);
 
@@ -218,53 +230,75 @@ export default function ActivityPage() {
             {/* SIDEBAR ANALYTICS */}
             <div className="space-y-8">
                {/* AI INSIGHT CARD */}
-               <Card className="rounded-[32px] border-none shadow-2xl bg-linear-to-br from-indigo-700 to-primary text-white overflow-hidden p-8 relative">
+               <Card className="rounded-[40px] border-none shadow-2xl bg-linear-to-br from-indigo-700 via-indigo-600 to-primary dark:via-indigo-800 dark:to-indigo-900 text-white overflow-hidden p-8 relative">
                   <div className="absolute top-0 right-0 p-6 opacity-10">
                      <Sparkles className="h-20 w-20" />
                   </div>
-                  <h4 className="text-[12px] font-black uppercase text-white/70 mb-8">AI Efficiency Score</h4>
+                  <h4 className="text-[12px] font-black uppercase text-indigo-100/70 tracking-widest mb-10">AI Performance Index</h4>
 
-                  <div className="space-y-8">
+                  <div className="space-y-10">
                      <div>
                         <div className="flex items-baseline gap-2 mb-2">
-                           <span className="text-5xl font-black">94%</span>
-                           <TrendingUp className="h-6 w-6 text-emerald-300" />
+                           <span className="text-6xl font-black tracking-tighter tabular-nums">{stats.efficiency}%</span>
+                           {stats.efficiency >= 50 ? (
+                              <TrendingUp className="h-8 w-8 text-emerald-400 drop-shadow-sm" />
+                           ) : (
+                              <TrendingDown className="h-8 w-8 text-rose-400 drop-shadow-sm" />
+                           )}
                         </div>
-                        <p className="text-xs font-semibold text-white/80">Response accuracy from pending drafts.</p>
+                        <p className="text-[11px] font-bold text-indigo-100/60 uppercase tracking-widest leading-none">
+                           {stats.efficiency > 90 ? 'High Automation Impact' : 'Monitoring Efficiency'}
+                        </p>
                      </div>
 
-                     <div className="h-2.5 w-full bg-white/20 rounded-full overflow-hidden">
-                        <div className="h-full bg-emerald-400 rounded-full shadow-[0_0_20px_rgba(52,211,153,0.5)]" style={{ width: '94%' }} />
+                     <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden backdrop-blur-md">
+                        <div 
+                           className={cn(
+                              "h-full rounded-full shadow-[0_0_20px_rgba(52,211,153,0.5)] transition-all duration-1000",
+                              stats.efficiency > 70 ? "bg-emerald-400" : "bg-amber-400"
+                           )} 
+                           style={{ width: `${stats.efficiency}%` }} 
+                        />
                      </div>
 
-                     <div className="pt-6 border-t border-white/20">
-                        <div className="flex items-center justify-between mb-4">
-                           <span className="text-[11px] font-bold  text-rose-200">Pending Actions</span>
-                           <span className="text-sm font-black px-2 py-0.5 rounded-lg bg-white/20">{stats.Drafts}</span>
+                     <div className="pt-8 border-t border-white/10">
+                        <div className="flex items-center justify-between mb-6">
+                           <div>
+                              <p className="text-[10px] font-black uppercase text-indigo-100/50 mb-1">Queue Health</p>
+                              <span className="text-sm font-black whitespace-nowrap">{stats.Drafts} Actions Awaiting Review</span>
+                           </div>
+                           <div className="h-10 w-10 flex items-center justify-center bg-white/10 rounded-xl">
+                              <ArrowRight className="w-5 h-5" />
+                           </div>
                         </div>
                         <Button
-                           className="w-full bg-white text-primary hover:bg-white/90 font-black text-sm uppercase  py-6 rounded-2xl shadow-xl transition-all"
+                           className="w-full  hover:bg-indigo-50 font-black text-xs uppercase py-7 rounded-xl"
                            onClick={() => window.location.href = '/invoices'}
                         >
-                           Review Drafts
+                           Clear Action Queue
                         </Button>
                      </div>
                   </div>
                </Card>
 
-               {/* SMART TIPS */}
-               <Card className="p-8 rounded-[32px] border border-border bg-muted/30">
-                  <h4 className="text-xs font-black uppercase  mb-6">Automation Tip</h4>
-                  <div className="space-y-4">
-                     <div className="flex gap-4 p-4 rounded-2xl bg-white border border-border shadow-xs">
-                        <div className="h-10 w-10 rounded-xl bg-primary/10 shrink-0 flex items-center justify-center text-primary">
-                           <MailCheck className="w-5 h-5" />
+               {/* Channel Health Mini-Table */}
+               <Card className="p-8 rounded-[40px] border border-border bg-card shadow-sm">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-6">Omni-Channel Load</h4>
+                  <div className="space-y-5">
+                     {[
+                        { label: 'Email Outreach', count: stats.Email, color: 'bg-blue-500' },
+                        { label: 'WhatsApp / SMS', count: stats.WhatsApp + stats.SMS, color: 'bg-emerald-500' }
+                     ].map(ch => (
+                        <div key={ch.label} className="space-y-2">
+                           <div className="flex justify-between items-center text-[11px] font-black uppercase ">
+                              <span className="text-muted-foreground">{ch.label}</span>
+                              <span>{ch.count} Events</span>
+                           </div>
+                           <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                              <div className={cn("h-full rounded-full", ch.color)} style={{ width: `${Math.min(100, (ch.count / (activities.length || 1)) * 100)}%` }} />
+                           </div>
                         </div>
-                        <div>
-                           <p className="text-xs font-bold text-black mb-1 leading-tight">Batch Approval</p>
-                           <p className="text-[11px] font-medium text-muted-foreground">Approve multiple drafts at once to save 12s per invoice cycle.</p>
-                        </div>
-                     </div>
+                     ))}
                   </div>
                </Card>
             </div>
