@@ -103,7 +103,7 @@ export default function CustomerDetailPage() {
                         </div>
                         <div className="min-w-0">
                            <p className="text-[10px] font-bold uppercase text-muted-foreground leading-none mb-1">Email System</p>
-                           <p className="text-sm font-black truncate">{customer.email}</p>
+                           <p className="text-sm font-semibold truncate">{customer.email}</p>
                         </div>
                      </div>
 
@@ -113,7 +113,7 @@ export default function CustomerDetailPage() {
                         </div>
                         <div className="min-w-0">
                            <p className="text-[10px] font-bold uppercase text-muted-foreground leading-none mb-1">Mobile / WhatsApp</p>
-                           <p className="text-sm font-black truncate">{customer.phone || 'Not available'}</p>
+                           <p className="text-sm font-semibold truncate">{customer.phone || 'Not available'}</p>
                         </div>
                      </div>
 

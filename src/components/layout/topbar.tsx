@@ -20,6 +20,7 @@ import { ModeToggle } from '@/components/shared/mode-toggle';
 import { logout } from '@/lib/auth';
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export function Topbar() {
   const router = useRouter();
@@ -72,7 +73,7 @@ export function Topbar() {
             <Menu className="w-5 h-5 text-muted-foreground" />
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-64 lg:w-72 border-r border-border">
-            <Sidebar />
+            <Sidebar  />
           </SheetContent>
         </Sheet>
         
@@ -151,20 +152,24 @@ export function Topbar() {
       <div className="flex items-center gap-2 sm:gap-4 ml-auto">
         <ModeToggle />
         
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => router.push('/activity')}
-          className="h-10 w-10 p-0 text-muted-foreground hover:text-foreground hover:bg-accent rounded-xl relative overflow-visible group"
-        >
-          <Bell className="w-5 h-5 group-hover:shake transition-all" />
-          {mounted && notifications > 0 && (
-            <span className="absolute top-1.5 right-1.5 h-4 w-4 rounded-full bg-rose-500 border-2 border-background flex items-center justify-center text-[10px] font-black text-white shadow-lg animate-in fade-in zoom-in duration-300">
-              {/* {notifications > 9 ? '9+' : notifications} */}
-              {notifications}
-            </span>
-          )}
-        </Button>
+
+<Link href="/activity">
+  <Button
+    variant="ghost"
+    size="icon"
+    className="relative h-10 w-10 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent group"
+  >
+    {/* Icon */}
+    <Bell className="w-5 h-5 transition-transform duration-200 group-hover:rotate-12" />
+
+    {/* Notification Badge */}
+    {mounted && notifications > 0 && (
+      <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 border-2 border-background text-[10px] font-bold text-white shadow-md">
+        {notifications > 9 ? "9+" : notifications}
+      </span>
+    )}
+  </Button>
+</Link>
 
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button variant="ghost" className="p-1 pl-2 gap-2 h-auto rounded-xl hover:bg-neutral-50" />}>
