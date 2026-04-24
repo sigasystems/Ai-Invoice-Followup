@@ -212,8 +212,8 @@ function CollectionJourney({
   const statusColor = hasPaid
     ? 'text-emerald-600 bg-emerald-50'
     : isOverdue
-    ? 'text-red-500 bg-red-50'
-    : 'text-blue-600 bg-blue-50';
+      ? 'text-red-500 bg-red-50'
+      : 'text-blue-600 bg-blue-50';
   const statusLabel = hasPaid ? 'Paid' : isOverdue ? 'Overdue' : 'Active';
 
   return (
@@ -315,7 +315,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
         const c = row.original;
         const av = getAvatarColor(c.name);
         return (
-          <Link href={`/cus tomers/${c.id}`} className="flex items-center gap-3 group min-w-0">
+          <Link href={`/customers/${c.id}`} className="flex items-center gap-3 group min-w-0">
             <div
               className={cn(
                 'h-8 w-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-black',
@@ -472,12 +472,12 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
               <DropdownMenuItem
                 className="rounded-lg cursor-pointer px-2.5 py-2 text-sm text-indigo-600 flex items-center gap-2 transition-colors font-semibold focus:text-indigo-700 focus:bg-indigo-50"
                 onClick={() => {
-                  window.dispatchEvent(new CustomEvent('open-invoice-modal', { 
-                    detail: { 
-                      name: c.name, 
+                  window.dispatchEvent(new CustomEvent('open-invoice-modal', {
+                    detail: {
+                      name: c.name,
                       email: c.email,
                       phone: c.phone
-                    } 
+                    }
                   }));
                 }}
               >
@@ -501,10 +501,10 @@ export default function CustomersPage() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const router = useRouter();
-  
+
   // Invoice Modal State
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = React.useState(false);
-  const [prefilledCustomer, setPrefilledCustomer] = React.useState<{name: string, email: string, phone: string} | null>(null);
+  const [prefilledCustomer, setPrefilledCustomer] = React.useState<{ name: string, email: string, phone: string } | null>(null);
 
   React.useEffect(() => {
     const handleOpenModal = (e: any) => {
@@ -585,7 +585,7 @@ export default function CustomersPage() {
       });
 
       if (!res.ok) throw new Error('Failed to create invoice');
-      
+
       setIsInvoiceModalOpen(false);
       toast.success("Invoice issued successfully");
     } catch (err: any) {
@@ -725,7 +725,7 @@ export default function CustomersPage() {
               </div>
 
               {/* Risk mini bar */}
-              {total > 0 && (
+              {/* {total > 0 && (
                 <div className="hidden xl:flex items-center gap-2 border-l  pl-4 ml-auto shrink-0">
                   <div className="w-24 h-1.5 rounded-full bg-slate-100 overflow-hidden flex">
                     <div
@@ -745,7 +745,7 @@ export default function CustomersPage() {
                     {low}L · {med}M · {high}H
                   </span>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         )}
@@ -785,25 +785,25 @@ export default function CustomersPage() {
                   align="end"
                   className="rounded-xl  shadow-lg p-1.5 w-48 "
                 >
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel className="text-[10px] font-semibold  uppercase tracking-wider px-2 py-1">
-                    Toggle Columns
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="bg-slate-100 my-1" />
-                  {table
-                    .getAllColumns()
-                    .filter((c) => c.getCanHide())
-                    .map((col) => (
-                      <DropdownMenuCheckboxItem
-                        key={col.id}
-                        className="text-xs font-medium text-slate-700 rounded-lg focus:bg-slate-50 cursor-pointer"
-                        checked={col.getIsVisible()}
-                        onCheckedChange={(v) => col.toggleVisibility(!!v)}
-                      >
-                        {col.id.replace(/([A-Z])/g, ' $1').trim()}
-                      </DropdownMenuCheckboxItem>
-                    ))}
-                </DropdownMenuGroup>
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel className="text-[10px] font-semibold  uppercase tracking-wider px-2 py-1">
+                      Toggle Columns
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-slate-100 my-1" />
+                    {table
+                      .getAllColumns()
+                      .filter((c) => c.getCanHide())
+                      .map((col) => (
+                        <DropdownMenuCheckboxItem
+                          key={col.id}
+                          className="text-xs font-medium text-slate-700 rounded-lg focus:bg-slate-50 cursor-pointer"
+                          checked={col.getIsVisible()}
+                          onCheckedChange={(v) => col.toggleVisibility(!!v)}
+                        >
+                          {col.id.replace(/([A-Z])/g, ' $1').trim()}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                  </DropdownMenuGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

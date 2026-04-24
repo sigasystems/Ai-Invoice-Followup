@@ -20,7 +20,8 @@ import {
   BrainCircuit,
   CheckCircle2,
   Clock,
-  ArrowUpDown
+  ArrowUpDown,
+  Pencil
 } from 'lucide-react';
 import { fetchInvoices } from '@/lib/api';
 import { triggerN8nWorkflow } from '@/lib/n8n';
@@ -47,7 +48,113 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { addDays, parseISO, isBefore, startOfDay, differenceInCalendarDays, format, isSameDay } from 'date-fns';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { addDays, parseISO, isBefore, startOfDay, differenceInCalendarDays, format, isSameDay, formatDistanceToNow } from 'date-fns';
+
+// --- Editable Cell Components ---
+
+const EditableDateCell = ({ 
+  value, 
+  onSave, 
+  label, 
+  icon: Icon, 
+  colorClass, 
+  subText,
+  emptyText = "Not set"
+}: { 
+  value: string | null | undefined, 
+  onSave: (date: string | null) => Promise<void>, 
+  label: string, 
+  icon: any, 
+  colorClass: string,
+  subText?: string,
+  emptyText?: string
+}) => {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [tempDate, setTempDate] = React.useState(value ? new Date(value).toISOString().slice(0, 16) : '');
+
+  // Update tempDate when value changes externally
+  React.useEffect(() => {
+    if (value) {
+      setTempDate(new Date(value).toISOString().slice(0, 16));
+    } else {
+      setTempDate('');
+    }
+  }, [value]);
+
+  const handleSave = async () => {
+    await onSave(tempDate ? new Date(tempDate).toISOString() : null);
+    setIsEditing(false);
+  };
+
+  if (!value) return (
+    <div className="flex items-center justify-between group min-w-[140px]">
+      <span className="text-[12px] text-muted-foreground font-semibold uppercase italic">{emptyText}</span>
+      <Popover open={isEditing} onOpenChange={setIsEditing}>
+        <PopoverTrigger render={<Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" />}>
+          <Plus className="h-3 w-3" />
+        </PopoverTrigger>
+        <PopoverContent className="w-64 p-3 rounded-xl shadow-2xl border-border bg-card z-50">
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold uppercase text-muted-foreground">Set {label}</h4>
+            <Input 
+              type="datetime-local" 
+              value={tempDate} 
+              onChange={(e) => setTempDate(e.target.value)}
+              className="h-9 text-xs rounded-lg"
+            />
+            <div className="flex gap-2">
+              <Button size="sm" className="h-8 flex-1 rounded-lg" onClick={handleSave}>Save</Button>
+              <Button size="sm" variant="outline" className="h-8 flex-1 rounded-lg" onClick={() => setIsEditing(false)}>Cancel</Button>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+
+  return (
+    <div className="group relative flex flex-col min-w-[140px]">
+      <div className={cn("flex items-center gap-1.5 mb-0.5", colorClass)}>
+        <Icon className="w-3 h-3" />
+        <span className="text-[10px] font-black uppercase">{label}</span>
+        <span className="text-[10px] font-bold opacity-70 ml-auto">
+          {formatDistanceToNow(new Date(value), { addSuffix: true })}
+        </span>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-bold text-foreground">
+          {new Date(value).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+        </span>
+        <Popover open={isEditing} onOpenChange={setIsEditing}>
+          <PopoverTrigger render={<Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" />}>
+            <Pencil className="h-3 w-3" />
+          </PopoverTrigger>
+          <PopoverContent className="w-64 p-3 rounded-xl shadow-2xl border-border bg-card z-50">
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold uppercase text-muted-foreground">Edit {label}</h4>
+              <Input 
+                type="datetime-local" 
+                value={tempDate} 
+                onChange={(e) => setTempDate(e.target.value)}
+                className="h-9 text-xs rounded-lg"
+              />
+              <div className="flex gap-2">
+                <Button size="sm" className="h-8 flex-1 rounded-lg" onClick={handleSave}>Save</Button>
+                <Button size="sm" variant="outline" className="h-8 flex-1 rounded-lg" onClick={() => setIsEditing(false)}>Cancel</Button>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+      {subText && <span className="text-[9px] text-muted-foreground font-bold uppercase mt-0.5">{subText}</span>}
+    </div>
+  );
+};
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = React.useState<Invoice[]>([]);
@@ -94,10 +201,10 @@ export default function InvoicesPage() {
       const invoice = invoices.find(i => i.id === invoiceId);
       if (invoice) {
         const isOverride = updates.startFollowups !== undefined ? updates.startFollowups !== null : invoice.startFollowups !== null;
-        const newOffset = updates.startFollowups !== undefined 
+        const newOffset = updates.startFollowups !== undefined
           ? (updates.startFollowups ?? settings?.followupStartDelayDays ?? 0)
           : (invoice.startFollowups ?? settings?.followupStartDelayDays ?? 0);
-          
+
         const issueDate = parseISO(invoice.issueDate);
         const startDate = addDays(issueDate, Number(newOffset));
         const formattedStartDate = startDate.toISOString().split('T')[0];
@@ -298,7 +405,7 @@ export default function InvoicesPage() {
       ),
       cell: ({ row }) => (
         <span className="text-muted-foreground font-medium">
-          {row.getValue('dueDate') 
+          {row.getValue('dueDate')
             ? new Date(row.getValue('dueDate')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
             : '-'}
         </span>
@@ -337,25 +444,20 @@ export default function InvoicesPage() {
     {
       accessorKey: 'lastSentAt',
       header: 'Last Automation',
-      cell: ({ row }) => {
-        const lastSentAt = row.original.lastSentAt;
-        const stage = row.original.lastSentStage;
-        
-        if (!lastSentAt) return <span className="text-[12px] text-muted-foreground font-semibold uppercase italic">Not yet triggered</span>;
-        
-        return (
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1.5 text-emerald-600 mb-0.5">
-              <CheckCircle2 className="w-3 h-3" />
-              <span className="text-[12px] font-black uppercase">Sent to n8n</span>
-            </div>
-            <span className="text-[11px] font-bold text-foreground">
-              {new Date(lastSentAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
-            </span>
-            <span className="text-[9px] text-muted-foreground font-bold uppercase mt-0.5">Stage {stage} reminder</span>
-          </div>
-        );
-      },
+      cell: ({ row }) => (
+        <EditableDateCell 
+          value={row.original.lastSentAt}
+          label="Sent to n8n"
+          icon={CheckCircle2}
+          colorClass="text-emerald-600"
+          subText={row.original.lastSentStage !== null ? `Stage ${row.original.lastSentStage} reminder` : undefined}
+          emptyText="Not yet triggered"
+          onSave={async (date) => {
+            await updateInvoice(row.original.id, { lastSentAt: date });
+            toast.success("Last sent date updated");
+          }}
+        />
+      ),
     },
     {
       accessorKey: 'daysOverdue',
@@ -383,6 +485,7 @@ export default function InvoicesPage() {
         const currentStage = row.original.currentStage || 0;
         const ladder = settings?.escalationLadder || [];
         const isPaid = row.original.status === 'Paid';
+        const isEscalated = !row.original.nextActionAt && !isPaid;
 
         const displaySteps = Math.max(ladder.length, 3);
         const currentStep = ladder[currentStage] || ladder[ladder.length - 1] || null;
@@ -390,14 +493,42 @@ export default function InvoicesPage() {
         // ✅ DAYS UNTIL NEXT ACTION (Robust Calendar Comparison)
         let daysLeft: number | null = null;
         let formattedCheckDate = "";
-        
+
         if (row.original.nextActionAt) {
           const nextDate = new Date(row.original.nextActionAt);
           const today = new Date();
-          
+
           // Use differenceInCalendarDays which handles the date part correctly across timezones
           daysLeft = differenceInCalendarDays(nextDate, today);
           formattedCheckDate = format(nextDate, 'dd/MM');
+        }
+
+        // ✅ ESCALATION STATE
+        if (isEscalated) {
+          return (
+            <div className="flex flex-col gap-2.5 py-1">
+              <div className="flex items-center gap-1">
+                {Array.from({ length: displaySteps }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      "h-1.5 flex-1 rounded-full transition-all duration-700",
+                      i <= currentStage ? "bg-red-500/50" : "bg-muted"
+                    )}
+                  />
+                ))}
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-red-500/10 text-red-600">
+                    <BrainCircuit className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="text-[12px] font-black uppercase tracking-[0.05em] text-red-600">Escalated to Manager</span>
+                </div>
+                <span className="text-[11px] font-semibold text-red-500 ml-6">All automation stages completed</span>
+              </div>
+            </div>
+          );
         }
 
         return (
@@ -437,15 +568,15 @@ export default function InvoicesPage() {
                   "text-[12px] font-semibold",
                   daysLeft !== null && daysLeft < 0 ? "text-rose-600" : "text-blue-500"
                 )}>
-                  {daysLeft !== null 
-                    ? (daysLeft < 0 
-                        ? `Overdue (${Math.abs(daysLeft)}d)` 
-                        : daysLeft === 0 
-                          ? "Today" 
-                          : daysLeft === 1 
-                            ? "Tomorrow" 
-                            : `in ${daysLeft}d`) 
-                    : "Scheduled"} 
+                  {daysLeft !== null
+                    ? (daysLeft < 0
+                      ? `Overdue (${Math.abs(daysLeft)}d)`
+                      : daysLeft === 0
+                        ? "Today"
+                        : daysLeft === 1
+                          ? "Tomorrow"
+                          : `in ${daysLeft}d`)
+                    : "Scheduled"}
                   ({formattedCheckDate})
                 </span>
               )}
@@ -459,19 +590,37 @@ export default function InvoicesPage() {
       header: 'Actual Check',
       cell: ({ row }) => {
         const nextDate = row.original.nextActionAt;
-        if (!nextDate) return <span className="text-[12px] text-muted-foreground italic"> Escalates to the manager</span>;
-        if(row.original.status === 'Paid') return <span className="text-[12px] text-muted-foreground italic"> Collection Successful</span>;
-        return (
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1.5 text-blue-600 mb-0.5">
-              <Clock className="w-3 h-3" />
-              <span className="text-[11px] font-black uppercase tracking-tighter">Scheduled At</span>
+        const isPaid = row.original.status === 'Paid';
+
+        if (isPaid) {
+          return (
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-200/30">
+                <div className="p-1 rounded-lg bg-emerald-500/20">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-emerald-600">Collection Done</span>
+                  <span className="text-[10px] font-semibold text-emerald-500 mt-0.5">Payment Received</span>
+                </div>
+              </div>
             </div>
-            <span className="text-[12px] font-bold text-foreground">
-              {format(new Date(nextDate), 'dd MMM')} @ {format(new Date(nextDate), 'hh:mm a')}
-            </span>
-            <span className="text-[9px] text-muted-foreground font-black uppercase mt-0.5 tracking-tight italic">AI 24/7 Monitoring Active</span>
-          </div>
+          );
+        }
+
+        return (
+          <EditableDateCell 
+            value={nextDate}
+            label="Scheduled At"
+            icon={Clock}
+            colorClass="text-blue-600"
+            subText="AI 24/7 Monitoring Active"
+            emptyText="Escalated"
+            onSave={async (date) => {
+              await updateInvoice(row.original.id, { nextActionAt: date });
+              toast.success("Next action date updated");
+            }}
+          />
         );
       }
     },
@@ -497,17 +646,19 @@ export default function InvoicesPage() {
                   const lastSentAt = row.original.lastSentAt;
                   const currentStage = row.original.currentStage;
                   const lastSentStage = row.original.lastSentStage;
-                  
+                  const isEscalated = !nextDate; // ✅ No nextActionAt = escalated to manager
+
                   const isFutureDay = nextDate ? differenceInCalendarDays(new Date(nextDate), new Date()) > 0 : false;
-                  const sameStageAlreadySentToday = lastSentAt && lastSentStage !== null && 
-                                                    isSameDay(new Date(lastSentAt), new Date()) && 
-                                                    lastSentStage === currentStage;
-                                                    
-                  const isActionDay = !isFutureDay && !sameStageAlreadySentToday;
+                  const sameStageAlreadySentToday = lastSentAt && lastSentStage !== null &&
+                    isSameDay(new Date(lastSentAt), new Date()) &&
+                    lastSentStage === currentStage;
+
+                  const isActionDay = !isEscalated && !isFutureDay && !sameStageAlreadySentToday; // ✅ Disable if escalated
 
                   return (
                     <DropdownMenuItem
                       disabled={!isActionDay}
+                      title={isEscalated ? "Invoice escalated to manager - manual intervention required" : ""}
                       className={cn(
                         "rounded-lg cursor-pointer px-2 py-2 text-sm font-medium transition-colors flex items-center justify-between gap-2",
                         !isActionDay ? "opacity-50 cursor-not-allowed" : "focus:bg-primary/5 focus:text-primary"
@@ -536,53 +687,94 @@ export default function InvoicesPage() {
                       <div className="flex items-center gap-2">
                         <Send className="w-4 h-4" /> Send Reminder
                       </div>
-                      {!isActionDay && <Clock className="w-3 h-3 opacity-60" />}
+                      {!isActionDay && (
+                        <div className="flex items-center gap-1">
+                          {isEscalated ? (
+                            <BrainCircuit className="w-3 h-3 text-red-500" />
+                          ) : (
+                            <Clock className="w-3 h-3 opacity-60" />
+                          )}
+                        </div>
+                      )}
                     </DropdownMenuItem>
                   );
                 })()}
-                {row.original.status !== 'Paid' && (
-                  <DropdownMenuItem
-                    className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-primary/5 focus:text-primary transition-colors flex items-center gap-2"
-                    onClick={() => {
-                      setEditingInvoice(row.original);
-                      setIsEditModalOpen(true);
-                    }}
-                  >
-                    <Filter className="w-4 h-4" /> Edit Automation
-                  </DropdownMenuItem>
-                )}
+                {row.original.status !== 'Paid' && (() => {
+                  const isEscalatedToManager = !row.original.nextActionAt;
+                  return (
+                    <DropdownMenuItem
+                      disabled={isEscalatedToManager}
+                      title={isEscalatedToManager ? "Invoice escalated to manager - automation complete" : ""}
+                      className={cn(
+                        "rounded-lg cursor-pointer px-2 py-2 text-sm font-medium transition-colors flex items-center justify-between gap-2",
+                        isEscalatedToManager
+                          ? "opacity-50 cursor-not-allowed"
+                          : "focus:bg-primary/5 focus:text-primary"
+                      )}
+                      onClick={() => {
+                        if (!isEscalatedToManager) {
+                          setEditingInvoice(row.original);
+                          setIsEditModalOpen(true);
+                        }
+                      }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Filter className="w-4 h-4" /> Edit Automation
+                      </div>
+                      {isEscalatedToManager && <BrainCircuit className="w-3 h-3 text-red-500" />}
+                    </DropdownMenuItem>
+                  );
+                })()}
 
-                {row.original.hasPendingDraft && (
-                  <DropdownMenuItem
-                    onClick={() => {
-                      if (row.original.gmailDraftId) {
-                        window.open(`https://mail.google.com/mail/u/0/#drafts/${row.original.gmailDraftId}`, '_blank');
-                      } else {
-                        window.open('https://mail.google.com/mail/u/0/#drafts', '_blank');
-                      }
-                    }}
-                    className="rounded-lg cursor-pointer px-2 py-2 text-sm font-bold focus:bg-orange-500/10 focus:text-orange-500 transition-colors flex items-center gap-2 text-orange-500">
-                    <ExternalLink className="w-4 h-4" /> Review AI Draft
-                  </DropdownMenuItem>
-                )}
+                {row.original.hasPendingDraft && (() => {
+                  const isEscalatedToManager = !row.original.nextActionAt && row.original.status !== 'Paid';
+                  return (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        if (row.original.gmailDraftId) {
+                          window.open(`https://mail.google.com/mail/u/0/#drafts/${row.original.gmailDraftId}`, '_blank');
+                        } else {
+                          window.open('https://mail.google.com/mail/u/0/#drafts', '_blank');
+                        }
+                      }}
+                      className={cn(
+                        "rounded-lg cursor-pointer px-2 py-2 text-sm font-bold transition-colors flex items-center gap-2",
+                        isEscalatedToManager
+                          ? "focus:bg-orange-500/10 focus:text-orange-500 text-orange-600"
+                          : "focus:bg-orange-500/10 focus:text-orange-500 text-orange-500"
+                      )}>
+                      <ExternalLink className="w-4 h-4" /> Review AI Draft
+                    </DropdownMenuItem>
+                  );
+                })()}
 
-                {row.original.status !== 'Paid' && (
-                  <DropdownMenuItem
-                    onClick={() => {
-                      if (window.confirm(`Are you sure you want to mark invoice ${row.original.invoice_number} as PAID? This will stop all future automation for this invoice.`)) {
-                        updateInvoice(row.original.id, { status: 'Paid' });
-                      }
-                    }}
-                    className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-emerald-500/10 focus:text-emerald-500 transition-colors flex items-center gap-2 text-emerald-500">
-                    <Zap className="w-4 h-4" /> Mark as Paid
-                  </DropdownMenuItem>
-                )}
+                {row.original.status !== 'Paid' && (() => {
+                  const isEscalatedToManager = !row.original.nextActionAt;
+                  return (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to mark invoice ${row.original.invoice_number} as PAID? This will stop all future automation for this invoice.`)) {
+                          updateInvoice(row.original.id, { status: 'Paid' });
+                        }
+                      }}
+                      title={isEscalatedToManager ? "Mark this invoice as collected to end manager escalation" : ""}
+                      className={cn(
+                        "rounded-lg cursor-pointer px-2 py-2 text-sm font-medium transition-colors flex items-center gap-2",
+                        isEscalatedToManager
+                          ? "focus:bg-emerald-500/10 focus:text-emerald-500 text-emerald-600 font-bold"
+                          : "focus:bg-emerald-500/10 focus:text-emerald-500 text-emerald-500"
+                      )}>
+                      <Zap className="w-4 h-4" /> Mark as Paid
+                    </DropdownMenuItem>
+                  );
+                })()}
               </DropdownMenuGroup>
               <DropdownMenuSeparator className="bg-border" />
               <DropdownMenuGroup >
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   onClick={() => handleDeleteInvoice(row.original.id, row.original.invoice_number)}
-                  className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-rose-50 focus:text-rose-600 transition-colors flex items-center gap-2 text-rose-500"
+                  title="Permanently delete this invoice"
+                  className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-rose-50 focus:text-rose-600 transition-colors flex items-center gap-2 text-rose-500 hover:bg-rose-50/50"
                 >
                   <Trash className="w-4 h-4" /> Delete Invoice
                 </DropdownMenuItem>
@@ -623,8 +815,8 @@ export default function InvoicesPage() {
       // Calculate absolute followup start date for n8n
       const issueDateVal = formData.get('issue_date');
       const issueDate = issueDateVal ? new Date(String(issueDateVal)) : new Date();
-      const startOffset = payload.start_followups === '' 
-        ? (settings?.followupStartDelayDays ?? 0) 
+      const startOffset = payload.start_followups === ''
+        ? (settings?.followupStartDelayDays ?? 0)
         : Number(payload.start_followups);
       const startDate = addDays(issueDate, startOffset);
       const formattedStartDate = startDate.toISOString().split('T')[0];
@@ -688,188 +880,188 @@ export default function InvoicesPage() {
               <Plus className="w-4 h-4 mr-2" />
               New Invoice
             </DialogTrigger>
-           <DialogContent className="max-w-3xl p-0 overflow-hidden rounded-3xl border border-border bg-card shadow-2xl">
+            <DialogContent className="max-w-3xl p-0 overflow-hidden rounded-3xl border border-border bg-card shadow-2xl">
 
-  {/* Header */}
-  <div className="px-8 pt-8 pb-6 bg-gradient-to-br from-primary/5 via-transparent to-transparent">
-    <DialogHeader className="space-y-1 text-left">
-      <DialogTitle className="text-2xl font-bold text-foreground">
-        Create New Invoice
-      </DialogTitle>
-      <DialogDescription className="text-sm text-muted-foreground">
-        Add invoice details and configure automated follow-ups.
-      </DialogDescription>
-    </DialogHeader>
-  </div>
+              {/* Header */}
+              <div className="px-8 pt-8 pb-6 bg-linear-to-br from-primary/5 via-transparent to-transparent">
+                <DialogHeader className="space-y-1 text-left">
+                  <DialogTitle className="text-2xl font-bold text-foreground">
+                    Create New Invoice
+                  </DialogTitle>
+                  <DialogDescription className="text-sm text-muted-foreground">
+                    Add invoice details and configure automated follow-ups.
+                  </DialogDescription>
+                </DialogHeader>
+              </div>
 
-  <form onSubmit={handleCreateInvoice} className="px-8 pb-8 space-y-8">
+              <form onSubmit={handleCreateInvoice} className="px-8 pb-8 space-y-8">
 
-    {/* ================= BASIC INFO ================= */}
-    <div className="space-y-4">
-      <h4 className="text-xs font-semibold tracking-widest text-primary uppercase">
-        Basic Information
-      </h4>
+                {/* ================= BASIC INFO ================= */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-semibold tracking-widest text-primary uppercase">
+                    Basic Information
+                  </h4>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="invoice_number" className="text-xs font-medium text-muted-foreground">
-            Invoice ID
-          </Label>
-          <Input
-            id="invoice_number"
-            name="invoice_number"
-            placeholder="INV-2026-001"
-            className="h-11 rounded-xl"
-            required
-          />
-        </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="invoice_number" className="text-xs font-medium text-muted-foreground">
+                        Invoice ID
+                      </Label>
+                      <Input
+                        id="invoice_number"
+                        name="invoice_number"
+                        placeholder="INV-2026-001"
+                        className="h-11 rounded-xl"
+                        required
+                      />
+                    </div>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="amount" className="text-xs font-medium text-muted-foreground">
-            Amount (₹)
-          </Label>
-          <Input
-            id="amount"
-            name="amount"
-            type="number"
-            placeholder="0.00"
-            className="h-11 rounded-xl font-mono"
-            required
-          />
-        </div>
-      </div>
-    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="amount" className="text-xs font-medium text-muted-foreground">
+                        Amount (₹)
+                      </Label>
+                      <Input
+                        id="amount"
+                        name="amount"
+                        type="number"
+                        placeholder="0.00"
+                        className="h-11 rounded-xl font-mono"
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
 
-    {/* ================= CUSTOMER ================= */}
-    <div className="p-6 space-y-4 border rounded-2xl bg-muted/30 border-border">
-      <h4 className="text-xs font-semibold tracking-widest text-primary uppercase">
-        Client Details
-      </h4>
+                {/* ================= CUSTOMER ================= */}
+                <div className="p-6 space-y-4 border rounded-2xl bg-muted/30 border-border">
+                  <h4 className="text-xs font-semibold tracking-widest text-primary uppercase">
+                    Client Details
+                  </h4>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="customer_name" className="text-xs text-muted-foreground">
-            Client Name
-          </Label>
-          <Input
-            id="customer_name"
-            name="customer_name"
-            placeholder="Acme Corp"
-            className="h-11 rounded-xl bg-background"
-            required
-          />
-        </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="customer_name" className="text-xs text-muted-foreground">
+                        Client Name
+                      </Label>
+                      <Input
+                        id="customer_name"
+                        name="customer_name"
+                        placeholder="Acme Corp"
+                        className="h-11 rounded-xl bg-background"
+                        required
+                      />
+                    </div>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="customer_email" className="text-xs text-muted-foreground">
-            Client Email
-          </Label>
-          <Input
-            id="customer_email"
-            name="customer_email"
-            type="email"
-            placeholder="billing@acme.com"
-            className="h-11 rounded-xl bg-background"
-            required
-          />
-        </div>
-      </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="customer_email" className="text-xs text-muted-foreground">
+                        Client Email
+                      </Label>
+                      <Input
+                        id="customer_email"
+                        name="customer_email"
+                        type="email"
+                        placeholder="billing@acme.com"
+                        className="h-11 rounded-xl bg-background"
+                        required
+                      />
+                    </div>
+                  </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="customer_phone" className="text-xs text-muted-foreground">
-          Phone / WhatsApp
-        </Label>
-        <Input
-          id="customer_phone"
-          name="customer_phone"
-          placeholder="+91 98765 43210"
-          className="h-11 rounded-xl bg-background"
-        />
-      </div>
-    </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="customer_phone" className="text-xs text-muted-foreground">
+                      Phone / WhatsApp
+                    </Label>
+                    <Input
+                      id="customer_phone"
+                      name="customer_phone"
+                      placeholder="+91 98765 43210"
+                      className="h-11 rounded-xl bg-background"
+                    />
+                  </div>
+                </div>
 
-    {/* ================= SCHEDULE ================= */}
-    <div className="space-y-4">
-      <h4 className="text-xs font-semibold tracking-widest text-primary uppercase">
-        Schedule & Automation
-      </h4>
+                {/* ================= SCHEDULE ================= */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-semibold tracking-widest text-primary uppercase">
+                    Schedule & Automation
+                  </h4>
 
-      <div className="grid grid-cols-3 gap-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="issue_date" className="text-xs text-muted-foreground">
-            Issue Date
-          </Label>
-          <Input
-            id="issue_date"
-            name="issue_date"
-            type="date"
-            className="h-10 rounded-xl text-xs"
-            required
-          />
-        </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="issue_date" className="text-xs text-muted-foreground">
+                        Issue Date
+                      </Label>
+                      <Input
+                        id="issue_date"
+                        name="issue_date"
+                        type="date"
+                        className="h-10 rounded-xl text-xs"
+                        required
+                      />
+                    </div>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="due_date" className="text-xs text-muted-foreground">
-            Due Date
-          </Label>
-          <Input
-            id="due_date"
-            name="due_date"
-            type="date"
-            className="h-10 rounded-xl text-xs"
-            required
-          />
-        </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="due_date" className="text-xs text-muted-foreground">
+                        Due Date
+                      </Label>
+                      <Input
+                        id="due_date"
+                        name="due_date"
+                        type="date"
+                        className="h-10 rounded-xl text-xs"
+                        required
+                      />
+                    </div>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="start_followups" className="text-xs text-muted-foreground">
-            Follow-up Delay
-          </Label>
-          <Input
-            id="start_followups"
-            name="start_followups"
-            type="number"
-            placeholder={`${settings?.followupStartDelayDays ?? 0}`}
-            className="h-10 text-xs font-semibold text-center rounded-xl"
-          />
-        </div>
-      </div>
-    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="start_followups" className="text-xs text-muted-foreground">
+                        Follow-up Delay
+                      </Label>
+                      <Input
+                        id="start_followups"
+                        name="start_followups"
+                        type="number"
+                        placeholder={`${settings?.followupStartDelayDays ?? 0}`}
+                        className="h-10 text-xs font-semibold text-center rounded-xl"
+                      />
+                    </div>
+                  </div>
+                </div>
 
-    {/* ================= NOTES ================= */}
-    <div className="space-y-1.5">
-      <Label htmlFor="notes" className="text-xs text-muted-foreground">
-        Internal Notes
-      </Label>
-      <Input
-        id="notes"
-        name="notes"
-        placeholder="Optional notes for internal tracking"
-        className="h-11 rounded-xl"
-      />
-    </div>
+                {/* ================= NOTES ================= */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="notes" className="text-xs text-muted-foreground">
+                    Internal Notes
+                  </Label>
+                  <Input
+                    id="notes"
+                    name="notes"
+                    placeholder="Optional notes for internal tracking"
+                    className="h-11 rounded-xl"
+                  />
+                </div>
 
-    {/* ================= ACTIONS ================= */}
-    <DialogFooter className="flex flex-col gap-3 pt-6 sm:flex-row">
-      <Button
-        type="button"
-        variant="ghost"
-        onClick={() => setIsCreateModalOpen(false)}
-        className="flex-1 h-12 font-medium rounded-xl"
-      >
-        Cancel
-      </Button>
+                {/* ================= ACTIONS ================= */}
+                <DialogFooter className="flex flex-col gap-3 pt-6 sm:flex-row">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setIsCreateModalOpen(false)}
+                    className="flex-1 h-12 font-medium rounded-xl"
+                  >
+                    Cancel
+                  </Button>
 
-      <Button
-        type="submit"
-        className="flex-1 h-12 font-semibold transition-transform rounded-xl bg-primary hover:scale-[1.02]"
-      >
-        Create Invoice
-      </Button>
-    </DialogFooter>
+                  <Button
+                    type="submit"
+                    className="flex-1 h-12 font-semibold transition-transform rounded-xl bg-primary hover:scale-[1.02]"
+                  >
+                    Create Invoice
+                  </Button>
+                </DialogFooter>
 
-  </form>
-</DialogContent>
+              </form>
+            </DialogContent>
           </Dialog>
         </div>
       </PageHeader>
@@ -899,7 +1091,7 @@ export default function InvoicesPage() {
             <DropdownMenuContent align="end" className="w-48 rounded-xl">
               <DropdownMenuLabel className="text-[10px] font-bold uppercase text-muted-foreground">Smart Views</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => {
                   const thirtyDaysAgo = new Date();
                   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -909,7 +1101,7 @@ export default function InvoicesPage() {
               >
                 Recent (Last 30d)
               </DropdownMenuItem>
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => {
                   setFilteredInvoices(invoices.filter(i => i.amount > 100000));
                 }}
@@ -917,7 +1109,7 @@ export default function InvoicesPage() {
               >
                 High Value (₹1L)
               </DropdownMenuItem>
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => {
                   setFilteredInvoices(invoices.filter(i => i.hasPendingDraft));
                 }}
@@ -926,7 +1118,7 @@ export default function InvoicesPage() {
                 Needs Review
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => setFilteredInvoices(invoices)}
                 className="cursor-pointer text-muted-foreground"
               >
@@ -946,7 +1138,7 @@ export default function InvoicesPage() {
           >
             Newest First
           </Button>
-          
+
           <Button
             variant="ghost"
             size="sm"
@@ -1014,10 +1206,10 @@ export default function InvoicesPage() {
                   const startFollowups = val === '' ? null : parseInt(String(val));
                   const currentStage = stage === '' ? undefined : parseInt(String(stage));
                   const nextActionAt = nextDate === '' ? undefined : new Date(String(nextDate));
-                  
+
                   if (editingInvoice) {
-                    await updateInvoice(editingInvoice.id, { 
-                      startFollowups, 
+                    await updateInvoice(editingInvoice.id, {
+                      startFollowups,
                       currentStage,
                       nextActionAt
                     });
@@ -1056,7 +1248,7 @@ export default function InvoicesPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-4">
+                    {/* <div className="flex items-center justify-between pt-4">
                       <div className="space-y-0.5">
                         <Label className="text-xs font-black uppercase text-muted-foreground">Force current Stage</Label>
                         <p className="text-[11px] text-muted-foreground font-medium">Jump to a specific step in the ladder.</p>
@@ -1070,9 +1262,9 @@ export default function InvoicesPage() {
                           <option key={i} value={i + 1}>{step.label} (Stage {i + 1})</option>
                         ))}
                       </select>
-                    </div>
+                    </div> */}
 
-                    <div className="flex flex-col gap-2 pt-4">
+                    {/* <div className="flex flex-col gap-2 pt-4">
                       <Label className="text-xs font-black uppercase text-muted-foreground">Manual date Override (Next Action)</Label>
                       <Input
                         name="nextActionAt"
@@ -1081,7 +1273,7 @@ export default function InvoicesPage() {
                         className="h-10 rounded-xl border-border bg-background text-sm font-medium"
                       />
                       <p className="text-[10px] text-rose-500 font-bold uppercase italic">Warning: Setting this will bypass the auto-calculated schedule.</p>
-                    </div>
+                    </div> */}
                   </div>
 
                   <div className="flex items-center gap-3 bg-amber-500/5 p-4 rounded-2xl border border-amber-500/10">
@@ -1103,5 +1295,4 @@ export default function InvoicesPage() {
       )}
     </DashboardLayout>
   );
-} 
-
+}

@@ -343,7 +343,7 @@ export default function DashboardPage() {
                   <span className="h-2 w-2 rounded-full bg-emerald-400" />
                   <span className="text-[12px]  uppercase tracking-wide">Recovered</span>
                 </div>
-                <LiveChip label="Real-time" variant="emerald" />
+                {/* <LiveChip label="Real-time" variant="emerald" /> */}
               </div>
             </div>
             <div className="px-4 pt-5 pb-5">

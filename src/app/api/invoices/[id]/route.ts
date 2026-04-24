@@ -10,11 +10,18 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { status, startFollowups, hasPendingDraft, gmailDraftId, currentStage, nextActionAt } = body;
+    const { status, startFollowups, hasPendingDraft, gmailDraftId, currentStage, nextActionAt, lastSentAt, lastSentStage } = body;
 
     // Build update data object
     const updateData: any = {};
     
+    if (lastSentAt !== undefined) {
+      updateData.lastSentAt = lastSentAt === null ? null : new Date(String(lastSentAt));
+    }
+
+    if (lastSentStage !== undefined) {
+      updateData.lastSentStage = lastSentStage === null ? null : parseInt(String(lastSentStage));
+    }
     if (status) {
       let prismaStatus: InvoiceStatus;
       switch (status.toUpperCase()) {

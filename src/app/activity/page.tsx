@@ -6,7 +6,6 @@ import { PageHeader } from '@/components/shared/page-header';
 import { ActivityItem } from '@/components/shared/activity-item';
 import {
    Calendar,
-   Filter,
    Download,
    Mail,
    MessageSquare,
@@ -17,7 +16,6 @@ import {
    Sparkles,
    ArrowRight,
    MailCheck,
-   WavesLadderIcon,
    TrendingDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -61,7 +59,7 @@ export default function ActivityPage() {
       loadData();
 
       // Basic polling for "real-time" feel
-      const interval = setInterval(() => loadData(), 15000);
+      const interval = setInterval(() => loadData(), 240000);
       return () => clearInterval(interval);
    }, []);
 
