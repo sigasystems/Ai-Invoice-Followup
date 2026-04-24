@@ -19,8 +19,10 @@ import { Sidebar } from './sidebar';
 import { ModeToggle } from '@/components/shared/mode-toggle';
 import { logout } from '@/lib/auth';
 import React from 'react';
+import { useRouter } from 'next/navigation';
 
 export function Topbar() {
+  const router = useRouter();
   const [notifications, setNotifications] = React.useState(0);
   const [mounted, setMounted] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -70,7 +72,7 @@ export function Topbar() {
             <Menu className="w-5 h-5 text-muted-foreground" />
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-64 lg:w-72 border-r border-border">
-            <Sidebar />
+            <Sidebar isMobile={true} />
           </SheetContent>
         </Sheet>
         
@@ -105,7 +107,7 @@ export function Topbar() {
                         {searchResults.invoices.map((inv) => (
                           <div 
                             key={inv.id}
-                            onClick={() => window.location.href = `/invoices/${inv.id}`}
+                            onClick={() => router.push(`/invoices/${inv.id}`)}
                             className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/80 cursor-pointer transition-colors group"
                           >
                             <div className="flex flex-col">
@@ -124,7 +126,7 @@ export function Topbar() {
                         {searchResults.customers.map((cust) => (
                           <div 
                             key={cust.id}
-                            onClick={() => window.location.href = `/customers/${cust.id}`}
+                            onClick={() => router.push(`/customers/${cust.id}`)}
                             className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/80 cursor-pointer transition-colors group"
                           >
                             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-black text-xs">
@@ -152,7 +154,7 @@ export function Topbar() {
         <Button 
           variant="ghost" 
           size="icon" 
-          onClick={() => window.location.href = '/activity'}
+          onClick={() => router.push('/activity')}
           className="h-10 w-10 p-0 text-muted-foreground hover:text-foreground hover:bg-accent rounded-xl relative overflow-visible group"
         >
           <Bell className="w-5 h-5 group-hover:shake transition-all" />
@@ -180,21 +182,21 @@ export function Topbar() {
             </DropdownMenuGroup>
             <DropdownMenuSeparator className="bg-neutral-50" />
             <DropdownMenuItem 
-              onClick={() => window.location.href = '/settings'}
+              onClick={() => router.push('/settings')}
               className="rounded-xl px-3 py-2 text-sm font-medium focus:bg-primary/5 focus:text-primary transition-colors cursor-pointer group flex items-center gap-2"
             >
               <Settings className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
               Automation Settings
             </DropdownMenuItem>
             <DropdownMenuItem 
-              onClick={() => window.location.href = '/activity'}
+              onClick={() => router.push('/activity')}
               className="rounded-xl px-3 py-2 text-sm font-medium focus:bg-primary/5 focus:text-primary transition-colors cursor-pointer group flex items-center gap-2"
             >
               <Activity className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
               Audit Intelligence
             </DropdownMenuItem>
             <DropdownMenuItem 
-              onClick={() => window.location.href = '/dashboard'}
+              onClick={() => router.push('/dashboard')}
               className="rounded-xl px-3 py-2 text-sm font-medium focus:bg-primary/5 focus:text-primary transition-colors cursor-pointer group flex items-center gap-2"
             >
               <ShieldCheck className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />

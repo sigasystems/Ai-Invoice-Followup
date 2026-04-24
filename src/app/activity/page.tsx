@@ -19,6 +19,7 @@ import {
    TrendingDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { fetchActivities } from '@/lib/api';
@@ -28,6 +29,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 export default function ActivityPage() {
+   const router = useRouter();
    const [activities, setActivities] = React.useState<Activity[]>([]);
    const [loading, setLoading] = React.useState(true);
    const [refreshing, setRefreshing] = React.useState(false);
@@ -271,7 +273,7 @@ export default function ActivityPage() {
                         </div>
                         <Button
                            className="w-full  hover:bg-indigo-50 font-black text-xs uppercase py-7 rounded-xl"
-                           onClick={() => window.location.href = '/invoices'}
+                           onClick={() => router.push('/invoices')}
                         >
                            Clear Action Queue
                         </Button>

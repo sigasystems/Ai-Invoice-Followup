@@ -13,6 +13,8 @@ import { ThemeProvider } from "@/components/shared/theme-provider";
 import { Toaster } from "sonner";
 import { AuthGuard } from "@/components/shared/auth-guard";
 
+import { SidebarProvider } from "@/components/layout/sidebar-provider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,7 +30,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthGuard>
-            {children}
+            <SidebarProvider>
+              {children}
+            </SidebarProvider>
           </AuthGuard>
           <Toaster richColors position="top-right" closeButton />
         </ThemeProvider>

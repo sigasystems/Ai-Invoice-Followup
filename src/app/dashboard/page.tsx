@@ -17,6 +17,7 @@ import {
   Tooltip, ResponsiveContainer,
 } from 'recharts';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 /* ─── Fade-up motion wrapper ─────────────────────────── */
 function FadeUp({ children, delay = 0, className }: {
@@ -143,6 +144,7 @@ function LiveChip({ label, variant = 'indigo' }: { label: string; variant?: 'ind
    Main page
 ═══════════════════════════════════════════════════════ */
 export default function DashboardPage() {
+  const router = useRouter();
   const [invoices, setInvoices] = React.useState<Invoice[]>([]);
   const [settings, setSettings] = React.useState<any>(null);
   const [mounted, setMounted] = React.useState(false);
@@ -159,7 +161,7 @@ export default function DashboardPage() {
         if (pendingCount > 0) {
           toast.message('AI drafts ready', {
             description: `${pendingCount} reminder${pendingCount > 1 ? 's' : ''} awaiting approval.`,
-            action: { label: 'Review', onClick: () => (window.location.href = '/invoices') },
+            action: { label: 'Review', onClick: () => router.push('/invoices') },
           });
         }
       } catch (err) {
@@ -273,7 +275,7 @@ export default function DashboardPage() {
 
             {pendingDrafts > 0 && (
               <button
-                onClick={() => (window.location.href = '/invoices')}
+                onClick={() => router.push('/invoices')}
                 className="group flex items-center gap-3 px-4 py-3 rounded-2xl border border-amber-200/60 dark:border-amber-800/30 bg-amber-50/50 dark:bg-amber-950/20 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors text-left w-full"
               >
                 <div className="h-9 w-9 flex-none rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
@@ -463,7 +465,7 @@ export default function DashboardPage() {
               </div> */}
 
               <button
-                onClick={() => (window.location.href = '/settings')}
+                onClick={() => router.push('/settings')}
                 className="w-full mt-1 px-3 py-2 text-xs font-medium text-indigo-500 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 rounded-xl transition-colors flex items-center justify-center gap-1.5"
               >
                 Configure workflows <ArrowUpRight className="w-3 h-3" />
@@ -479,7 +481,7 @@ export default function DashboardPage() {
               title="Exposure analysis"
               sub="Top default-risk accounts"
               action="View all"
-              onAction={() => (window.location.href = '/customers')}
+              onAction={() => router.push('/customers')}
             />
 
             {topRisk.length === 0 ? (

@@ -23,6 +23,7 @@ import {
   ArrowUpDown,
   Pencil
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { fetchInvoices } from '@/lib/api';
 import { triggerN8nWorkflow } from '@/lib/n8n';
 import { ColumnDef } from '@tanstack/react-table';
@@ -57,19 +58,19 @@ import { addDays, parseISO, isBefore, startOfDay, differenceInCalendarDays, form
 
 // --- Editable Cell Components ---
 
-const EditableDateCell = ({ 
-  value, 
-  onSave, 
-  label, 
-  icon: Icon, 
-  colorClass, 
+const EditableDateCell = ({
+  value,
+  onSave,
+  label,
+  icon: Icon,
+  colorClass,
   subText,
   emptyText = "Not set"
-}: { 
-  value: string | null | undefined, 
-  onSave: (date: string | null) => Promise<void>, 
-  label: string, 
-  icon: any, 
+}: {
+  value: string | null | undefined,
+  onSave: (date: string | null) => Promise<void>,
+  label: string,
+  icon: any,
   colorClass: string,
   subText?: string,
   emptyText?: string
@@ -92,7 +93,7 @@ const EditableDateCell = ({
   };
 
   if (!value) return (
-    <div className="flex items-center justify-between group min-w-[140px]">
+    <div className="flex items-center justify-between group min-w-35">
       <span className="text-[12px] text-muted-foreground font-semibold uppercase italic">{emptyText}</span>
       <Popover open={isEditing} onOpenChange={setIsEditing}>
         <PopoverTrigger render={<Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" />}>
@@ -101,9 +102,9 @@ const EditableDateCell = ({
         <PopoverContent className="w-64 p-3 rounded-xl shadow-2xl border-border bg-card z-50">
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase text-muted-foreground">Set {label}</h4>
-            <Input 
-              type="datetime-local" 
-              value={tempDate} 
+            <Input
+              type="datetime-local"
+              value={tempDate}
               onChange={(e) => setTempDate(e.target.value)}
               className="h-9 text-xs rounded-lg"
             />
@@ -118,7 +119,7 @@ const EditableDateCell = ({
   );
 
   return (
-    <div className="group relative flex flex-col min-w-[140px]">
+    <div className="group relative flex flex-col min-w-35">
       <div className={cn("flex items-center gap-1.5 mb-0.5", colorClass)}>
         <Icon className="w-3 h-3" />
         <span className="text-[10px] font-black uppercase">{label}</span>
@@ -137,9 +138,9 @@ const EditableDateCell = ({
           <PopoverContent className="w-64 p-3 rounded-xl shadow-2xl border-border bg-card z-50">
             <div className="space-y-3">
               <h4 className="text-xs font-bold uppercase text-muted-foreground">Edit {label}</h4>
-              <Input 
-                type="datetime-local" 
-                value={tempDate} 
+              <Input
+                type="datetime-local"
+                value={tempDate}
                 onChange={(e) => setTempDate(e.target.value)}
                 className="h-9 text-xs rounded-lg"
               />
@@ -157,6 +158,7 @@ const EditableDateCell = ({
 };
 
 export default function InvoicesPage() {
+  const router = useRouter();
   const [invoices, setInvoices] = React.useState<Invoice[]>([]);
   const [filteredInvoices, setFilteredInvoices] = React.useState<Invoice[]>([]);
   const [settings, setSettings] = React.useState<any>(null);
@@ -445,7 +447,7 @@ export default function InvoicesPage() {
       accessorKey: 'lastSentAt',
       header: 'Last Automation',
       cell: ({ row }) => (
-        <EditableDateCell 
+        <EditableDateCell
           value={row.original.lastSentAt}
           label="Sent to n8n"
           icon={CheckCircle2}
@@ -609,7 +611,7 @@ export default function InvoicesPage() {
         }
 
         return (
-          <EditableDateCell 
+          <EditableDateCell
             value={nextDate}
             label="Scheduled At"
             icon={Clock}
@@ -637,7 +639,7 @@ export default function InvoicesPage() {
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="text-[11px] font-semibold text-muted-foreground uppercase px-2 py-1">Actions</DropdownMenuLabel>
                 <DropdownMenuItem
-                  onClick={() => window.location.href = `/invoices/${row.original.id}`}
+                  onClick={() => router.push(`/invoices/${row.original.id}`)}
                   className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-primary/5 focus:text-primary transition-colors flex items-center gap-2">
                   <Eye className="w-4 h-4" /> View Details
                 </DropdownMenuItem>
