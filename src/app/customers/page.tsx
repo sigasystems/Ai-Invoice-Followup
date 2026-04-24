@@ -275,7 +275,7 @@ function StatCard({
         <p className="text-[10px] font-semibold  uppercase tracking-wider leading-none">
           {label}
         </p>
-        <p className="text-lg font-black  leading-tight mt-0.5">{value}</p>
+        <p className="text-lg font-semibold  leading-tight mt-0.5">{value}</p>
         <p className="text-[11px]  leading-none mt-0.5">{sub}</p>
       </div>
     </div>
@@ -318,7 +318,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
           <Link href={`/customers/${c.id}`} className="flex items-center gap-3 group min-w-0">
             <div
               className={cn(
-                'h-8 w-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-black',
+                'h-8 w-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-semibold',
                 av.bg,
                 av.text
               )}
@@ -926,27 +926,27 @@ export default function CustomersPage() {
               <form onSubmit={handleCreateInvoice} className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="invoice_number" className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest">Invoice ID</Label>
+                    <Label htmlFor="invoice_number" className="text-[10px] font-semibold uppercase text-muted-foreground/70 tracking-widest">Invoice ID</Label>
                     <Input id="invoice_number" name="invoice_number" placeholder="INV-2024-001" className="rounded-xl h-11 border-border shadow-xs" required />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="amount" className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest">Amount (₹)</Label>
+                    <Label htmlFor="amount" className="text-[10px] font-semibold uppercase text-muted-foreground/70 tracking-widest">Amount (₹)</Label>
                     <Input id="amount" name="amount" type="number" placeholder="0.00" className="rounded-xl h-11 border-border shadow-xs font-mono" required />
                   </div>
                 </div>
 
                 <div className="p-6 rounded-3xl bg-muted/30 border border-border/50 space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="customer_name" className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest">Client Name</Label>
+                    <Label htmlFor="customer_name" className="text-[10px] font-semibold uppercase text-muted-foreground/70 tracking-widest">Client Name</Label>
                     <Input id="customer_name" name="customer_name" defaultValue={prefilledCustomer?.name || ''} className="rounded-xl h-11 bg-background border-border shadow-xs" required />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="customer_email" className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest">Client Email</Label>
+                      <Label htmlFor="customer_email" className="text-[10px] font-semibold uppercase text-muted-foreground/70 tracking-widest">Client Email</Label>
                       <Input id="customer_email" name="customer_email" type="email" defaultValue={prefilledCustomer?.email || ''} className="rounded-xl h-11 bg-background border-border shadow-xs" required />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="customer_phone" className="text-[10px] font-black uppercase text-muted-foreground/70 tracking-widest">Client Phone</Label>
+                      <Label htmlFor="customer_phone" className="text-[10px] font-semibold uppercase text-muted-foreground/70 tracking-widest">Client Phone</Label>
                       <Input id="customer_phone" name="customer_phone" defaultValue={prefilledCustomer?.phone || ''} className="rounded-xl h-11 bg-background border-border shadow-xs" />
                     </div>
                   </div>

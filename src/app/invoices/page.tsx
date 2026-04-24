@@ -122,7 +122,7 @@ const EditableDateCell = ({
     <div className="group relative flex flex-col min-w-35">
       <div className={cn("flex items-center gap-1.5 mb-0.5", colorClass)}>
         <Icon className="w-3 h-3" />
-        <span className="text-[10px] font-black uppercase">{label}</span>
+        <span className="text-[10px] font-semibold uppercase">{label}</span>
         <span className="text-[10px] font-bold opacity-70 ml-auto">
           {formatDistanceToNow(new Date(value), { addSuffix: true })}
         </span>
@@ -380,7 +380,7 @@ export default function InvoicesPage() {
             </div>
             <div className="flex flex-col">
               <span className={cn(
-                "text-[10px] font-black uppercase leading-none mb-0.5 whitespace-nowrap",
+                "text-[10px] font-semibold uppercase leading-none mb-0.5 whitespace-nowrap",
                 isOverride ? "text-amber-600" : "text-indigo-500"
               )}>
                 {isOverride ? `Override (+${offset}d)` : `Default (+${offset}d)`}
@@ -525,7 +525,7 @@ export default function InvoicesPage() {
                   <div className="p-1.5 rounded-lg bg-red-500/10 text-red-600">
                     <BrainCircuit className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-[12px] font-black uppercase tracking-[0.05em] text-red-600">Escalated to Manager</span>
+                  <span className="text-[12px] font-semibold uppercase tracking-[0.05em] text-red-600">Escalated to Manager</span>
                 </div>
                 <span className="text-[11px] font-semibold text-red-500 ml-6">All automation stages completed</span>
               </div>
@@ -554,7 +554,7 @@ export default function InvoicesPage() {
             </div>
 
             <div className="flex flex-col">
-              <span className={cn("text-[12px] font-black uppercase tracking-[0.05em]", isPaid ? "text-emerald-500" : "text-foreground")}>
+              <span className={cn("text-[12px] font-semibold uppercase tracking-[0.05em]", isPaid ? "text-emerald-500" : "text-foreground")}>
                 {isPaid ? 'Collection Successful' : currentStep?.label || `Stage ${currentStage}`}
               </span>
 
@@ -602,7 +602,7 @@ export default function InvoicesPage() {
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[11px] font-black uppercase tracking-wider text-emerald-600">Collection Done</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600">Collection Done</span>
                   <span className="text-[10px] font-semibold text-emerald-500 mt-0.5">Payment Received</span>
                 </div>
               </div>
@@ -1163,10 +1163,10 @@ export default function InvoicesPage() {
         <div className="space-y-2">
           <h4 className="text-base font-bold ">Automation & Timing Strategy</h4>
           <p className="text-sm text-indigo-700 leading-relaxed font-medium dark:text-indigo-300">
-            The platform monitors your collections 24/7. When an invoice reaches its scheduled 'Next Action' date, the system triggers processing at <span className="font-black italic underline decoration-indigo-300 underline-offset-2">12:00 AM (midnight)</span> local time. This ensures all customers receive their reminders first thing in the morning.
+            The platform monitors your collections 24/7. When an invoice reaches its scheduled 'Next Action' date, the system triggers processing at <span className="font-semibold italic underline decoration-indigo-300 underline-offset-2">12:00 AM (midnight)</span> local time. This ensures all customers receive their reminders first thing in the morning.
           </p>
           <div className="mt-3 py-3 px-4 rounded-xl border border-indigo-100/50 flex items-center gap-3">
-            <span className="text-[11px] font-black uppercase text-indigo-500 bg-indigo-50 px-2 py-1 rounded-lg">Example Logic:</span>
+            <span className="text-[11px] font-semibold uppercase text-indigo-500 bg-indigo-50 px-2 py-1 rounded-lg">Example Logic:</span>
             <p className="text-sm text-indigo-600 italic dark:text-indigo-400">
               Invoice issued on <span className="font-bold">April 1st</span> with a <span className="font-bold">15-day delay</span> &rarr; Automated check occurs exactly on <span className="font-bold underline">April 16th at 12:00 AM</span>.
             </p>
@@ -1221,7 +1221,7 @@ export default function InvoicesPage() {
                   <div className="p-6 rounded-3xl bg-muted/30 border border-border/50 space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
-                        <Label className="text-xs font-black uppercase text-muted-foreground">Follow-up Start Delay</Label>
+                        <Label className="text-xs font-semibold uppercase text-muted-foreground">Follow-up Start Delay</Label>
                         <p className="text-[11px] text-muted-foreground font-medium">Days after issue date to begin automation.</p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -1252,7 +1252,7 @@ export default function InvoicesPage() {
 
                     {/* <div className="flex items-center justify-between pt-4">
                       <div className="space-y-0.5">
-                        <Label className="text-xs font-black uppercase text-muted-foreground">Force current Stage</Label>
+                        <Label className="text-xs font-semibold uppercase text-muted-foreground">Force current Stage</Label>
                         <p className="text-[11px] text-muted-foreground font-medium">Jump to a specific step in the ladder.</p>
                       </div>
                       <select
@@ -1267,7 +1267,7 @@ export default function InvoicesPage() {
                     </div> */}
 
                     {/* <div className="flex flex-col gap-2 pt-4">
-                      <Label className="text-xs font-black uppercase text-muted-foreground">Manual date Override (Next Action)</Label>
+                      <Label className="text-xs font-semibold uppercase text-muted-foreground">Manual date Override (Next Action)</Label>
                       <Input
                         name="nextActionAt"
                         type="date"

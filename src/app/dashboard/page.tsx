@@ -35,6 +35,13 @@ function FadeUp({ children, delay = 0, className }: {
   );
 }
 
+const compactCurrency = (val: number) => {
+  if (val >= 10000000) return `₹${(val / 10000000).toFixed(1)}Cr`;
+  if (val >= 100000) return `₹${(val / 100000).toFixed(1)}L`;
+  if (val >= 1000) return `₹${(val / 1000).toFixed(1)}K`;
+  return `₹${val.toLocaleString('en-IN')}`;
+};
+
 /* ─── Status pill ────────────────────────────────────── */
 function Pill({ label, positive }: { label: string; positive: boolean }) {
   return (
@@ -50,25 +57,30 @@ function Pill({ label, positive }: { label: string; positive: boolean }) {
 }
 
 /* ─── KPI card ───────────────────────────────────────── */
-function KpiCard({ title, value, pill, positive, icon: Icon, delay = 0 }: {
-  title: string; value: string; pill: string; positive: boolean;
+function KpiCard({ title, value, fullValue, pill, positive, icon: Icon, delay = 0 }: {
+  title: string; value: string; fullValue?: string; pill: string; positive: boolean;
   icon: React.ElementType; delay?: number;
 }) {
   return (
     <FadeUp delay={delay}>
-      <div className="flex flex-col gap-3 rounded-2xl border border-neutral-200/70 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_3px_16px_rgba(0,0,0,0.06)] transition-shadow duration-300">
+      <div 
+        title={fullValue}
+        className="flex flex-col gap-3 rounded-2xl border border-neutral-200/70 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-5 py-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_3px_16px_rgba(0,0,0,0.06)] transition-all duration-300 min-h-[140px] group cursor-default"
+      >
         <div className="flex items-center justify-between">
-          <span className=" font-semibold ">
+          <span className="text-sm font-semibold text-neutral-500 dark:text-neutral-400">
             {title}
           </span>
-          <div className="h-7 w-7 rounded-lg bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
-            <Icon className="h-3 w-3  " />
+          <div className="h-8 w-8 rounded-xl bg-neutral-50 dark:bg-neutral-800 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <Icon className="h-4 w-4 text-neutral-500 dark:text-neutral-400 group-hover:text-primary transition-colors" />
           </div>
         </div>
-        <p className="text-[22px] font-medium tracking-tight text-neutral-900 dark:text-neutral-100 leading-none tabular-nums">
-          {value}
-        </p>
-        <Pill label={pill} positive={positive} />
+        <div className="flex flex-col gap-1.5">
+          <p className="text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 leading-tight tabular-nums">
+            {value}
+          </p>
+          <Pill label={pill} positive={positive} />
+        </div>
       </div>
     </FadeUp>
   );
@@ -316,11 +328,10 @@ export default function DashboardPage() {
 
       {/* ── KPI grid ────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-7">
-        <KpiCard title="Outstanding"   value={`₹${totalOutstanding.toLocaleString('en-IN')}`}  pill="Pending collection" positive={false} icon={IndianRupee} delay={0.08} />
-        {/* <KpiCard title="AI follow-ups" value={pendingDrafts.toString()}                         pill="Needs review"       positive={false} icon={Mail}        delay={0.12} /> */}
-        <KpiCard title="Collected"     value={`₹${collectedThisMonth.toLocaleString('en-IN')}`} pill="This month"         positive={true}  icon={TrendingUp}  delay={0.16} />
-        <KpiCard title="At risk"       value={overdueCount.toString()}                          pill="Overdue"            positive={false} icon={AlertCircle} delay={0.2}  />
-        <KpiCard title="Recovery rate" value={`${recoveryRate}%`}                               pill="Efficiency"         positive={true}  icon={Clock}       delay={0.24} />
+        <KpiCard title="Outstanding"   value={compactCurrency(totalOutstanding)}  fullValue={`₹${totalOutstanding.toLocaleString('en-IN')}`} pill="Pending collection" positive={false} icon={IndianRupee} delay={0.08} />
+        <KpiCard title="Collected"     value={compactCurrency(collectedThisMonth)} fullValue={`₹${collectedThisMonth.toLocaleString('en-IN')}`} pill="This month"         positive={true}  icon={TrendingUp}  delay={0.16} />
+        <KpiCard title="At risk"       value={overdueCount.toString()}              pill="Overdue"            positive={false} icon={AlertCircle} delay={0.2}  />
+        <KpiCard title="Recovery rate" value={`${recoveryRate}%`}                   pill="Efficiency"         positive={true}  icon={Clock}       delay={0.24} />
       </div>
 
       {/* ── Revenue chart + Aging ────────────────────── */}
@@ -329,13 +340,12 @@ export default function DashboardPage() {
         {/* Revenue dynamics */}
         <FadeUp delay={0.28} className="lg:col-span-2">
           <Shell className="h-full">
-            <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-neutral-100 dark:border-neutral-800">
-              <div>
-                <h3 className=" font-medium text-neutral-900 dark:text-neutral-100">Revenue dynamics</h3>
-                <p className="text-[12px]   mt-0.5">
-                  Monthly invoiced vs. recovered
-                </p>
-              </div>
+            <SectionHead 
+              title="Revenue dynamics" 
+              sub="Monthly invoiced vs. recovered" 
+            />
+            <div className="flex items-center justify-between px-5 pt-0 pb-4">
+              <div />
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
                   <span className="h-2 w-2 rounded-full bg-indigo-400" />
@@ -386,12 +396,12 @@ export default function DashboardPage() {
             <div className="px-5 py-5 space-y-4">
               {agingData.map(item => (
                 <div key={item.name} className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
                       <span className="h-2 w-2 rounded-full flex-none" style={{ background: item.color, opacity: 0.85 }} />
-                      <span className="text-[12px] font-medium  dark:">{item.name}</span>
+                      <span className="text-[12px] font-medium text-neutral-600 dark:text-neutral-400 truncate">{item.name}</span>
                     </div>
-                    <span className="text-[12px] font-medium  tabular-nums">
+                    <span className="text-[12px] font-bold text-neutral-900 dark:text-neutral-100 tabular-nums break-all text-right">
                       ₹{item.value.toLocaleString('en-IN')}
                     </span>
                   </div>
@@ -497,41 +507,47 @@ export default function DashboardPage() {
                   return (
                     <div
                       key={idx}
-                      className="flex flex-col gap-3 p-4 rounded-xl border border-neutral-100 dark:border-neutral-800 bg-neutral-50/40 dark:bg-neutral-800/20 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
+                      title={`₹${inv.amount.toLocaleString('en-IN')}`}
+                      className="flex flex-col gap-4 p-5 rounded-2xl border border-neutral-100 dark:border-neutral-800 bg-neutral-50/30 dark:bg-neutral-800/20 hover:bg-white dark:hover:bg-neutral-800/40 hover:shadow-xl hover:shadow-neutral-200/40 dark:hover:shadow-none transition-all duration-300 cursor-default group"
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="text-xs font-medium text-neutral-800 dark:text-neutral-200 truncate">
-                            {inv.customerName}
-                          </p>
-                          <p className="text-[12px]  mt-0.5 uppercase tracking-wide">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                             <div className="h-6 w-6 rounded-lg bg-primary/10 flex items-center justify-center text-[10px] font-semibold text-primary flex-none">
+                                {inv.customerName?.charAt(0) || '?'}
+                             </div>
+                             <p className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate">
+                               {inv.customerName || 'Unknown Customer'}
+                             </p>
+                          </div>
+                          <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">
                             {inv.invoice_number}
                           </p>
                         </div>
                         <div className="text-right flex-none">
                           <p className={cn(
-                            ' font-medium tabular-nums',
-                            high ? 'text-rose-500' : 'text-amber-600'
+                            'text-base font-semibold tabular-nums',
+                            high ? 'text-rose-600' : 'text-amber-600'
                           )}>
-                            ₹{inv.amount.toLocaleString('en-IN')}
+                            {compactCurrency(inv.amount)}
                           </p>
-                          <p className="text-[12px]  mt-0.5">
+                          <p className="text-[10px] text-neutral-500 font-bold mt-1 bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded-md inline-block">
                             {inv.daysSinceIssue}d old
                           </p>
                         </div>
                       </div>
-                      <div>
-                        <div className="h-1 w-full rounded-full bg-neutral-200 dark:bg-neutral-700 overflow-hidden mb-1.5">
-                          <div
-                            className={cn('h-full rounded-full', high ? 'bg-rose-300' : 'bg-amber-300')}
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                        <div className="flex justify-between text-[12px] ">
-                          <span>Risk exposure</span>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider">
+                          <span className="text-neutral-400">Risk exposure</span>
                           <span className={high ? 'text-rose-500' : 'text-amber-500'}>
                             {pct.toFixed(0)}%
                           </span>
+                        </div>
+                        <div className="h-1.5 w-full rounded-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
+                          <div
+                            className={cn('h-full rounded-full transition-all duration-1000 ease-out', high ? 'bg-rose-500' : 'bg-amber-500')}
+                            style={{ width: `${pct}%` }}
+                          />
                         </div>
                       </div>
                     </div>

@@ -73,7 +73,7 @@ export function Topbar() {
             <Menu className="w-5 h-5 text-muted-foreground" />
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-64 lg:w-72 border-r border-border">
-            <Sidebar  />
+            <Sidebar isMobile={true} />
           </SheetContent>
         </Sheet>
         

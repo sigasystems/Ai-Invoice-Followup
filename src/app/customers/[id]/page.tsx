@@ -8,7 +8,7 @@ import { DataTable } from "@/components/shared/data-table"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { ArrowLeft, Mail, TrendingUp, ShieldCheck, Phone } from "lucide-react"
+import { ArrowLeft, Mail, TrendingUp, ShieldCheck, Phone, Eye } from "lucide-react"
 import { fetchInvoices, fetchCustomers } from "@/lib/api"
 import { Customer, Invoice } from "@/types"
 import { ColumnDef } from "@tanstack/react-table"
@@ -41,7 +41,14 @@ export default function CustomerDetailPage() {
       {
          accessorKey: 'id',
          header: 'ID',
-         cell: ({ row }) => <span className="font-mono text-xs font-bold">{row.getValue('id')}</span>,
+         cell: ({ row }) => (
+            <span 
+               onClick={() => router.push(`/invoices/${row.getValue('id')}`)}
+               className="font-mono text-xs font-bold text-primary hover:underline cursor-pointer"
+            >
+               {row.getValue('id')}
+            </span>
+         ),
       },
       {
          accessorKey: 'amount',
@@ -58,6 +65,23 @@ export default function CustomerDetailPage() {
          header: 'Due Date',
          cell: ({ row }) => <span className="text-xs font-medium">{new Date(row.getValue('dueDate')).toLocaleDateString()}</span>,
       },
+      {
+         id: 'actions',
+         header: '',
+         cell: ({ row }) => (
+            <div className="flex justify-end">
+               <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => router.push(`/invoices/${row.getValue('id')}`)}
+                  className="rounded-xl h-8 px-3 gap-2 font-bold text-xs hover:bg-primary/5 hover:text-primary transition-all"
+               >
+                  <Eye className="w-3.5 h-3.5" />
+                  View
+               </Button>
+            </div>
+         )
+      }
    ];
 
    return (

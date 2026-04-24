@@ -153,7 +153,7 @@ export default function SettingsPage() {
       <DashboardLayout>
         <div className="flex flex-col items-center justify-center p-40 gap-4">
           <div className="h-10 w-10 border-4 border-primary/10 border-t-primary rounded-full animate-spin" />
-          <p className="text-[12px] font-bold uppercase text-muted-foreground">Initializing Preferences</p>
+          <p className="text-[12px] font-semibold uppercase text-muted-foreground">Initializing Preferences</p>
         </div>
       </DashboardLayout>
     );
@@ -175,7 +175,7 @@ export default function SettingsPage() {
         <Button
           onClick={handleSave}
           disabled={saving}
-          className="rounded-xl h-11 px-6 font-bold text-[12px] uppercase  shadow-xl shadow-primary/20 flex items-center gap-2"
+          className="rounded-xl h-11 px-6 font-semibold text-[12px] uppercase  shadow-xl shadow-primary/20 flex items-center gap-2"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {saving ? 'Synchronizing...' : 'Save Configuration'}
@@ -186,7 +186,7 @@ export default function SettingsPage() {
 
         {/* Sidebar Nav */}
         <div className="lg:col-span-3 space-y-1">
-          <p className="px-4 text-[12px] font-bold text-muted-foreground uppercase mb-4">Configuration</p>
+          <p className="px-4 text-[12px] font-semibold text-muted-foreground uppercase mb-4">Configuration</p>
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -198,7 +198,7 @@ export default function SettingsPage() {
                   "w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group",
                   active
                     ? "bg-primary text-white "
-                    : "text-muted-foreground hover:bg-muted font-bold"
+                    : "text-muted-foreground hover:bg-muted font-semibold"
                 )}
               >
                 <Icon className={cn("h-4 w-4", active ? "text-white dark:text-black" : "text-muted-foreground group-hover:text-foreground")} />
@@ -217,10 +217,10 @@ export default function SettingsPage() {
                 <CardHeader className="p-10 pb-2">
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
-                      <CardTitle className="text-2xl font-bold">Escalation Protocol</CardTitle>
+                      <CardTitle className="text-2xl font-semibold">Escalation Protocol</CardTitle>
                       <CardDescription className="text-sm font-medium text-muted-foreground">Design the sequence of autonomous reminders and tone transitions.</CardDescription>
                     </div>
-                    <Button onClick={addLadderStep} variant="outline" className="rounded-xl h-10 px-4 font-bold text-[12px] uppercase  border-primary/20 text-primary hover:bg-primary/5">
+                    <Button onClick={addLadderStep} variant="outline" className="rounded-xl h-10 px-4 font-semibold text-[12px] uppercase  border-primary/20 text-primary hover:bg-primary/5">
                       <Plus className="w-4 h-4 mr-2" /> New Stage
                     </Button>
                   </div>
@@ -235,16 +235,16 @@ export default function SettingsPage() {
                         isDuplicate ? "border-rose-500/50 bg-rose-500/5" : "border-border/50 hover:border-primary/20"
                       )}>
                         <div className="flex flex-col gap-2 flex-1 w-full">
-                          <Label className="text-[12px] font-bold text-muted-foreground uppercase ">Protocol Identifier</Label>
+                          <Label className="text-[12px] font-semibold text-muted-foreground uppercase ">Protocol Identifier</Label>
                           <Input
                             value={step.label}
                             onChange={(e) => updateLadderStep(index, 'label', e.target.value)}
-                            className="bg-background border-none shadow-sm rounded-xl h-11 font-bold focus:ring-primary h-11"
+                            className="bg-background border-none shadow-sm rounded-xl h-11 font-semibold focus:ring-primary h-11"
                             placeholder="e.g. Day 1 Courtesy"
                           />
                         </div>
                         <div className="flex flex-col gap-2 w-full sm:w-28">
-                          <Label className={cn("text-[12px] font-bold uppercase", isDuplicate ? "text-rose-500" : "text-muted-foreground")}>
+                          <Label className={cn("text-[12px] font-semibold uppercase", isDuplicate ? "text-rose-500" : "text-muted-foreground")}>
                             Delay (Days) {isDuplicate && "⚠️"}
                           </Label>
                           <Input
@@ -252,18 +252,18 @@ export default function SettingsPage() {
                             value={step.delayDays ?? 0}
                             onChange={(e) => updateLadderStep(index, 'delayDays', parseInt(e.target.value) || 0)}
                             className={cn(
-                              "bg-background border-none shadow-sm rounded-xl h-11 font-bold focus:ring-primary text-center",
+                              "bg-background border-none shadow-sm rounded-xl h-11 font-semibold focus:ring-primary text-center",
                               isDuplicate && "text-rose-600 ring-2 ring-rose-500/20"
                             )}
                           />
                         </div>
                         <div className="flex flex-col gap-2 w-full sm:w-40">
-                          <Label className="text-[12px] font-bold text-muted-foreground uppercase ">Communication Tone</Label>
+                          <Label className="text-[12px] font-semibold text-muted-foreground uppercase ">Communication Tone</Label>
                           <Select
                             value={step.tone}
                             onValueChange={(val) => updateLadderStep(index, 'tone', val)}
                           >
-                            <SelectTrigger className="bg-background border-none shadow-sm rounded-xl h-11 font-bold focus:ring-primary transition-all">
+                            <SelectTrigger className="bg-background border-none shadow-sm rounded-xl h-11 font-semibold focus:ring-primary transition-all">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent className="rounded-2xl border-border shadow-2xl p-2">
@@ -275,12 +275,12 @@ export default function SettingsPage() {
                         </div>
                         {step.tone === 'Manager Escalation' && (
                           <div className="flex flex-col gap-2 flex-1 w-full animate-in zoom-in-95 duration-200">
-                            <Label className="text-[12px] font-bold text-rose-500 uppercase ">Escalation Contact</Label>
+                            <Label className="text-[12px] font-semibold text-rose-500 uppercase ">Escalation Contact</Label>
                             <Select
                               value={step.escalationContact || ''}
                               onValueChange={(val) => updateLadderStep(index, 'escalationContact', val)}
                             >
-                              <SelectTrigger className="bg-rose-500/5 border border-rose-500/10 shadow-sm rounded-xl h-11 font-bold focus:ring-rose-500">
+                              <SelectTrigger className="bg-rose-500/5 border border-rose-500/10 shadow-sm rounded-xl h-11 font-semibold focus:ring-rose-500">
                                 <SelectValue placeholder="Select Manager" />
                               </SelectTrigger>
                               <SelectContent className="rounded-2xl border-border shadow-2xl p-2">
@@ -349,9 +349,9 @@ export default function SettingsPage() {
                             type="number"
                             value={settings?.followupStartDelayDays ?? 0}
                             onChange={(e) => updateField('followupStartDelayDays', parseInt(e.target.value) || 0)}
-                            className="w-16 h-8 text-center font-bold rounded-lg border-border"
+                            className="w-16 h-8 text-center font-semibold rounded-lg border-border"
                           />
-                          <span className="text-[10px] font-bold uppercase text-muted-foreground">Days</span>
+                          <span className="text-[10px] font-semibold uppercase text-muted-foreground">Days</span>
                         </div>
                       </div>
                       <div>
@@ -371,14 +371,14 @@ export default function SettingsPage() {
                       <ShieldCheck className="h-6 w-6" />
                     </div>
                     <div>
-                      <CardTitle className="text-xl font-bold">Manager Directory</CardTitle>
+                      <CardTitle className="text-xl font-semibold">Manager Directory</CardTitle>
                       <CardDescription className="text-sm font-medium">Authorized emails for high-priority escalation protocols.</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent className="p-10 pt-6 space-y-6">
                    <div className="space-y-3">
-                    <Label className="text-[12px] font-bold text-muted-foreground uppercase ml-1">Verified Manager Recipients</Label>
+                    <Label className="text-[12px] font-semibold text-muted-foreground uppercase ml-1">Verified Manager Recipients</Label>
                     <Input
                       value={settings?.managerEmails || ''}
                       onChange={(e) => updateField('managerEmails', e.target.value)}
@@ -428,14 +428,14 @@ export default function SettingsPage() {
                     <div className="mt-4 p-5 rounded-3xl bg-amber-500/5 border border-amber-500/10 flex items-start gap-4">
                       <Zap className="h-5 w-5 text-amber-600 mt-1" />
                       <div className="space-y-2">
-                        <p className="text-xs font-bold uppercase  text-amber-700">Environment Mismatch</p>
+                        <p className="text-xs font-semibold uppercase  text-amber-700">Environment Mismatch</p>
                         <p className="text-[11px] font-medium text-amber-800/80 leading-relaxed">
                           Detected a test webhook. Production automation requires a permanent, active workflow URL.
                         </p>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="bg-amber-100 border-amber-200 text-amber-800 font-bold text-[9px] uppercase  rounded-xl"
+                          className="bg-amber-100 border-amber-200 text-amber-800 font-semibold text-[9px] uppercase  rounded-xl"
                           onClick={() => {
                             const prodUrl = settings.writeWebhook.replace('/webhook-test/', '/webhook/');
                             updateField('writeWebhook', prodUrl);
@@ -451,7 +451,7 @@ export default function SettingsPage() {
 
                 <div className="p-6 rounded-3xl bg-muted/40 border border-border flex items-center justify-between">
                   <div className="space-y-1">
-                    <p className="text-xs font-bold uppercase  text-foreground">Continuous Data Sync</p>
+                    <p className="text-xs font-semibold uppercase  text-foreground">Continuous Data Sync</p>
                     <p className="text-[12px] font-medium text-muted-foreground italic">Automated activity heartbeat with n8n servers.</p>
                   </div>
                   <Checkbox
@@ -468,7 +468,7 @@ export default function SettingsPage() {
           {['channels', 'security'].includes(activeTab) && (
             <div className="h-96 w-full  border-2 border-dashed border-border flex flex-col items-center justify-center gap-4 bg-muted/20">
               <Settings2 className="h-10 w-10 text-muted-foreground opacity-20" />
-              <p className="text-[12px] font-bold uppercase text-muted-foreground">Advanced module coming soon</p>
+              <p className="text-[12px] font-semibold uppercase text-muted-foreground">Advanced module coming soon</p>
             </div>
           )}
 
