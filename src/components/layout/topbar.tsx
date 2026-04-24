@@ -160,7 +160,8 @@ export function Topbar() {
           <Bell className="w-5 h-5 group-hover:shake transition-all" />
           {mounted && notifications > 0 && (
             <span className="absolute top-1.5 right-1.5 h-4 w-4 rounded-full bg-rose-500 border-2 border-background flex items-center justify-center text-[10px] font-black text-white shadow-lg animate-in fade-in zoom-in duration-300">
-              {notifications > 9 ? '9+' : notifications}
+              {/* {notifications > 9 ? '9+' : notifications} */}
+              {notifications}
             </span>
           )}
         </Button>
