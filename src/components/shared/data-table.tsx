@@ -102,7 +102,7 @@ export function DataTable<TData, TValue>({
               onChange={(e) =>
                 table.getColumn(filterKey)?.setFilterValue(e.target.value)
               }
-              className="pl-10 h-11 rounded-xl bg-muted/40 focus:bg-background transition"
+              className="pl-10 h-11 rounded-lg bg-muted/40 border-transparent focus:bg-background transition font-medium text-sm"
             />
           </div>
         )}
@@ -126,7 +126,7 @@ export function DataTable<TData, TValue>({
           {/* COLUMN TOGGLE */}
           <DropdownMenu>
             <DropdownMenuTrigger render={
-              <Button variant="outline" className="h-10 rounded-xl px-4 font-bold text-sm gap-2 bg-card">
+              <Button variant="outline" className="h-11 rounded-lg px-5 font-bold text-sm gap-3 border-border/60 hover:bg-muted">
                 <Settings2 className="w-4 h-4" />
                 Columns
               </Button>
@@ -154,7 +154,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* 🔹 TABLE */}
-      <div className="rounded-2xl border bg-card overflow-hidden shadow-sm">
+      <div className="rounded-lg border border-border/50 bg-white dark:bg-neutral-900 overflow-hidden shadow-sm">
         <Table>
           <TableHeader className="bg-muted/50">
             {table.getHeaderGroups().map((hg) => (
@@ -162,7 +162,7 @@ export function DataTable<TData, TValue>({
                 {hg.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="text-xs uppercase tracking-wide font-bold px-6 py-3"
+                    className="text-xs font-bold px-6 py-4 text-muted-foreground/60 tracking-wider"
                   >
                     {header.isPlaceholder
                       ? null

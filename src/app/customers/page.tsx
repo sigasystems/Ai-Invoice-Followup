@@ -227,14 +227,14 @@ function CollectionJourney({
       </div>
 
       {/* Stage label */}
-      <span className="text-[11px]  font-medium whitespace-nowrap shrink-0">
+      <span className="text-[11px] font-bold text-neutral-900 dark:text-neutral-100 whitespace-nowrap shrink-0">
         {currentStage}/{totalSteps}
       </span>
 
       {/* Status pill */}
       <span
         className={cn(
-          'text-[10px] font-bold px-1.5 py-0.5 rounded-md whitespace-nowrap shrink-0 tracking-wide uppercase',
+          'text-[10px] font-bold px-1.5 py-0.5 rounded-lg whitespace-nowrap shrink-0 tracking-wide',
           statusColor
         )}
       >
@@ -243,8 +243,8 @@ function CollectionJourney({
 
       {/* Escalation tag */}
       {escalationReached && (
-        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-orange-50 text-orange-600 uppercase tracking-wide shrink-0">
-          ESC
+        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-orange-50 text-orange-600 tracking-wide shrink-0">
+          Esc
         </span>
       )}
     </div>
@@ -267,16 +267,16 @@ function StatCard({
   iconCls: string;
 }) {
   return (
-    <div className=" rounded-xl border  p-4 flex items-center gap-3 shadow-sm hover:shadow transition-shadow duration-200">
-      <div className={cn('h-9 w-9 rounded-lg flex items-center justify-center shrink-0', iconCls)}>
-        <Icon className="h-4 w-4" />
+    <div className="rounded-lg border border-border/50 bg-white dark:bg-neutral-900 p-5 flex items-center gap-4 shadow-sm hover:shadow-lg transition-all duration-300">
+      <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center shrink-0 shadow-sm', iconCls)}>
+        <Icon className="h-5 w-5" />
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold  uppercase tracking-wider leading-none">
+        <p className="text-[11px] font-bold text-muted-foreground/60 tracking-wider leading-none">
           {label}
         </p>
-        <p className="text-lg font-semibold  leading-tight mt-0.5">{value}</p>
-        <p className="text-[11px]  leading-none mt-0.5">{sub}</p>
+        <p className="text-xl font-bold text-foreground leading-tight mt-1.5">{value}</p>
+        <p className="text-[11px] font-medium text-muted-foreground/50 leading-none mt-1">{sub}</p>
       </div>
     </div>
   );
@@ -290,7 +290,7 @@ function SortHeader({ column, label }: { column: any; label: string }) {
     <button
       type="button"
       onClick={column.getToggleSortingHandler()}
-      className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider hover:text-slate-900 transition-colors group cursor-pointer"
+      className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-muted-foreground/60 hover:text-foreground transition-colors group cursor-pointer"
     >
       {label}
       <ArrowUpDown
@@ -364,7 +364,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
     {
       id: 'collectionJourney',
       header: () => (
-        <span className="text-[11px] font-semibold  uppercase tracking-wider">
+        <span className="text-[11px] font-bold text-muted-foreground/60 tracking-wider">
           Journey
         </span>
       ),
@@ -668,12 +668,12 @@ export default function CustomersPage() {
 
         {/* ── Escalation Ladder banner ── */}
         {!loading && (
-          <div className=" rounded-xl border  px-5 py-3.5 shadow-sm">
-            <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+          <div className="rounded-lg border border-border/50 bg-white dark:bg-neutral-900 px-6 py-4 shadow-sm">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4">
               {/* Label */}
               <div className="flex items-center gap-2 shrink-0">
-                <Zap className="h-3.5 w-3.5 text-amber-500" />
-                <span className="text-xs font-bold  uppercase tracking-wider">
+                <Zap className="h-4 w-4 text-amber-500" />
+                <span className="text-sm font-bold text-foreground">
                   Escalation Ladder
                 </span>
                 {ladder.length === 0 && (
@@ -755,13 +755,13 @@ export default function CustomersPage() {
 
           {/* Toolbar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-b ">
-            <div className="relative w-full sm:max-w-xs">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5  pointer-events-none" />
+            <div className="relative w-full sm:max-w-xs group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/60 group-focus-within:text-primary transition-colors pointer-events-none" />
               <Input
                 placeholder="Search customers…"
                 value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
                 onChange={(e) => table.getColumn('name')?.setFilterValue(e.target.value)}
-                className="pl-8 h-8 rounded-lg border-slate-200 bg-slate-50 text-sm placeholder: focus:"
+                className="pl-9 h-9 rounded-lg border-transparent bg-muted/40 focus-visible:ring-primary focus-visible:bg-white transition-all text-sm font-medium"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -786,8 +786,8 @@ export default function CustomersPage() {
                   className="rounded-xl  shadow-lg p-1.5 w-48 "
                 >
                   <DropdownMenuGroup>
-                    <DropdownMenuLabel className="text-[10px] font-semibold  uppercase tracking-wider px-2 py-1">
-                      Toggle Columns
+                    <DropdownMenuLabel className="text-[10px] font-bold text-muted-foreground/60 tracking-wider px-2 py-1">
+                      Toggle columns
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-slate-100 my-1" />
                     {table

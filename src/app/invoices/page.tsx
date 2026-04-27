@@ -17,11 +17,12 @@ import {
   Users,
   Zap,
   ExternalLink,
-  BrainCircuit,
-  CheckCircle2,
-  Clock,
   ArrowUpDown,
-  Pencil
+  Pencil,
+  TrendingUp,
+  Clock,
+  CheckCircle2,
+  BrainCircuit
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { fetchInvoices } from '@/lib/api';
@@ -55,8 +56,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { addDays, parseISO, isBefore, startOfDay, differenceInCalendarDays, format, isSameDay, formatDistanceToNow } from 'date-fns';
-
-// --- Editable Cell Components ---
 
 const EditableDateCell = ({
   value,
@@ -94,14 +93,14 @@ const EditableDateCell = ({
 
   if (!value) return (
     <div className="flex items-center justify-between group min-w-35">
-      <span className="text-[12px] text-muted-foreground font-semibold uppercase italic">{emptyText}</span>
+      <span className="text-[12px] text-muted-foreground font-bold italic">{emptyText}</span>
       <Popover open={isEditing} onOpenChange={setIsEditing}>
         <PopoverTrigger render={<Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" />}>
           <Plus className="h-3 w-3" />
         </PopoverTrigger>
-        <PopoverContent className="w-64 p-3 rounded-xl shadow-2xl border-border bg-card z-50">
+        <PopoverContent className="w-64 p-3 rounded-lg shadow-2xl border-border bg-card z-50">
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase text-muted-foreground">Set {label}</h4>
+            <h4 className="text-xs font-bold text-muted-foreground">Set {label}</h4>
             <Input
               type="datetime-local"
               value={tempDate}
@@ -122,7 +121,7 @@ const EditableDateCell = ({
     <div className="group relative flex flex-col min-w-35">
       <div className={cn("flex items-center gap-1.5 mb-0.5", colorClass)}>
         <Icon className="w-3 h-3" />
-        <span className="text-[10px] font-semibold uppercase">{label}</span>
+        <span className="text-[10px] font-bold">{label}</span>
         <span className="text-[10px] font-bold opacity-70 ml-auto">
           {formatDistanceToNow(new Date(value), { addSuffix: true })}
         </span>
@@ -135,9 +134,9 @@ const EditableDateCell = ({
           <PopoverTrigger render={<Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" />}>
             <Pencil className="h-3 w-3" />
           </PopoverTrigger>
-          <PopoverContent className="w-64 p-3 rounded-xl shadow-2xl border-border bg-card z-50">
+          <PopoverContent className="w-64 p-3 rounded-lg shadow-2xl border-border bg-card z-50">
             <div className="space-y-3">
-              <h4 className="text-xs font-bold uppercase text-muted-foreground">Edit {label}</h4>
+              <h4 className="text-xs font-bold text-muted-foreground">Edit {label}</h4>
               <Input
                 type="datetime-local"
                 value={tempDate}
@@ -152,7 +151,7 @@ const EditableDateCell = ({
           </PopoverContent>
         </Popover>
       </div>
-      {subText && <span className="text-[9px] text-muted-foreground font-bold uppercase mt-0.5">{subText}</span>}
+      {subText && <span className="text-[9px] text-muted-foreground font-bold mt-0.5">{subText}</span>}
     </div>
   );
 };
@@ -210,14 +209,6 @@ export default function InvoicesPage() {
         const issueDate = parseISO(invoice.issueDate);
         const startDate = addDays(issueDate, Number(newOffset));
         const formattedStartDate = startDate.toISOString().split('T')[0];
-
-        // await triggerN8nWorkflow('UPDATE_INVOICE', {
-        //   id: invoiceId,
-        //   invoice_number: invoice.invoice_number,
-        //   client_email: invoice.customerEmail,
-        //   followup_start_date: formattedStartDate,
-        //   ...updates
-        // });
       }
 
       // Update local state to reflect change immediately
@@ -269,7 +260,7 @@ export default function InvoicesPage() {
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 hover:bg-transparent font-bold text-xs uppercase"
+          className="p-0 hover:bg-transparent font-bold text-xs"
         >
           ID
           <ArrowUpDown className="ml-2 h-3 w-3" />
@@ -290,7 +281,7 @@ export default function InvoicesPage() {
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 hover:bg-transparent font-bold text-xs uppercase"
+          className="p-0 hover:bg-transparent font-bold text-xs"
         >
           Customer
           <ArrowUpDown className="ml-2 h-3 w-3" />
@@ -320,7 +311,7 @@ export default function InvoicesPage() {
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 hover:bg-transparent font-bold text-xs uppercase"
+          className="p-0 hover:bg-transparent font-bold text-xs"
         >
           Amount (₹)
           <ArrowUpDown className="ml-2 h-3 w-3" />
@@ -342,7 +333,7 @@ export default function InvoicesPage() {
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 hover:bg-transparent font-bold text-xs uppercase"
+          className="p-0 hover:bg-transparent font-bold text-xs"
         >
           Issue Date
           <ArrowUpDown className="ml-2 h-3 w-3" />
@@ -373,14 +364,14 @@ export default function InvoicesPage() {
         return (
           <div className="flex items-center gap-2" title={isOverride ? `Manually overridden to ${offset} days` : `Using global default of ${offset} days`}>
             <div className={cn(
-              "p-1.5 rounded-xl transition-all duration-300",
+              "p-1.5 rounded-lg transition-all duration-300",
               isPastOrToday ? "bg-emerald-500/10 text-emerald-500" : "bg-indigo-500/10 text-indigo-500 border border-indigo-500/10"
             )}>
               {isOverride ? <Filter className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
             </div>
             <div className="flex flex-col">
               <span className={cn(
-                "text-[10px] font-semibold uppercase leading-none mb-0.5 whitespace-nowrap",
+                "text-[10px] font-bold leading-none mb-0.5 whitespace-nowrap",
                 isOverride ? "text-amber-600" : "text-indigo-500"
               )}>
                 {isOverride ? `Override (+${offset}d)` : `Default (+${offset}d)`}
@@ -399,7 +390,7 @@ export default function InvoicesPage() {
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 hover:bg-transparent font-bold text-xs uppercase"
+          className="p-0 hover:bg-transparent font-bold text-xs"
         >
           Due Date
           <ArrowUpDown className="ml-2 h-3 w-3" />
@@ -419,7 +410,7 @@ export default function InvoicesPage() {
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 hover:bg-transparent font-bold text-xs uppercase"
+          className="p-0 hover:bg-transparent font-bold text-xs"
         >
           Status
           <ArrowUpDown className="ml-2 h-3 w-3" />
@@ -525,9 +516,9 @@ export default function InvoicesPage() {
                   <div className="p-1.5 rounded-lg bg-red-500/10 text-red-600">
                     <BrainCircuit className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-[12px] font-semibold uppercase tracking-[0.05em] text-red-600">Escalated to Manager</span>
+                  <span className="text-[12px] font-bold tracking-[0.05em] text-red-600">Escalated to Manager</span>
                 </div>
-                <span className="text-[11px] font-semibold text-red-500 ml-6">All automation stages completed</span>
+                <span className="text-[11px] font-bold text-red-500 ml-6">All automation stages completed</span>
               </div>
             </div>
           );
@@ -554,7 +545,7 @@ export default function InvoicesPage() {
             </div>
 
             <div className="flex flex-col">
-              <span className={cn("text-[12px] font-semibold uppercase tracking-[0.05em]", isPaid ? "text-emerald-500" : "text-foreground")}>
+              <span className={cn("text-[12px] font-bold tracking-[0.05em]", isPaid ? "text-emerald-500" : "text-foreground")}>
                 {isPaid ? 'Collection Successful' : currentStep?.label || `Stage ${currentStage}`}
               </span>
 
@@ -602,8 +593,8 @@ export default function InvoicesPage() {
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600">Collection Done</span>
-                  <span className="text-[10px] font-semibold text-emerald-500 mt-0.5">Payment Received</span>
+                  <span className="text-[11px] font-bold text-emerald-600">Collection done</span>
+                  <span className="text-[10px] font-bold text-emerald-500 mt-0.5">Payment received</span>
                 </div>
               </div>
             </div>
@@ -637,7 +628,7 @@ export default function InvoicesPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-xl border-border shadow-xl p-1 w-48 bg-popover text-popover-foreground">
               <DropdownMenuGroup>
-                <DropdownMenuLabel className="text-[11px] font-semibold text-muted-foreground uppercase px-2 py-1">Actions</DropdownMenuLabel>
+                <DropdownMenuLabel className="text-[11px] font-bold text-muted-foreground/60 tracking-wider px-2 py-1">Actions</DropdownMenuLabel>
                 <DropdownMenuItem
                   onClick={() => router.push(`/invoices/${row.original.id}`)}
                   className="rounded-lg cursor-pointer px-2 py-2 text-sm font-medium focus:bg-primary/5 focus:text-primary transition-colors flex items-center gap-2">
@@ -822,13 +813,6 @@ export default function InvoicesPage() {
         : Number(payload.start_followups);
       const startDate = addDays(issueDate, startOffset);
       const formattedStartDate = startDate.toISOString().split('T')[0];
-
-      // ✅ AUTOMATIC N8N TRIGGER on creation
-      // await triggerN8nWorkflow('CREATE_INVOICE', {
-      //   ...payload,
-      //   followup_start_date: formattedStartDate
-      // });
-
       setIsCreateModalOpen(false);
 
       // Refresh the list
@@ -882,7 +866,7 @@ export default function InvoicesPage() {
               <Plus className="w-4 h-4 mr-2" />
               New Invoice
             </DialogTrigger>
-            <DialogContent className="max-w-3xl p-0 overflow-hidden rounded-3xl border border-border bg-card shadow-2xl">
+            <DialogContent className="max-w-3xl p-0 overflow-hidden rounded-lg border border-border bg-card shadow-2xl">
 
               {/* Header */}
               <div className="px-8 pt-8 pb-6 bg-linear-to-br from-primary/5 via-transparent to-transparent">
@@ -935,7 +919,7 @@ export default function InvoicesPage() {
                 </div>
 
                 {/* ================= CUSTOMER ================= */}
-                <div className="p-6 space-y-4 border rounded-2xl bg-muted/30 border-border">
+                <div className="p-6 space-y-4 border rounded-lg bg-muted/30 border-border">
                   <h4 className="text-xs font-semibold tracking-widest text-primary uppercase">
                     Client Details
                   </h4>
@@ -1067,112 +1051,126 @@ export default function InvoicesPage() {
           </Dialog>
         </div>
       </PageHeader>
+      {/* 🔹 Filter & Sort Toolbar */}
+      <div className="space-y-4 mb-8">
+        {/* Row 1: Primary Tabs & Inline Sorts */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-center gap-1 p-1 bg-muted/50 rounded-lg w-fit border border-border/50">
+            {['All', 'Pending', 'Overdue', 'Paid'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  "px-6 py-2 rounded-md text-xs font-bold transition-all",
+                  activeTab === tab
+                    ? "bg-white dark:bg-neutral-800 text-primary shadow-sm ring-1 ring-black/5"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/50 dark:hover:bg-neutral-800/50"
+                )}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
 
-      {/* Tabs & Quick Filters */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-1 p-1 bg-muted rounded-2xl w-fit border border-border">
-          {['All', 'Pending', 'Overdue', 'Paid'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 no-scrollbar">
+            <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest mr-2 whitespace-nowrap">Sort by</span>
+            <Button
+              variant={activeTab === 'Newest' ? 'default' : 'outline'}
+              size="sm"
               className={cn(
-                "px-6 py-2 rounded-xl text-xs font-bold transition-all",
-                activeTab === tab
-                  ? "bg-background text-primary shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
+                "text-[11px] font-bold rounded-lg h-9 gap-2",
+                activeTab === 'Newest' ? "bg-primary text-white" : "border-border/60 bg-card text-neutral-900 dark:text-neutral-100"
               )}
+              onClick={() => {
+                const sorted = [...filteredInvoices].sort((a, b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
+                setFilteredInvoices(sorted);
+                toast.success("Sorted by newest issue date");
+              }}
             >
-              {tab}
-            </button>
-          ))}
-        </div>
+              <Clock className="w-3.5 h-3.5" />
+              Newest First
+            </Button>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Quick Logic Filters */}
-          <DropdownMenu>
-            <DropdownMenuContent align="end" className="w-48 rounded-xl">
-              <DropdownMenuLabel className="text-[10px] font-bold uppercase text-muted-foreground">Smart Views</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => {
-                  const thirtyDaysAgo = new Date();
-                  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                  setFilteredInvoices(invoices.filter(i => new Date(i.issueDate) >= thirtyDaysAgo));
-                }}
-                className="cursor-pointer"
-              >
-                Recent (Last 30d)
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setFilteredInvoices(invoices.filter(i => i.amount > 100000));
-                }}
-                className="cursor-pointer"
-              >
-                High Value (₹1L)
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setFilteredInvoices(invoices.filter(i => i.hasPendingDraft));
-                }}
-                className="cursor-pointer text-orange-500 font-bold"
-              >
-                Needs Review
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => setFilteredInvoices(invoices)}
-                className="cursor-pointer text-muted-foreground"
-              >
-                Reset All Filters
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-[11px] font-bold rounded-xl h-10 border border-border bg-card"
-            onClick={() => {
-              const sorted = [...filteredInvoices].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-              setFilteredInvoices(sorted);
-            }}
-          >
-            Newest First
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-[11px] font-bold rounded-xl h-10 border border-border bg-card"
-            onClick={() => {
-              const sorted = [...filteredInvoices].sort((a, b) => b.amount - a.amount);
-              setFilteredInvoices(sorted);
-            }}
-          >
-            Highest Amount
-          </Button>
-        </div>
-      </div>
-
-      {/* Automation Timing Note */}
-      {/* <div className="mb-8  border border-indigo-100 rounded-2xl p-6 flex items-start gap-5 shadow-sm">
-        <div className="p-3 bg-indigo-500/10 rounded-2xl text-indigo-600 shrink-0">
-          <Zap className="w-6 h-6" />
-        </div>
-        <div className="space-y-2">
-          <h4 className="text-base font-bold ">Automation & Timing Strategy</h4>
-          <p className="text-sm text-indigo-700 leading-relaxed font-medium dark:text-indigo-300">
-            The platform monitors your collections 24/7. When an invoice reaches its scheduled 'Next Action' date, the system triggers processing at <span className="font-semibold italic underline decoration-indigo-300 underline-offset-2">12:00 AM (midnight)</span> local time. This ensures all customers receive their reminders first thing in the morning.
-          </p>
-          <div className="mt-3 py-3 px-4 rounded-xl border border-indigo-100/50 flex items-center gap-3">
-            <span className="text-[11px] font-semibold uppercase text-indigo-500 bg-indigo-50 px-2 py-1 rounded-lg">Example Logic:</span>
-            <p className="text-sm text-indigo-600 italic dark:text-indigo-400">
-              Invoice issued on <span className="font-bold">April 1st</span> with a <span className="font-bold">15-day delay</span> &rarr; Automated check occurs exactly on <span className="font-bold underline">April 16th at 12:00 AM</span>.
-            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-[11px] font-bold rounded-lg h-9 border-border/60 bg-card text-neutral-900 dark:text-neutral-100 gap-2"
+              onClick={() => {
+                const sorted = [...filteredInvoices].sort((a, b) => b.amount - a.amount);
+                setFilteredInvoices(sorted);
+                toast.success("Sorted by highest amount");
+              }}
+            >
+              <TrendingUp className="w-3.5 h-3.5" />
+              Highest Amount
+            </Button>
           </div>
         </div>
-      </div> */}
+
+        {/* Row 2: Search & Advanced Filters */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2">
+          <div className="flex-1 max-w-2xl">
+             {/* Search is handled inside DataTable component below */}
+          </div>
+
+          {/* <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger render={
+                <Button variant="outline" className="h-10 rounded-lg px-4 font-bold text-xs gap-2 border-border/60 bg-card hover:bg-muted transition-all">
+                  <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+                  Advanced filters
+                </Button>
+              } />
+              <DropdownMenuContent align="end" className="w-56 rounded-lg border-border shadow-xl p-1">
+                <DropdownMenuLabel className="text-[10px] font-bold text-muted-foreground/60 tracking-widest px-2 py-1.5 uppercase">Smart views</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-border/50" />
+                <DropdownMenuItem
+                  onClick={() => {
+                    const thirtyDaysAgo = new Date();
+                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                    setFilteredInvoices(invoices.filter(i => new Date(i.issueDate) >= thirtyDaysAgo));
+                    toast.success("Showing recent invoices (30d)");
+                  }}
+                  className="cursor-pointer rounded-md focus:bg-primary/5 focus:text-primary py-2 px-3 text-sm font-medium"
+                >
+                  <Zap className="w-4 h-4 mr-2 opacity-70" />
+                  Recent (Last 30 days)
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setFilteredInvoices(invoices.filter(i => i.amount > 100000));
+                    toast.success("Showing high value invoices");
+                  }}
+                  className="cursor-pointer rounded-md focus:bg-primary/5 focus:text-primary py-2 px-3 text-sm font-medium"
+                >
+                  <TrendingUp className="w-4 h-4 mr-2 opacity-70" />
+                  High value (₹1L+)
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setFilteredInvoices(invoices.filter(i => i.hasPendingDraft));
+                    toast.success("Showing invoices needing review");
+                  }}
+                  className="cursor-pointer rounded-md focus:bg-orange-500/5 focus:text-orange-600 py-2 px-3 text-sm font-bold text-orange-500"
+                >
+                  <BrainCircuit className="w-4 h-4 mr-2 opacity-70" />
+                  Needs AI review
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-border/50" />
+                <DropdownMenuItem
+                  onClick={() => {
+                    setFilteredInvoices(invoices);
+                    toast.info("All filters cleared");
+                  }}
+                  className="cursor-pointer rounded-md text-muted-foreground py-2 px-3 text-sm font-medium"
+                >
+                  Reset all filters
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div> */}
+        </div>
+      </div>
 
       {loading ? (
         <div className="flex flex-col items-center justify-center p-20 space-y-4">
@@ -1189,9 +1187,8 @@ export default function InvoicesPage() {
             />
           </div>
 
-          {/* Edit Invoice Dialog */}
           <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-            <DialogContent className="rounded-2xl max-w-lg border-border bg-card shadow-2xl p-0 overflow-hidden">
+            <DialogContent className="rounded-lg max-w-lg border-border bg-card shadow-2xl p-0 overflow-hidden">
               <div className="p-8">
                 <DialogHeader className="space-y-1 mb-8 text-left">
                   <DialogTitle className="text-2xl font-bold text-foreground">Manual Automation Override</DialogTitle>
@@ -1218,7 +1215,7 @@ export default function InvoicesPage() {
                     setIsEditModalOpen(false);
                   }
                 }} className="space-y-6">
-                  <div className="p-6 rounded-3xl bg-muted/30 border border-border/50 space-y-4">
+                  <div className="p-6 rounded-lg bg-muted/30 border border-border/50 space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <Label className="text-xs font-semibold uppercase text-muted-foreground">Follow-up Start Delay</Label>
@@ -1249,36 +1246,9 @@ export default function InvoicesPage() {
                         </div>
                       </div>
                     </div>
-
-                    {/* <div className="flex items-center justify-between pt-4">
-                      <div className="space-y-0.5">
-                        <Label className="text-xs font-semibold uppercase text-muted-foreground">Force current Stage</Label>
-                        <p className="text-[11px] text-muted-foreground font-medium">Jump to a specific step in the ladder.</p>
-                      </div>
-                      <select
-                        name="currentStage"
-                        defaultValue={editingInvoice?.currentStage ?? 1}
-                        className="h-10 px-3 rounded-xl border border-border bg-background text-xs font-bold"
-                      >
-                        {settings?.escalationLadder?.map((step: any, i: number) => (
-                          <option key={i} value={i + 1}>{step.label} (Stage {i + 1})</option>
-                        ))}
-                      </select>
-                    </div> */}
-
-                    {/* <div className="flex flex-col gap-2 pt-4">
-                      <Label className="text-xs font-semibold uppercase text-muted-foreground">Manual date Override (Next Action)</Label>
-                      <Input
-                        name="nextActionAt"
-                        type="date"
-                        defaultValue={editingInvoice?.nextActionAt ? new Date(editingInvoice.nextActionAt).toISOString().split('T')[0] : ''}
-                        className="h-10 rounded-xl border-border bg-background text-sm font-medium"
-                      />
-                      <p className="text-[10px] text-rose-500 font-bold uppercase italic">Warning: Setting this will bypass the auto-calculated schedule.</p>
-                    </div> */}
                   </div>
 
-                  <div className="flex items-center gap-3 bg-amber-500/5 p-4 rounded-2xl border border-amber-500/10">
+                  <div className="flex items-center gap-3 bg-amber-500/5 p-4 rounded-lg border border-amber-500/10">
                     <Zap className="h-4 w-4 text-amber-600 shrink-0" />
                     <p className="text-[11px] font-medium text-amber-800 leading-tight">
                       Changing this will immediately recalculate the next scheduled action date for this invoice.

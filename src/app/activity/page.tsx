@@ -36,9 +36,9 @@ export default function ActivityPage() {
    const [cleaning, setCleaning] = React.useState(false);
    const [error, setError] = React.useState<string | null>(null);
 
-   const [activeTab, setActiveTab] = React.useState<'all' | 'automated'  | 'drafts'>('all');
+   const [activeTab, setActiveTab] = React.useState<'all' | 'automated' | 'drafts'>('all');
    const [search, setSearch] = React.useState('');
-   
+
    // Pagination state
    const [currentPage, setCurrentPage] = React.useState(1);
    const pageSize = 10;
@@ -64,12 +64,12 @@ export default function ActivityPage() {
 
    const handleCleanup = async () => {
       if (!window.confirm("Are you sure you want to delete logs older than 20 days? This action cannot be undone.")) return;
-      
+
       try {
          setCleaning(true);
          const res = await fetch('/api/activity?olderThan=20', { method: 'DELETE' });
          const data = await res.json();
-         
+
          if (data.success) {
             toast.success(data.message);
             loadData(true);
@@ -196,7 +196,7 @@ export default function ActivityPage() {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
                         <Input
                            placeholder="Search engine logs..."
-                           className="pl-11 h-12 bg-card border-border rounded-2xl focus-visible:ring-primary shadow-sm"
+                           className="pl-11 h-12 bg-card border-border rounded-lg focus-visible:ring-primary shadow-sm font-medium"
                            value={search}
                            onChange={(e) => setSearch(e.target.value)}
                         />
@@ -204,7 +204,7 @@ export default function ActivityPage() {
                   </div>
                </div>
 
-               <Card className="rounded-[40px] border border-border/80 shadow-sm overflow-hidden backdrop-blur-md min-h-[500px]">
+               <Card className="rounded-lg border border-border/80 shadow-sm overflow-hidden backdrop-blur-md min-h-125">
                   <CardContent className="p-0">
                      {loading ? (
                         <div className="flex flex-col items-center justify-center p-32 space-y-6 text-center">
@@ -247,7 +247,7 @@ export default function ActivityPage() {
                                     <Button
                                        variant="outline"
                                        size="sm"
-                                       className="rounded-xl font-bold h-10 px-4"
+                                       className="rounded-lg font-bold h-10 px-4"
                                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                                        disabled={currentPage === 1}
                                     >
@@ -256,7 +256,7 @@ export default function ActivityPage() {
                                     <Button
                                        variant="outline"
                                        size="sm"
-                                       className="rounded-xl font-bold h-10 px-4"
+                                       className="rounded-lg font-bold h-10 px-4"
                                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                                        disabled={currentPage === totalPages}
                                     >
@@ -282,11 +282,11 @@ export default function ActivityPage() {
             {/* SIDEBAR ANALYTICS */}
             <div className="space-y-8">
                {/* AI INSIGHT CARD */}
-               <Card className="rounded-xl border-none shadow-2xl bg-linear-to-br from-indigo-700 via-indigo-600 to-primary dark:via-indigo-800 dark:to-indigo-900 text-white overflow-hidden p-8 relative">
+               <Card className="rounded-lg border-none shadow-2xl bg-linear-to-br from-indigo-700 via-indigo-600 to-primary text-white overflow-hidden p-8 relative">
                   <div className="absolute top-0 right-0 p-6 opacity-10">
                      <Sparkles className="h-20 w-20" />
                   </div>
-                  <h4 className="text-[12px] font-semibold uppercase text-indigo-100/70 tracking-widest mb-10">AI Performance Index</h4>
+                  <h4 className="text-[12px] font-bold text-indigo-100/70 tracking-widest mb-10">AI performance index</h4>
 
                   <div className="space-y-10">
                      <div>
@@ -298,53 +298,53 @@ export default function ActivityPage() {
                               <TrendingDown className="h-8 w-8 text-rose-400 drop-shadow-sm" />
                            )}
                         </div>
-                        <p className="text-[11px] font-bold text-indigo-100/60 uppercase tracking-widest leading-none">
-                           {stats.efficiency > 90 ? 'High Automation Impact' : 'Monitoring Efficiency'}
+                        <p className="text-[11px] font-bold text-indigo-100/60 tracking-widest leading-none">
+                           {stats.efficiency > 90 ? 'High automation impact' : 'Monitoring efficiency'}
                         </p>
                      </div>
 
                      <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden backdrop-blur-md">
-                        <div 
+                        <div
                            className={cn(
                               "h-full rounded-full shadow-[0_0_20px_rgba(52,211,153,0.5)] transition-all duration-1000",
                               stats.efficiency > 70 ? "bg-emerald-400" : "bg-amber-400"
-                           )} 
-                           style={{ width: `${stats.efficiency}%` }} 
+                           )}
+                           style={{ width: `${stats.efficiency}%` }}
                         />
                      </div>
 
                      <div className="pt-8 border-t border-white/10">
                         <div className="flex items-center justify-between mb-6">
                            <div>
-                              <p className="text-[10px] font-semibold uppercase text-indigo-100/50 mb-1">Queue Health</p>
-                              <span className="text-sm font-semibold whitespace-nowrap">{stats.Drafts} Actions Awaiting Review</span>
+                              <p className="text-[10px] font-bold text-indigo-100/50 mb-1">Queue health</p>
+                              <span className="text-sm font-bold whitespace-nowrap">{stats.Drafts} Actions awaiting review</span>
                            </div>
                            <div className="h-10 w-10 flex items-center justify-center bg-white/10 rounded-xl">
                               <ArrowRight className="w-5 h-5" />
                            </div>
                         </div>
                         <Button
-                           className="w-full  bg-gray-200 text-black hover:bg-gray-300 hover:text-black font-semibold text-xs uppercase py-7 rounded-xl"
+                           className="w-full bg-white text-primary hover:bg-white/90 font-bold text-xs py-7 rounded-lg shadow-xl shadow-white/10"
                            onClick={() => router.push('/invoices')}
                         >
-                           Review Action Queue
+                           Review action queue
                         </Button>
                      </div>
                   </div>
                </Card>
 
                {/* Channel Health Mini-Table */}
-               <Card className="p-8 rounded-[40px] border border-border bg-card shadow-sm">
-                  <h4 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-6">Omni-Channel Load</h4>
+               <Card className="p-8 rounded-lg border border-border bg-card shadow-sm">
+                  <h4 className="text-[10px] font-bold tracking-widest text-muted-foreground/60 mb-6">Omni-channel load</h4>
                   <div className="space-y-5">
                      {[
                         { label: 'Email Outreach', count: stats.Email, color: 'bg-blue-500' },
                         { label: 'WhatsApp / SMS', count: stats.WhatsApp + stats.SMS, color: 'bg-emerald-500' }
                      ].map(ch => (
                         <div key={ch.label} className="space-y-2">
-                           <div className="flex justify-between items-center text-[11px] font-semibold uppercase ">
+                           <div className="flex justify-between items-center text-[11px] font-bold ">
                               <span className="text-muted-foreground">{ch.label}</span>
-                              <span>{ch.count} Events</span>
+                              <span>{ch.count} events</span>
                            </div>
                            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                               <div className={cn("h-full rounded-full", ch.color)} style={{ width: `${Math.min(100, (ch.count / (activities.length || 1)) * 100)}%` }} />
@@ -361,14 +361,14 @@ export default function ActivityPage() {
 
 function QuickStat({ label, value, icon: Icon, color, bgColor }: any) {
    return (
-      <Card className="p-5  border border-border shadow-xs group">
-         <div className="flex items-center gap-4">
-            <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center ", bgColor)}>
+      <Card className="p-6 border border-border/50 shadow-sm hover:shadow-lg transition-all duration-300 group rounded-lg bg-white dark:bg-neutral-900">
+         <div className="flex items-center gap-5">
+            <div className={cn("h-12 w-12 rounded-lg flex items-center justify-center shrink-0 shadow-sm", bgColor)}>
                <Icon className={cn("w-6 h-6", color)} />
             </div>
             <div>
-               <h5 className="text-[12px] font-semibold text-muted-foreground uppercase  mb-0.5">{label}</h5>
-               <p className="text-xl font-semibold tabular-nums">{value}</p>
+               <h5 className="text-[11px] font-bold text-muted-foreground/60 tracking-wider mb-1.5">{label}</h5>
+               <p className="text-2xl font-bold text-foreground tabular-nums leading-none">{value}</p>
             </div>
          </div>
       </Card>

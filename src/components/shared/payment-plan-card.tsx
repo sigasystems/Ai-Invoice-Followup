@@ -13,7 +13,7 @@ interface PaymentPlanCardProps {
 
 export function PaymentPlanCard({ plan, className }: PaymentPlanCardProps) {
   return (
-    <div className={cn("p-5 border border-neutral-100 rounded-3xl bg-neutral-50/30 space-y-4", className)}>
+    <div className={cn("p-5 border border-border/50 rounded-lg bg-neutral-50/50 dark:bg-neutral-900/50 space-y-4", className)}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-primary" />

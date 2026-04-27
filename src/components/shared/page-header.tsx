@@ -10,10 +10,10 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, children, className }: PageHeaderProps) {
   return (
-    <div className={cn("flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-8 ", className)}>
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold  ">{title}</h1>
-        {description && <p className="text-sm text-muted-foreground">{description}</p>}
+    <div className={cn("flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-10", className)}>
+      <div className="space-y-1.5">
+        <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">{title}</h1>
+        {description && <p className="text-sm font-bold text-neutral-500/80 dark:text-neutral-400">{description}</p>}
       </div>
       {children && <div className="flex items-center gap-3 mt-4 sm:mt-0">{children}</div>}
     </div>

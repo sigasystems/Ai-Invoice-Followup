@@ -28,7 +28,7 @@ const navigation = [
 export function Sidebar({ isMobile }: { isMobile?: boolean }) {
   const pathname = usePathname();
   const { isCollapsed, toggleSidebar } = useSidebar();
-  
+
   // Force full width on mobile
   const collapsed = isMobile ? false : isCollapsed;
 
@@ -53,22 +53,23 @@ export function Sidebar({ isMobile }: { isMobile?: boolean }) {
 
       <div className={cn(
         "flex items-center h-16 shrink-0",
-        collapsed ? "justify-center" : "px-6 gap-2"
+        collapsed ? "justify-center" : "px-6 gap-3"
       )}>
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shrink-0">
-          <ShieldCheck className="w-5 h-5 text-primary-foreground" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary shrink-0 shadow-lg shadow-primary/30">
+          <ShieldCheck className="w-6 h-6 text-primary-foreground" />
         </div>
         {!collapsed && (
-          <span className="text-lg font-bold text-foreground tracking-tight ">
+          <span className="text-xl font-bold text-foreground tracking-tight">
             PayPilot
           </span>
         )}
       </div>
-      
+
       <nav className={cn(
-        "flex-1 py-6 space-y-1.5 overflow-y-auto custom-scrollbar",
+        "flex-1 py-8 space-y-2 overflow-y-auto custom-scrollbar",
         collapsed ? "px-3" : "px-4"
       )}>
+        <p className={cn("px-4 ] font-semibold mb-4", collapsed && "hidden")}>Menu</p>
         {navigation.map((item) => {
           const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
           return (
@@ -77,19 +78,19 @@ export function Sidebar({ isMobile }: { isMobile?: boolean }) {
               href={item.href}
               title={collapsed ? item.name : ""}
               className={cn(
-                "group flex items-center py-2.5 text-sm font-medium rounded-xl transition-all duration-200",
-                collapsed ? "justify-center px-0" : "px-3 gap-3",
+                "group flex items-center py-3 text-sm font-semibold rounded-lg transition-all duration-200",
+                collapsed ? "justify-center px-0" : "px-4 gap-4",
                 isActive
-                  ? "bg-primary/10 text-primary shadow-sm shadow-primary/20"
+                  ? "bg-primary text-white shadow-md shadow-primary/30"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
               )}
             >
               <item.icon className={cn(
                 "w-5 h-5 shrink-0 transition-colors",
-                isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                isActive ? "text-white" : "text-muted-foreground group-hover:text-foreground"
               )} />
               {!collapsed && (
-                <span className="">
+                <span>
                   {item.name}
                 </span>
               )}
@@ -102,7 +103,7 @@ export function Sidebar({ isMobile }: { isMobile?: boolean }) {
         "mt-auto border-t border-border/50 transition-all duration-300",
         collapsed ? "p-3" : "p-4"
       )}>
-        <button 
+        <button
           onClick={() => {
             if (window.confirm("Are you sure you want to logout?")) {
               logout();
@@ -110,7 +111,7 @@ export function Sidebar({ isMobile }: { isMobile?: boolean }) {
           }}
           title={collapsed ? "Logout" : ""}
           className={cn(
-            "flex items-center py-2.5 text-sm font-semibold text-rose-500 hover:bg-rose-50 rounded-xl transition-all group w-full",
+            "flex items-center py-2.5 text-sm font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-lg transition-all group w-full",
             collapsed ? "justify-center px-0" : "px-3 gap-3"
           )}
         >

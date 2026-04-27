@@ -179,7 +179,7 @@ export default function SignupPage() {
                     name="fullName"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel className=" font-bold uppercase tracking-widest text-[12px] ml-1 text-neutral-400">Full Name</FormLabel>
+                        <FormLabel className="font-bold tracking-wider text-[11px] ml-1 text-neutral-500">Full name</FormLabel>
                         <FormControl>
                           <div className="relative group">
                             <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-600 group-focus-within:text-primary transition-colors" />
@@ -196,7 +196,7 @@ export default function SignupPage() {
                     name="companyName"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel className=" font-bold uppercase tracking-widest text-[12px] ml-1 text-neutral-400">Company Name</FormLabel>
+                        <FormLabel className="font-bold tracking-wider text-[11px] ml-1 text-neutral-500">Company name</FormLabel>
                         <FormControl>
                           <div className="relative group">
                             <Building className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-600 group-focus-within:text-primary transition-colors" />
@@ -213,7 +213,7 @@ export default function SignupPage() {
                     name="email"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel className=" font-bold uppercase tracking-widest text-[12px] ml-1 text-neutral-400">Work Email</FormLabel>
+                        <FormLabel className="font-bold tracking-wider text-[11px] ml-1 text-neutral-500">Work email</FormLabel>
                         <FormControl>
                           <div className="relative group">
                             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-600 group-focus-within:text-primary transition-colors"/>
@@ -231,7 +231,7 @@ export default function SignupPage() {
                     name="password"
                     render={({ field }) => (
                       <FormItem className="space-y-2">
-                        <FormLabel className=" font-bold uppercase tracking-widest text-[12px] ml-1 text-neutral-400">Master Password</FormLabel>
+                        <FormLabel className="font-bold tracking-wider text-[11px] ml-1 text-neutral-500">Master password</FormLabel>
                         <FormControl>
                           <div className="relative group">
                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-600 group-focus-within:text-primary transition-colors" />
@@ -239,7 +239,7 @@ export default function SignupPage() {
                               type={showPassword ? "text" : "password"} 
                               placeholder="••••••••" 
                               {...field} 
-                              className="pl-12 pr-12 h-13  border-neutral-800 text-white placeholder:text-neutral-700 focus:ring-primary/40 focus:border-primary transition-all rounded-2xl" 
+                              className="pl-12 pr-12 h-13  border-neutral-800 text-white placeholder:text-neutral-700 focus:ring-primary/40 focus:border-primary transition-all rounded-lg" 
                             />
                             <button
                               type="button"
@@ -266,7 +266,7 @@ export default function SignupPage() {
                           <Checkbox
                             checked={field.value}
                             onCheckedChange={field.onChange}
-                            className="bg-neutral-900 border-neutral-800 rounded-lg shrink-0"
+                            className="bg-neutral-900 border-neutral-800 rounded-md shrink-0"
                           />
                         </FormControl>
                         <div className="leading-none">
@@ -283,7 +283,7 @@ export default function SignupPage() {
                 <Button 
                   type="submit" 
                   disabled={isLoading}
-                  className="w-full h-15 rounded-2xl text-lg font-black bg-primary hover:bg-primary/90 text-white shadow-2xl shadow-primary/30 transition-all hover:scale-[1.02] active:scale-[0.98] group mt-4"
+                  className="w-full h-15 rounded-lg text-lg font-black bg-primary hover:bg-primary/90 text-white shadow-2xl shadow-primary/30 transition-all hover:scale-[1.02] active:scale-[0.98] group mt-4"
                 >
                   <AnimatePresence mode="wait">
                     {isLoading ? (
@@ -295,7 +295,7 @@ export default function SignupPage() {
                         className="flex items-center gap-3"
                       >
                         <Loader2 className="h-6 w-6 animate-spin text-white/50" />
-                        <span>CREATING ACCOUNT...</span>
+                        <span>Creating account...</span>
                       </motion.div>
                     ) : (
                       <motion.div
@@ -305,7 +305,7 @@ export default function SignupPage() {
                         exit={{ opacity: 0 }}
                         className="flex items-center gap-3"
                       >
-                         <span>INITIALIZE TRIAL</span>
+                         <span>Initialize trial</span>
                         <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
                       </motion.div>
                     )}

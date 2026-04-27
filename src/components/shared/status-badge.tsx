@@ -27,8 +27,8 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     <Badge 
       variant="outline" 
       className={cn(
-        "rounded-full px-2.5 py-0.5 text-[11px] font-semibold border shadow-none",
-        config.color,
+        "rounded-md px-2.5 py-0.5 text-[11px] font-bold border-0 shadow-none ring-1 ring-inset",
+        config.color.replace('border-', 'ring-'),
         className
       )}
     >

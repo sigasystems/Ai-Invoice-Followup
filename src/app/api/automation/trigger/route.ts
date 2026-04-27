@@ -381,7 +381,7 @@ export async function POST(request: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, n8n_response: result });
+    return NextResponse.json({ success: true , status: 'Triggered',message: `Triggered n8n workflow for Stage ${invoice?.followUp?.currentStage} (${actualTone}).` });
 
   } catch (error: any) {
     console.error('[n8n trigger] Error:', error);
