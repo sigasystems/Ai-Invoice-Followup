@@ -185,7 +185,7 @@ export default function DashboardPage() {
         if (pendingCount > 0) {
           toast.message('AI drafts ready', {
             description: `${pendingCount} reminder${pendingCount > 1 ? 's' : ''} awaiting approval.`,
-            action: { label: 'Review', onClick: () => router.push('/invoices') },
+            action: { label: 'Review', onClick: () => router.push('/activity') },
           });
         }
       } catch (err) {
@@ -196,6 +196,7 @@ export default function DashboardPage() {
 
   /* ── Metrics ── */
   const totalOutstanding = invoices.reduce((a, i) => i.status !== 'Paid' ? a + i.amount : a, 0);
+  console.log('Total Outstanding', totalOutstanding);
 
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -280,7 +281,7 @@ export default function DashboardPage() {
           <FadeUp delay={0.05} className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-7">
             {pendingDrafts > 0 && (
               <button
-                onClick={() => router.push('/invoices')}
+                onClick={() => router.push('/activity')}
                 className="group flex items-center gap-3 px-4 py-3 rounded-2xl border border-amber-200/60 dark:border-amber-800/30 bg-amber-50/50 dark:bg-amber-950/20 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors text-left w-full"
               >
                 <div className="h-9 w-9 flex-none rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
@@ -320,9 +321,9 @@ export default function DashboardPage() {
       </AnimatePresence>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <KpiCard title="Total earning" value={compactCurrency(totalOutstanding)} fullValue={`₹${totalOutstanding.toLocaleString('en-IN')}`} pill="Pending collection" positive={false} icon={IndianRupee} delay={0.08} isPrimary={true} />
-        <KpiCard title="Total spending" value={compactCurrency(collectedThisMonth)} fullValue={`₹${collectedThisMonth.toLocaleString('en-IN')}`} pill="This month" positive={true} icon={TrendingUp} delay={0.16} />
-        <KpiCard title="Lead conversation" value={overdueCount.toString()} pill="Overdue" positive={false} icon={AlertCircle} delay={0.2} />
+        <KpiCard title="Total earning" value={`₹${totalOutstanding.toLocaleString('en-IN')}`} fullValue={`₹${totalOutstanding.toLocaleString('en-IN')}`} pill="Pending collection" positive={false} icon={IndianRupee} delay={0.08} isPrimary={true} />
+        <KpiCard title="Total spending" value={`₹${collectedThisMonth.toLocaleString('en-IN')}`} fullValue={`₹${collectedThisMonth.toLocaleString('en-IN')}`} pill="This month" positive={true} icon={TrendingUp} delay={0.16} />
+        <KpiCard title="Risk Count" value={overdueCount.toString()} pill="Overdue" positive={false} icon={AlertCircle} delay={0.2} />
         <KpiCard title="Goal this month" value={`${recoveryRate}%`} pill="Efficiency" positive={true} icon={Clock} delay={0.24} />
       </div>
 

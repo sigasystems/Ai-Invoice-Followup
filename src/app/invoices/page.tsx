@@ -56,6 +56,108 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { addDays, parseISO, isBefore, startOfDay, differenceInCalendarDays, format, isSameDay, formatDistanceToNow } from 'date-fns';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+const EditableStageCell = ({
+  value,
+  onSave,
+  escalationLadder,
+  isPaid,
+}: {
+  value: number,
+  onSave: (stage: number) => Promise<void>,
+  escalationLadder: any[],
+  isPaid: boolean
+}) => {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [tempStage, setTempStage] = React.useState(String(value));
+  const [isSaving, setIsSaving] = React.useState(false);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await onSave(parseInt(tempStage));
+      setIsEditing(false);
+      toast.success("Stage updated");
+    } catch (error) {
+      toast.error("Failed to update stage");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const currentStageData = escalationLadder[value];
+
+  if (isPaid) {
+    return (
+      <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-200/30">
+        <div className="p-1 rounded-lg bg-emerald-500/20">
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[11px] font-bold text-emerald-600">Paid</span>
+          <span className="text-[10px] font-bold text-emerald-500 mt-0.5">No further action</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="group flex flex-col py-1">
+      <Popover open={isEditing} onOpenChange={setIsEditing}>
+        <PopoverTrigger >
+          <Button variant="ghost" size="sm" className="h-8 px-2 -ml-2 w-fit rounded-lg hover:bg-primary/10 transition-colors flex items-center gap-2 text-left">
+            <div className={cn(
+              "w-2 h-2 rounded-full",
+              value === 0 ? "bg-blue-500" : value < escalationLadder.length - 1 ? "bg-amber-500" : "bg-red-500"
+            )} />
+            <span className="text-[12px] font-bold text-foreground">{currentStageData?.label || `Stage ${value}`}</span>
+            <Pencil className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-64 p-3 rounded-lg shadow-2xl border-border bg-card z-50">
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold text-muted-foreground">Select Automation Stage</h4>
+            <Select value={tempStage} onValueChange={(val) => {
+              if (val !== null) setTempStage(val);
+            }}>
+              <SelectTrigger className="h-9 text-xs rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="rounded-lg z-50">
+                {escalationLadder.map((stage, index) => (
+                  <SelectItem key={index} value={String(index +1)} className="text-xs">
+                    Stage {index + 1}: {stage.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex gap-2">
+              <Button size="sm" className="h-8 flex-1 rounded-lg" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save"}
+              </Button>
+              <Button size="sm" variant="outline" className="h-8 flex-1 rounded-lg" onClick={() => setIsEditing(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+      <div className="flex flex-col min-w-32 pl-4">
+        <span className="text-[11px] font-bold text-muted-foreground flex items-center gap-1.5">
+          <BrainCircuit className="w-3.5 h-3.5 text-primary opacity-70" />
+          AI Tone: <span className="text-primary italic">{currentStageData?.tone}</span>
+        </span>
+      </div>
+    </div>
+  );
+};
 
 const EditableDateCell = ({
   value,
@@ -473,7 +575,21 @@ export default function InvoicesPage() {
     },
     {
       accessorKey: 'currentStage',
-      header: 'Automation Lifecycle',
+      header: 'Automation Stage',
+      cell: ({ row }) => (
+        <EditableStageCell
+          value={row.original.currentStage || 0}
+          escalationLadder={settings?.escalationLadder || []}
+          isPaid={row.original.status === 'Paid'}
+          onSave={async (stage) => {
+            await updateInvoice(row.original.id, { currentStage: stage });
+          }}
+        />
+      ),
+    },
+    {
+      accessorKey: 'lifecycleDetails',
+      header: 'Progress & Timeline',
       cell: ({ row }) => {
         const currentStage = row.original.currentStage || 0;
         const ladder = settings?.escalationLadder || [];
@@ -1110,65 +1226,8 @@ export default function InvoicesPage() {
         {/* Row 2: Search & Advanced Filters */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2">
           <div className="flex-1 max-w-2xl">
-             {/* Search is handled inside DataTable component below */}
+            {/* Search is handled inside DataTable component below */}
           </div>
-
-          {/* <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger render={
-                <Button variant="outline" className="h-10 rounded-lg px-4 font-bold text-xs gap-2 border-border/60 bg-card hover:bg-muted transition-all">
-                  <Filter className="w-3.5 h-3.5 text-muted-foreground" />
-                  Advanced filters
-                </Button>
-              } />
-              <DropdownMenuContent align="end" className="w-56 rounded-lg border-border shadow-xl p-1">
-                <DropdownMenuLabel className="text-[10px] font-bold text-muted-foreground/60 tracking-widest px-2 py-1.5 uppercase">Smart views</DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-border/50" />
-                <DropdownMenuItem
-                  onClick={() => {
-                    const thirtyDaysAgo = new Date();
-                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                    setFilteredInvoices(invoices.filter(i => new Date(i.issueDate) >= thirtyDaysAgo));
-                    toast.success("Showing recent invoices (30d)");
-                  }}
-                  className="cursor-pointer rounded-md focus:bg-primary/5 focus:text-primary py-2 px-3 text-sm font-medium"
-                >
-                  <Zap className="w-4 h-4 mr-2 opacity-70" />
-                  Recent (Last 30 days)
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setFilteredInvoices(invoices.filter(i => i.amount > 100000));
-                    toast.success("Showing high value invoices");
-                  }}
-                  className="cursor-pointer rounded-md focus:bg-primary/5 focus:text-primary py-2 px-3 text-sm font-medium"
-                >
-                  <TrendingUp className="w-4 h-4 mr-2 opacity-70" />
-                  High value (₹1L+)
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setFilteredInvoices(invoices.filter(i => i.hasPendingDraft));
-                    toast.success("Showing invoices needing review");
-                  }}
-                  className="cursor-pointer rounded-md focus:bg-orange-500/5 focus:text-orange-600 py-2 px-3 text-sm font-bold text-orange-500"
-                >
-                  <BrainCircuit className="w-4 h-4 mr-2 opacity-70" />
-                  Needs AI review
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-border/50" />
-                <DropdownMenuItem
-                  onClick={() => {
-                    setFilteredInvoices(invoices);
-                    toast.info("All filters cleared");
-                  }}
-                  className="cursor-pointer rounded-md text-muted-foreground py-2 px-3 text-sm font-medium"
-                >
-                  Reset all filters
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div> */}
         </div>
       </div>
 
