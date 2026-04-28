@@ -1223,12 +1223,6 @@ export default function InvoicesPage() {
           </div>
         </div>
 
-        {/* Row 2: Search & Advanced Filters */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2">
-          <div className="flex-1 max-w-2xl">
-            {/* Search is handled inside DataTable component below */}
-          </div>
-        </div>
       </div>
 
       {loading ? (

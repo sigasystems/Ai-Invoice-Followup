@@ -88,7 +88,7 @@ export default function InvoiceDetailPage() {
 
             <div className="grid grid-cols-12 gap-8 items-start">
                {/* LEFT COLUMN: Customer & Risk Card */}
-               <div className="col-span-12 lg:col-span-4 space-y-8">
+               <div className="col-span-12 xl:col-span-4 space-y-8">
                   <Card className="border border-border/50 shadow-xl shadow-neutral-900/5 dark:shadow-black/20 overflow-hidden p-8 rounded-lg bg-white dark:bg-neutral-900">
                      <div className="space-y-8">
                         <div className="flex items-center gap-5">
@@ -202,7 +202,7 @@ export default function InvoiceDetailPage() {
                </div>
 
                {/* MAIN CONTENT: Hero Amount & Timeline */}
-               <div className="col-span-12 lg:col-span-8 space-y-8">
+               <div className="col-span-12 xl:col-span-8 space-y-8">
                   {/* HERO AMOUNT CARD */}
                   <Card className="border border-border/50 shadow-xl shadow-neutral-900/5 dark:shadow-black/20 overflow-hidden rounded-lg bg-white dark:bg-neutral-900">
                      <div className="p-10 relative overflow-hidden">

@@ -320,15 +320,15 @@ export default function DashboardPage() {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
         <KpiCard title="Total earning" value={`₹${totalOutstanding.toLocaleString('en-IN')}`} fullValue={`₹${totalOutstanding.toLocaleString('en-IN')}`} pill="Pending collection" positive={false} icon={IndianRupee} delay={0.08} isPrimary={true} />
         <KpiCard title="Total spending" value={`₹${collectedThisMonth.toLocaleString('en-IN')}`} fullValue={`₹${collectedThisMonth.toLocaleString('en-IN')}`} pill="This month" positive={true} icon={TrendingUp} delay={0.16} />
         <KpiCard title="Risk Count" value={overdueCount.toString()} pill="Overdue" positive={false} icon={AlertCircle} delay={0.2} />
         <KpiCard title="Goal this month" value={`${recoveryRate}%`} pill="Efficiency" positive={true} icon={Clock} delay={0.24} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
-        <FadeUp delay={0.28} className="lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-3 gap-5 mb-5">
+        <FadeUp delay={0.28} className="xl:col-span-2">
           <Shell className="h-full">
             <SectionHead title="Revenue dynamics" sub="Monthly invoiced vs. recovered" />
             <div className="flex items-center justify-between px-5 pt-0 pb-4">
@@ -387,8 +387,8 @@ export default function DashboardPage() {
         </FadeUp>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <FadeUp delay={0.36} className="lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-3 gap-6">
+        <FadeUp delay={0.36} className="xl:col-span-2">
           <Shell className="h-full">
             <SectionHead title="New invoice" sub="Recently generated records" action="View all" onAction={() => router.push('/invoices')} />
             <div className="overflow-x-auto">

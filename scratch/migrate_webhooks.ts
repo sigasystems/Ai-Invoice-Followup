@@ -9,7 +9,6 @@ async function main() {
   });
 
   if (!settings) {
-    console.log('No settings found.');
     return;
   }
 
@@ -19,13 +18,11 @@ async function main() {
   if (settings.writeWebhook?.includes('/webhook-test/')) {
     updates.writeWebhook = settings.writeWebhook.replace('/webhook-test/', '/webhook/');
     updated = true;
-    console.log(`Updating writeWebhook to: ${updates.writeWebhook}`);
   }
 
   if (settings.readWebhook?.includes('/webhook-test/')) {
     updates.readWebhook = settings.readWebhook.replace('/webhook-test/', '/webhook/');
     updated = true;
-    console.log(`Updating readWebhook to: ${updates.readWebhook}`);
   }
 
   if (updated) {
@@ -33,9 +30,7 @@ async function main() {
       where: { id: 'global_config' },
       data: updates,
     });
-    console.log('Settings updated successfully to Production URLs.');
   } else {
-    console.log('URLs are already in production format or not using n8n test paths.');
   }
 }
 

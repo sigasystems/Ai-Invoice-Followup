@@ -628,7 +628,7 @@ export default function CustomersPage() {
         />
 
         {/* ── Stats row ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-3">
           <StatCard
             icon={Building2}
             label="Total"

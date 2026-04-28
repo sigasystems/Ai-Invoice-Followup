@@ -35,7 +35,7 @@ export function Sidebar({ isMobile }: { isMobile?: boolean }) {
   return (
     <div className={cn(
       "flex flex-col h-full bg-background border-r border-border transition-all duration-300 relative",
-      collapsed ? "w-20" : "w-64 lg:w-72"
+      collapsed ? "w-20" : "w-64 xl:w-72"
     )}>
       {/* Collapse Toggle Button - Hide on mobile */}
       {!isMobile && (

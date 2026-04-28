@@ -101,8 +101,8 @@ export default function CustomerDetailPage() {
             </Button>
          </PageHeader>
 
-         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <div className="lg:col-span-1 space-y-6">
+         <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+            <div className="xl:col-span-1 space-y-6">
                {/* Risk Summary */}
                <Card className={cn(
                   "rounded-lg border-none shadow-xl text-white p-8 relative overflow-hidden",
@@ -157,7 +157,7 @@ export default function CustomerDetailPage() {
                </Card>
             </div>
 
-            <div className="lg:col-span-3 space-y-8">
+            <div className="xl:col-span-3 space-y-8">
                {/* Financial Recap */}
                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className=" p-6 rounded-lg border border-border/50 bg-white dark:bg-neutral-900 shadow-xl shadow-neutral-900/5 dark:shadow-black/20 flex flex-col gap-1.5">

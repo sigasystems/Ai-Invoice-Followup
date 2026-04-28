@@ -173,16 +173,16 @@ export default function ActivityPage() {
          </PageHeader>
 
          {/* STATS OVERVIEW */}
-         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
             <QuickStat label="Automated Drafts" value={stats.Drafts} icon={MailCheck} color="text-orange-500" bgColor="bg-orange-500/10" />
             <QuickStat label="Email Outreach" value={stats.Email} icon={Mail} color="text-blue-500" bgColor="bg-blue-500/10" />
             <QuickStat label="WhatsApp Messages" value={stats.WhatsApp} icon={MessageSquare} color="text-emerald-500" bgColor="bg-emerald-500/10" />
             <QuickStat label="Manual Tasks" value={stats.SMS} icon={PhoneCall} color="text-purple-500" bgColor="bg-purple-500/10" />
          </div>
 
-         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+         <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-4 gap-8">
             {/* MAIN CONTENT AREA */}
-            <div className="lg:col-span-3 space-y-6">
+            <div className="xl:col-span-3 space-y-6">
                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                   <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full sm:w-auto">
                      <TabsList className="h-12 p-1 bg-muted/50 rounded-xl border border-border">

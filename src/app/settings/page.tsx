@@ -188,10 +188,10 @@ export default function SettingsPage() {
         </Button>
       </PageHeader>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 mt-8">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 mt-8">
 
         {/* Sidebar Nav */}
-        <div className="lg:col-span-3 space-y-1">
+        <div className="xl:col-span-3 space-y-1">
           <p className="px-4 text-[12px] font-bold text-muted-foreground/60 tracking-wider mb-4">Configuration</p>
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -215,7 +215,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Content Area */}
-        <div className="lg:col-span-9 animate-in fade-in slide-in-from-right-4 duration-500">
+        <div className="xl:col-span-9 animate-in fade-in slide-in-from-right-4 duration-500">
 
           {activeTab === 'ladder' && (
             <div className="space-y-8">
@@ -321,7 +321,7 @@ export default function SettingsPage() {
                     );
                   })}
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-10 pt-10 border-t border-border/50">
+                  <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6 mt-10 pt-10 border-t border-border/50">
                     {[
                       { id: 'createDraftsOnly', label: 'Human Review', sub: 'Queue as Gmail drafts', icon: ShieldCheck, color: 'text-emerald-500' },
                       { id: 'smartEscalation', label: 'Smart Direct', sub: 'Auto-detect owner mail', icon: BrainCircuit, color: 'text-indigo-500' },
