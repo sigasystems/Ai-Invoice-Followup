@@ -66,7 +66,7 @@ export function Topbar() {
   }, [searchQuery, data]);
 
   return (
-    <header className="sticky top-0 z-30 h-18 w-full flex items-center justify-between px-6 lg:px-10 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm border-b border-border shadow-sm">
+    <header className="sticky top-0 z-30 h-18 w-full flex items-center justify-between px-6 lg:px-8 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm border-b border-border shadow-sm">
       <div className="flex-1 flex items-center gap-6">
         <Sheet>
           <SheetTrigger render={<Button variant="ghost" size="icon" className="lg:hidden h-11 w-11 p-0 hover:bg-accent rounded-lg" />}>
@@ -84,7 +84,7 @@ export function Topbar() {
           <span className="text-sm font-bold text-muted-foreground">Dashboard</span>
         </div> */}
 
-        <div className="relative max-w-md w-full hidden md:block group ml-auto lg:ml-10">
+        <div className="relative max-w-md w-full hidden sm:block group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 group-focus-within:text-primary transition-colors" />
           <Input
             placeholder="Search everything..."
