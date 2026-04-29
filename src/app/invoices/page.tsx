@@ -76,7 +76,7 @@ const EditableStageCell = ({
   isPaid: boolean
 }) => {
   const [isEditing, setIsEditing] = React.useState(false);
-  const [tempStage, setTempStage] = React.useState(String(value));
+  const [tempStage, setTempStage] = React.useState(String(value+1));
   const [isSaving, setIsSaving] = React.useState(false);
 
   const handleSave = async () => {
@@ -130,7 +130,7 @@ const EditableStageCell = ({
               </SelectTrigger>
               <SelectContent className="rounded-lg z-50">
                 {escalationLadder.map((stage, index) => (
-                  <SelectItem key={index} value={String(index +1)} className="text-xs">
+                  <SelectItem key={index + 1} value={String(index + 1)} className="text-xs">
                     Stage {index + 1}: {stage.label}
                   </SelectItem>
                 ))}
