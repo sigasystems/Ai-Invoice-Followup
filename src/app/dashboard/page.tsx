@@ -282,7 +282,7 @@ export default function DashboardPage() {
             {pendingDrafts > 0 && (
               <button
                 onClick={() => router.push('/activity')}
-                className="group flex items-center gap-3 px-4 py-3 rounded-2xl border border-amber-200/60 dark:border-amber-800/30 bg-amber-50/50 dark:bg-amber-950/20 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors text-left w-full"
+                className="group flex items-center gap-3 px-4 py-3 rounded-2xl border border-amber-200/60 dark:border-amber-800/30 bg-amber-50/50 dark:bg-amber-950/20 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors text-left w-full cursor-pointer"
               >
                 <div className="h-9 w-9 flex-none rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
                   <Mail className="w-4 h-4 text-amber-600 dark:text-amber-400" />

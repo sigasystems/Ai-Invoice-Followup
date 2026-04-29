@@ -7038,7 +7038,7 @@ export namespace Prisma {
     status?: $Enums.InvoiceStatus
     startFollowups?: number | null
     followupStartDate?: Date | string | null
-    currentStage?: number
+    currentStage: number
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null
@@ -7063,7 +7063,7 @@ export namespace Prisma {
     status?: $Enums.InvoiceStatus
     startFollowups?: number | null
     followupStartDate?: Date | string | null
-    currentStage?: number
+    currentStage: number
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null
@@ -7138,7 +7138,7 @@ export namespace Prisma {
     status?: $Enums.InvoiceStatus
     startFollowups?: number | null
     followupStartDate?: Date | string | null
-    currentStage?: number
+    currentStage: number
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null
@@ -8512,7 +8512,7 @@ export namespace Prisma {
     status?: $Enums.InvoiceStatus
     startFollowups?: number | null
     followupStartDate?: Date | string | null
-    currentStage?: number
+    currentStage: number
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null
@@ -8536,7 +8536,7 @@ export namespace Prisma {
     status?: $Enums.InvoiceStatus
     startFollowups?: number | null
     followupStartDate?: Date | string | null
-    currentStage?: number
+    currentStage: number
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null
@@ -8726,7 +8726,7 @@ export namespace Prisma {
     status?: $Enums.InvoiceStatus
     startFollowups?: number | null
     followupStartDate?: Date | string | null
-    currentStage?: number
+    currentStage: number
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null
@@ -8750,7 +8750,7 @@ export namespace Prisma {
     status?: $Enums.InvoiceStatus
     startFollowups?: number | null
     followupStartDate?: Date | string | null
-    currentStage?: number
+    currentStage: number
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null
@@ -8838,7 +8838,7 @@ export namespace Prisma {
     status?: $Enums.InvoiceStatus
     startFollowups?: number | null
     followupStartDate?: Date | string | null
-    currentStage?: number
+    currentStage: number
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null

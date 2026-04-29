@@ -111,15 +111,13 @@ const EditableStageCell = ({
   return (
     <div className="group flex flex-col py-1">
       <Popover open={isEditing} onOpenChange={setIsEditing}>
-        <PopoverTrigger >
-          <Button variant="ghost" size="sm" className="h-8 px-2 -ml-2 w-fit rounded-lg hover:bg-primary/10 transition-colors flex items-center gap-2 text-left">
-            <div className={cn(
-              "w-2 h-2 rounded-full",
-              value === 0 ? "bg-blue-500" : value < escalationLadder.length - 1 ? "bg-amber-500" : "bg-red-500"
-            )} />
-            <span className="text-[12px] font-bold text-foreground">{currentStageData?.label || `Stage ${value}`}</span>
-            <Pencil className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground" />
-          </Button>
+        <PopoverTrigger render={<Button variant="ghost" size="sm" className="h-8 px-2 -ml-2 w-fit rounded-lg hover:bg-primary/10 transition-colors flex items-center gap-2 text-left" />}>
+          <div className={cn(
+            "w-2 h-2 rounded-full",
+            value === 0 ? "bg-blue-500" : value < escalationLadder.length - 1 ? "bg-amber-500" : "bg-red-500"
+          )} />
+          <span className="text-[12px] font-bold text-foreground">{currentStageData?.label || `Stage ${value}`}</span>
+          <Pencil className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground" />
         </PopoverTrigger>
         <PopoverContent className="w-64 p-3 rounded-lg shadow-2xl border-border bg-card z-50">
           <div className="space-y-3">
@@ -607,9 +605,11 @@ export default function InvoicesPage() {
           const nextDate = new Date(row.original.nextActionAt);
           const today = new Date();
 
-          // Use differenceInCalendarDays which handles the date part correctly across timezones
-          daysLeft = differenceInCalendarDays(nextDate, today);
-          formattedCheckDate = format(nextDate, 'dd/MM');
+          if (!isNaN(nextDate.getTime())) {
+            // Use differenceInCalendarDays which handles the date part correctly across timezones
+            daysLeft = differenceInCalendarDays(nextDate, today);
+            formattedCheckDate = format(nextDate, 'dd/MM');
+          }
         }
 
         // ✅ ESCALATION STATE

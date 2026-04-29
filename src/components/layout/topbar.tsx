@@ -77,20 +77,13 @@ export function Topbar() {
           </SheetContent>
         </Sheet>
 
-        {/* <div className="hidden lg:flex items-center gap-3">
-          <div className="h-8 w-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary">
-             <ChevronRight className="w-4 h-4 rotate-180" />
-          </div>
-          <span className="text-sm font-bold text-muted-foreground">Dashboard</span>
-        </div> */}
-
         <div className="relative max-w-md w-full hidden sm:block group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 group-focus-within:text-primary transition-colors" />
           <Input
             placeholder="Search everything..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-11 h-11 w-full bg-muted/40 border border-border/50 rounded-lg focus-visible:ring-primary focus-visible:bg-white transition-all text-sm font-bold text-neutral-900 dark:text-neutral-100 placeholder:text-muted-foreground/50"
+            className="pl-11 h-11 w-full bg-muted/40 border border-border/50 rounded-lg focus-visible:ring-primary focus-visible:bg-white transition-all text-sm font-semibold text-neutral-900 dark:text-neutral-100 placeholder:text-muted-foreground/50"
           />
 
           {/* Search Results Dropdown */}

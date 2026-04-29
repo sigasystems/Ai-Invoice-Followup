@@ -20,7 +20,12 @@ export async function PATCH(
     }
 
     if (lastSentStage !== undefined) {
-      updateData.lastSentStage = lastSentStage === null ? null : parseInt(String(lastSentStage));
+      if (lastSentStage === null) {
+        updateData.lastSentStage = null;
+      } else {
+        const parsed = parseInt(String(lastSentStage));
+        if (!isNaN(parsed)) updateData.lastSentStage = parsed;
+      }
     }
     if (status) {
       let prismaStatus: InvoiceStatus;
@@ -41,7 +46,12 @@ export async function PATCH(
     }
 
     if (startFollowups !== undefined) {
-      updateData.startFollowups = startFollowups === null ? null : parseInt(String(startFollowups));
+      if (startFollowups === null) {
+        updateData.startFollowups = null;
+      } else {
+        const parsed = parseInt(String(startFollowups));
+        if (!isNaN(parsed)) updateData.startFollowups = parsed;
+      }
     }
 
     if (hasPendingDraft !== undefined) {
@@ -52,8 +62,11 @@ export async function PATCH(
       updateData.gmailDraftId = String(gmailDraftId);
     }
 
-    if (currentStage !== undefined) {
-      updateData.currentStage = parseInt(String(currentStage));
+    if (currentStage !== undefined && currentStage !== null) {
+      const parsed = parseInt(String(currentStage));
+      if (!isNaN(parsed)) {
+        updateData.currentStage = parsed;
+      }
     }
 
     if (nextActionAt !== undefined) {
