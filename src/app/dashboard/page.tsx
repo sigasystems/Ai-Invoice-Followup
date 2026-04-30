@@ -73,7 +73,7 @@ function KpiCard({ title, value, fullValue, pill, positive, icon: Icon, delay = 
         )}
       >
         <div className="flex items-center justify-between">
-          <span className={cn("text-sm font-bold opacity-70", isPrimary ? "text-white" : "text-BLACK/80")}>
+          <span className={cn("text-sm font-bold opacity-70", isPrimary ? "text-white" : "text-foreground/80")}>
             {title}
           </span>
           <div className={cn(
@@ -101,9 +101,9 @@ function ChartTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-lg px-4 py-3 text-xs">
-      <p className="font-medium text-neutral-600 dark: mb-2">{label}</p>
+      <p className="font-medium text-neutral-600 dark:text-neutral-400 mb-2">{label}</p>
       {payload.map((p: any) => (
-        <div key={p.name} className="flex items-center gap-2 text-neutral-500 dark: mb-1 last:mb-0">
+        <div key={p.name} className="flex items-center gap-2 text-neutral-500 dark:text-neutral-400 mb-1 last:mb-0">
           <span className="h-2 w-2 rounded-full flex-none" style={{ background: p.stroke }} />
           <span>{p.name}:</span>
           <span className="font-medium text-neutral-800 dark:text-neutral-200">
@@ -259,6 +259,41 @@ export default function DashboardPage() {
 
   const agingMax = Math.max(...agingData.map(a => a.value), 1);
 
+  const handleDownloadAudit = () => {
+    if (invoices.length === 0) {
+      toast.error("No data available for audit report");
+      return;
+    }
+
+    try {
+      const headers = ["Invoice ID", "Customer Name", "Issue Date", "Amount (INR)", "Status", "Days Overdue"];
+      const csvRows = invoices.map(inv => [
+        inv.invoice_number,
+        inv.customerName,
+        new Date(inv.issueDate).toLocaleDateString(),
+        inv.amount,
+        inv.status,
+        inv.daysSinceIssue || 0
+      ].join(","));
+
+      const csvContent = [headers.join(","), ...csvRows].join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `paypilot_audit_report_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success("Audit report generated and downloaded.");
+    } catch (err) {
+      toast.error("Failed to generate audit report.");
+      console.error(err);
+    }
+  };
+
   if (!mounted) return null;
 
   return (
@@ -269,6 +304,7 @@ export default function DashboardPage() {
       >
         <Button
           variant="outline"
+          onClick={handleDownloadAudit}
           className="rounded-xl text-xs font-medium gap-2 border-neutral-200 dark:border-neutral-700 h-9 px-4"
         >
           <Download className="w-3.5 h-3.5" />
