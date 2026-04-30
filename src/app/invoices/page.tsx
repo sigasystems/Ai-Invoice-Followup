@@ -345,6 +345,68 @@ export default function InvoicesPage() {
     }
   };
 
+  const handleBulkDelete = async (selectedInvoices: Invoice[]) => {
+    if (!window.confirm(`Are you sure you want to delete ${selectedInvoices.length} selected invoices?`)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const deletePromises = selectedInvoices.map(inv => 
+        fetch(`/api/invoices/${inv.id}`, { method: 'DELETE' })
+      );
+      
+      const results = await Promise.all(deletePromises);
+      const failed = results.filter(r => !r.ok);
+      
+      if (failed.length > 0) {
+        toast.error(`Failed to delete ${failed.length} invoices`);
+      } else {
+        toast.success(`Successfully deleted ${selectedInvoices.length} invoices`);
+      }
+      
+      loadData();
+    } catch (err: any) {
+      toast.error(`Bulk Delete Failed: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const bulkActions = [
+    {
+      label: 'Send Reminders',
+      icon: Send,
+      onClick: async (selected: Invoice[]) => {
+        if (!window.confirm(`Trigger automated reminders for ${selected.length} invoices?`)) return;
+        
+        setLoading(true);
+        let success = 0;
+        for (const inv of selected) {
+          const result = await triggerN8nWorkflow('trigger-reminder', {
+            invoice_id: inv.id,
+            client_name: inv.customerName,
+            client_email: inv.customerEmail,
+            amount: inv.amount,
+            due_date: inv.dueDate,
+            issue_date: inv.issueDate,
+            status: inv.status,
+            startFollowups: inv.startFollowups,
+            currentStage: inv.currentStage,
+            notes: 'Batch reminder triggered from dashboard'
+          });
+          if (result) success++;
+        }
+        
+        setLoading(false);
+        if (success > 0) {
+          toast.success(`Successfully triggered ${success} reminders`);
+          loadData();
+        }
+      }
+    }
+  ];
+
   React.useEffect(() => {
     if (activeTab === 'All') {
       setFilteredInvoices(invoices);
@@ -1237,6 +1299,8 @@ export default function InvoicesPage() {
               columns={columns}
               data={filteredInvoices}
               filterKey="customerName"
+              onBulkDelete={handleBulkDelete}
+              bulkActions={bulkActions}
             />
           </div>
 

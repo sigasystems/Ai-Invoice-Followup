@@ -18,14 +18,7 @@ import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { DataTable } from '@/components/shared/data-table';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -497,9 +490,6 @@ export default function CustomersPage() {
   const [customers, setCustomers] = React.useState<Customer[]>([]);
   const [ladder, setLadder] = React.useState<LadderStep[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const router = useRouter();
 
   // Invoice Modal State
@@ -593,6 +583,7 @@ export default function CustomersPage() {
     }
   };
 
+
   // Derived metrics
   const total = customers.length;
   const low = customers.filter((c) => c.riskLevel === 'Low').length;
@@ -602,20 +593,6 @@ export default function CustomersPage() {
   const escalated = customers.filter((c) => c.escalationReached).length;
 
   const columns = React.useMemo(() => buildColumns(ladder), [ladder]);
-
-  const table = useReactTable({
-    data: customers,
-    columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    initialState: { pagination: { pageSize: 15 } },
-    state: { sorting, columnFilters, columnVisibility },
-  });
 
   const activeLadder = ladder.length > 0 ? ladder : DEFAULT_LADDER;
 
@@ -751,168 +728,33 @@ export default function CustomersPage() {
         )}
 
         {/* ── Table ── */}
-        <div className=" rounded-xl border  shadow-sm overflow-hidden">
-
-          {/* Toolbar */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-b ">
-            <div className="relative w-full sm:max-w-xs group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/60 group-focus-within:text-primary transition-colors pointer-events-none" />
-              <Input
-                placeholder="Search customers…"
-                value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-                onChange={(e) => table.getColumn('name')?.setFilterValue(e.target.value)}
-                className="pl-9 h-9 rounded-lg border-transparent bg-muted/40 focus-visible:ring-primary focus-visible:bg-white transition-all text-sm font-medium"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs  font-medium hidden sm:block">
-                {table.getFilteredRowModel().rows.length} customers
-              </span>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-8 rounded-lg px-3 text-xs font-medium gap-1.5 border-slate-200"
-                    >
-                      <Settings2 className="h-3.5 w-3.5" />
-                      Columns
-                    </Button>
-                  }
-                />
-                <DropdownMenuContent
-                  align="end"
-                  className="rounded-xl  shadow-lg p-1.5 w-48 "
-                >
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel className="text-[10px] font-bold text-muted-foreground/60 tracking-wider px-2 py-1">
-                      Toggle columns
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator className="bg-slate-100 my-1" />
-                    {table
-                      .getAllColumns()
-                      .filter((c) => c.getCanHide())
-                      .map((col) => (
-                        <DropdownMenuCheckboxItem
-                          key={col.id}
-                          className="text-xs font-medium text-slate-700 rounded-lg focus:bg-slate-50 cursor-pointer"
-                          checked={col.getIsVisible()}
-                          onCheckedChange={(v) => col.toggleVisibility(!!v)}
-                        >
-                          {col.id.replace(/([A-Z])/g, ' $1').trim()}
-                        </DropdownMenuCheckboxItem>
-                      ))}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-
-          {/* Table body */}
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-24 gap-3">
-              <div className="relative h-10 w-10">
-                <div className="h-10 w-10 border-2  rounded-full" />
-                <div className="h-10 w-10 border-2 border-blue-400 border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
-              </div>
-              <p className="text-sm ">Loading customers…</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader className=" border-b ">
-                  {table.getHeaderGroups().map((hg) => (
-                    <TableRow key={hg.id} className="hover:bg-transparent border-none">
-                      {hg.headers.map((h) => (
-                        <TableHead key={h.id} className="h-10 px-4 py-2 whitespace-nowrap">
-                          {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {table.getRowModel().rows.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow
-                        key={row.id}
-                        className="group/row border-b border-slate-50 last:border-0 /60 transition-colors duration-100"
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id} className="px-4 py-3 align-middle">
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={columns.length} className="h-48 text-center">
-                        <div className="flex flex-col items-center gap-2">
-                          <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                            <Users className="h-5 w-5 " />
-                          </div>
-                          <p className="text-sm font-medium ">No customers found</p>
-                          <p className="text-xs ">Try adjusting your search.</p>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-
-          {/* Pagination */}
-          {!loading && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t">
-              <div className="flex items-center gap-2 text-[11px] ">
-                <div className="h-1.5 w-1.5 rounded-full animate-pulse" />
-                {table.getFilteredRowModel().rows.length} of {total} · live
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1 text-[11px] ">
-                  Rows:
-                  <select
-                    value={table.getState().pagination.pageSize}
-                    onChange={(e) => table.setPageSize(Number(e.target.value))}
-                    className="bg-transparent text-[11px] font-semibold text-blue-500 focus:outline-none cursor-pointer ml-1"
-                  >
-                    {[10, 15, 25, 50].map((s) => (
-                      <option key={s} value={s} className=" text-slate-700">
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <span className="text-[11px] ">
-                  Page {table.getState().pagination.pageIndex + 1} /{' '}
-                  {table.getPageCount() || 1}
-                </span>
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                    className="h-7 w-7 p-0 rounded-lg border-slate-200 hover:bg-slate-100 disabled:opacity-30"
-                  >
-                    <ChevronLeft className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                    className="h-7 w-7 p-0 rounded-lg border-slate-200 hover:bg-slate-100 disabled:opacity-30"
-                  >
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
+        <div className="overflow-hidden">
+          <DataTable
+            columns={columns}
+            data={customers}
+            filterKey="name"
+            onBulkDelete={async (selectedCustomers) => {
+              if (!window.confirm(`Are you sure you want to delete ${selectedCustomers.length} selected customers?`)) {
+                return;
+              }
+              try {
+                setLoading(true);
+                const deletePromises = selectedCustomers.map(c => 
+                  fetch(`/api/customers/${c.id}`, { method: 'DELETE' })
+                );
+                await Promise.all(deletePromises);
+                toast.success(`Deleted ${selectedCustomers.length} customers`);
+                // Refresh data
+                const res = await fetch('/api/dashboard', { cache: 'no-store' });
+                const data = await res.json();
+                setCustomers(data.customers);
+              } catch (err: any) {
+                toast.error(`Failed to delete customers: ${err.message}`);
+              } finally {
+                setLoading(false);
+              }
+            }}
+          />
         </div>
         {/* Invoice Creation Modal */}
         <Dialog open={isInvoiceModalOpen} onOpenChange={setIsInvoiceModalOpen}>
