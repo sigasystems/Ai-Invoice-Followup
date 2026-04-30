@@ -15,7 +15,7 @@ enum InvoiceStatus {
   OVERDUE
 }
 
-model Customer {  
+model Customer {
   id        String    @id @default(uuid())
   name      String
   email     String    @unique
@@ -27,48 +27,48 @@ model Customer {
 }
 
 model Invoice {
-  id                 String        @id @default(uuid())
-  invoice_number     String        @unique
-  amount             Float
+  id             String @id @default(uuid())
+  invoice_number String @unique
+  amount         Float
 
   // ⚠️ dueDate kept only for display/reference (NOT used in logic)
-  dueDate            DateTime?
+  dueDate DateTime?
 
   // ✅ Main driver for follow-up logic
-  issueDate          DateTime
+  issueDate DateTime
 
-  status             InvoiceStatus @default(PENDING)
+  status InvoiceStatus @default(PENDING)
 
   // Follow-up config (days AFTER issueDate)
   // Null means use GlobalSetting.followupStartDelayDays
-  startFollowups     Int?
+  startFollowups Int?
 
   // Computed fields
-  followupStartDate  DateTime?
+  followupStartDate DateTime?
 
   // Execution control (automation engine)
-  currentStage       Int           @default(0)
-  nextActionAt       DateTime?
-  lastSentAt         DateTime?
-  lastSentStage      Int?
+  currentStage  Int
+  nextActionAt  DateTime?
+  lastSentAt    DateTime?
+  lastSentStage Int?
 
-  notes              String?
+  notes String?
 
   // History (audit trail)
-  reminder_stages    Int[]
-  reminder_dates     DateTime[]
-  tones              String[]
+  reminder_stages Int[]
+  reminder_dates  DateTime[]
+  tones           String[]
 
-  hasPendingDraft    Boolean       @default(false)
-  gmailDraftId       String?
+  hasPendingDraft Boolean @default(false)
+  gmailDraftId    String?
 
-  customerId         String
-  customer           Customer      @relation(fields: [customerId], references: [id])
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
 
-  replies            Reply[]
+  replies Reply[]
 
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Reply {
@@ -84,19 +84,19 @@ model Reply {
 }
 
 model GlobalSetting {
-  id                String  @id @default("global_config")
-  beforeDueReminder Boolean @default(true)
-  createDraftsOnly  Boolean @default(false)
-  escalationLadder  Json? // Array of { delayDays: number, tone: string, label: string }
-  smartEscalation   Boolean @default(true)
-  consentVerified   Boolean @default(true)
-  dataDeletion      Boolean @default(true)
-  readWebhook       String? @default("https://n8n.your-site.com/webhook/read-sheet")
-  writeWebhook      String? @default("https://n8n.your-site.com/webhook/send-reminder")
-  followupStartDelayDays Int @default(0)
-  syncActivity      Boolean @default(true)
-  managerEmails     String? @default("manager@company.com, finance@company.com")
-  logSentiment      Boolean @default(true)
+  id                     String  @id @default("global_config")
+  beforeDueReminder      Boolean @default(true)
+  createDraftsOnly       Boolean @default(false)
+  escalationLadder       Json? // Array of { delayDays: number, tone: string, label: string }
+  smartEscalation        Boolean @default(true)
+  consentVerified        Boolean @default(true)
+  dataDeletion           Boolean @default(true)
+  readWebhook            String? @default("https://n8n.your-site.com/webhook/read-sheet")
+  writeWebhook           String? @default("https://n8n.your-site.com/webhook/send-reminder")
+  followupStartDelayDays Int     @default(0)
+  syncActivity           Boolean @default(true)
+  managerEmails          String? @default("manager@company.com, finance@company.com")
+  logSentiment           Boolean @default(true)
 
   updatedAt DateTime @updatedAt
 }
@@ -104,14 +104,14 @@ model GlobalSetting {
 model Activity {
   id           String   @id @default(uuid())
   customerName String
-  channel      String   // e.g., 'Email', 'Draft Created', 'WhatsApp'
-  status       String   // e.g., 'Awaiting Review', 'Delivered', 'Sent'
+  channel      String // e.g., 'Email', 'Draft Created', 'WhatsApp'
+  status       String // e.g., 'Awaiting Review', 'Delivered', 'Sent'
   message      String
   draft_url    String?
   timestamp    DateTime @default(now())
-  
-  customerId   String?
-  invoiceId    String?
+
+  customerId String?
+  invoiceId  String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
