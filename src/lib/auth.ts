@@ -1,6 +1,7 @@
-export const login = () => {
+export const login = (email?: string) => {
   if (typeof window !== 'undefined') {
     localStorage.setItem('isLoggedIn', 'true');
+    if (email) localStorage.setItem('userEmail', email);
     window.dispatchEvent(new Event('auth-change'));
   }
 };

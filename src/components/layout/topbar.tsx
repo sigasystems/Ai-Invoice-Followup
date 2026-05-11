@@ -20,7 +20,7 @@ import { ModeToggle } from '@/components/shared/mode-toggle';
 import { logout } from '@/lib/auth';
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 export function Topbar() {
   const router = useRouter();
@@ -29,9 +29,11 @@ export function Topbar() {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [searchResults, setSearchResults] = React.useState<{ invoices: any[], customers: any[] }>({ invoices: [], customers: [] });
   const [data, setData] = React.useState<any>(null);
+  const [userEmail, setUserEmail] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setMounted(true);
+    setUserEmail(localStorage.getItem('userEmail'));
     async function loadInitialData() {
       try {
         const res = await fetch('/api/dashboard');
@@ -152,28 +154,80 @@ export function Topbar() {
       <div className="flex items-center gap-4 ml-auto">
         <ModeToggle />
 
-        <Link href="/activity">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative h-11 w-11 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent group border border-transparent hover:border-border"
-          >
-            <Bell className="w-5 h-5 transition-transform duration-200 group-hover:rotate-12" />
-            {mounted && notifications > 0 && (
-              <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-primary ring-4 ring-white" />
-            )}
-          </Button>
-        </Link>
+        <DropdownMenu>
+          <DropdownMenuTrigger render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative h-11 w-11 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent group border border-transparent hover:border-border"
+            >
+              <Bell className="w-5 h-5 transition-transform duration-200 group-hover:rotate-12" />
+              {mounted && notifications > 0 && (
+                <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-primary ring-4 ring-white" />
+              )}
+            </Button>
+          }>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80 rounded-xl p-2 border-border shadow-2xl mt-2 bg-popover z-50">
+            <DropdownMenuLabel className="font-bold text-foreground px-4 py-3 flex items-center justify-between">
+              Notifications
+              <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full uppercase tracking-widest">{notifications} New</span>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <div className="max-h-[400px] overflow-y-auto custom-scrollbar p-1">
+              {data?.activities?.length > 0 ? (
+                data.activities.slice(0, 5).map((activity: any) => (
+                  <DropdownMenuItem
+                    key={activity.id}
+                    onClick={() => router.push('/activity')}
+                    className="rounded-lg px-3 py-3 focus:bg-accent flex flex-col items-start gap-1 cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-xs font-bold text-foreground">{activity.customerName}</span>
+                      <span className="text-[9px] text-muted-foreground font-bold">{new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground line-clamp-1">{activity.message}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={cn(
+                        "text-[9px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-tight",
+                        activity.status === 'Delivered' || activity.status === 'Sent' ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"
+                      )}>
+                        {activity.channel}
+                      </span>
+                    </div>
+                  </DropdownMenuItem>
+                ))
+              ) : (
+                <div className="p-8 text-center">
+                  <p className="text-xs text-muted-foreground font-semibold italic">No recent activity</p>
+                </div>
+              )}
+            </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => router.push('/activity')}
+              className="rounded-lg justify-center py-2 text-[11px] font-bold text-primary hover:bg-primary/5 transition-colors cursor-pointer"
+            >
+              View all activities
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <DropdownMenu>
           <DropdownMenuTrigger render={<Button variant="ghost" className="p-1 pl-4 gap-4 h-12 rounded-lg hover:bg-muted/50 transition-all group" />}>
             <Avatar className="h-9 w-9 rounded-full border border-border">
-              <AvatarImage src="https://ui-avatars.com/api/?name=Lalit+Khairnar&background=3b82f6&color=fff" alt="User" />
-              <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">LK</AvatarFallback>
+              <AvatarImage src={`https://ui-avatars.com/api/?name=${userEmail?.split('@')[0] || data?.settings?.managerEmails?.split(',')[0]?.split('@')[0] || 'Admin'}&background=3b82f6&color=fff`} alt="User" />
+              <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+                {(userEmail?.charAt(0) || data?.settings?.managerEmails?.split(',')[0]?.charAt(0) || 'A').toUpperCase()}
+              </AvatarFallback>
             </Avatar>
             <div className="hidden sm:flex flex-col items-start text-left">
-              <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">Tika Scholastika</span>
-              <span className="text-[11px] text-muted-foreground font-bold leading-none">Admin</span>
+              <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors capitalize">
+                {(userEmail?.split('@')[0] || data?.settings?.managerEmails?.split(',')[0]?.split('@')[0] || 'System').replace(/[._]/g, ' ')} Admin
+              </span>
+              <span className="text-[11px] text-muted-foreground font-bold leading-none">
+                {userEmail || data?.settings?.managerEmails?.split(',')[0] || 'admin@paypilot.ai'}
+              </span>
             </div>
             <ChevronRight className="w-4 h-4 text-muted-foreground rotate-90" />
           </DropdownMenuTrigger>

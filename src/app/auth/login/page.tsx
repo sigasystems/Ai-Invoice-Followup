@@ -66,7 +66,7 @@ export default function LoginPage() {
     await new Promise(resolve => setTimeout(resolve, 1500));
 
     if (values.email === 'admin@gmail.com' && values.password === '123123123') {
-      login(); // CRITICAL: Sets the session state
+      login(values.email); // Pass the email to store it
       toast.success('Access Granted', {
         description: 'Welcome back to your dashboard.',
       });
