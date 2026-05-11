@@ -47,7 +47,10 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
             dateTime={activity.timestamp}
             className="flex-none text-xs text-muted-foreground font-normal"
           >
-            {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
+            {(() => {
+              const d = new Date(activity.timestamp);
+              return isNaN(d.getTime()) ? activity.timestamp : formatDistanceToNow(d, { addSuffix: true });
+            })()}
           </time>
         </div>
         <div className="mt-1 flex items-center gap-x-2">

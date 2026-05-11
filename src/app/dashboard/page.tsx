@@ -196,7 +196,6 @@ export default function DashboardPage() {
 
   /* ── Metrics ── */
   const totalOutstanding = invoices.reduce((a, i) => i.status !== 'Paid' ? a + i.amount : a, 0);
-  console.log('Total Outstanding', totalOutstanding);
 
   const now = new Date();
   const currentMonth = now.getMonth();

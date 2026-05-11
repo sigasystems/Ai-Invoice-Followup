@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, Bell, Menu, User, Settings, Activity, ShieldCheck, LogOut, ChevronRight } from 'lucide-react';
+import { Search, Bell, Menu, User, Settings, Activity, ShieldCheck, LogOut, ChevronRight, Mail } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   DropdownMenu,
@@ -160,61 +160,99 @@ export function Topbar() {
               variant="ghost"
               size="icon"
               className="relative h-11 w-11 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent group border border-transparent hover:border-border"
-            >
-              <Bell className="w-5 h-5 transition-transform duration-200 group-hover:rotate-12" />
-              {mounted && notifications > 0 && (
-                <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-primary ring-4 ring-white" />
-              )}
-            </Button>
+            />
           }>
+            <Bell className="w-5 h-5 transition-transform duration-200 group-hover:rotate-12" />
+              {mounted && notifications > 0 && (
+              <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-primary ring-4 ring-white" />
+            )}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80 rounded-xl p-2 border-border shadow-2xl mt-2 bg-popover z-50">
-            <DropdownMenuLabel className="font-bold text-foreground px-4 py-3 flex items-center justify-between">
-              Notifications
-              <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full uppercase tracking-widest">{notifications} New</span>
-            </DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="font-bold text-foreground px-4 py-3 flex items-center justify-between">
+                Notifications
+                <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full uppercase tracking-widest">{notifications} New</span>
+              </DropdownMenuLabel>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <div className="max-h-[400px] overflow-y-auto custom-scrollbar p-1">
+            <div className="max-h-[420px] overflow-y-auto custom-scrollbar px-1 py-1">
               {data?.activities?.length > 0 ? (
-                data.activities.slice(0, 5).map((activity: any) => (
-                  <DropdownMenuItem
-                    key={activity.id}
-                    onClick={() => router.push('/activity')}
-                    className="rounded-lg px-3 py-3 focus:bg-accent flex flex-col items-start gap-1 cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-xs font-bold text-foreground">{activity.customerName}</span>
-                      <span className="text-[9px] text-muted-foreground font-bold">{new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground line-clamp-1">{activity.message}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className={cn(
-                        "text-[9px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-tight",
-                        activity.status === 'Delivered' || activity.status === 'Sent' ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"
+                data.activities.slice(0, 5).map((activity: any) => {
+                  const isDraft = activity.channel === 'Draft Created';
+                  const isEmail = activity.channel === 'Email';
+                  
+                  return (
+                    <DropdownMenuItem
+                      key={activity.id}
+                      onClick={() => router.push('/activity')}
+                      className="rounded-xl px-4 py-4 focus:bg-muted/50 flex items-start gap-4 cursor-pointer transition-all border-b border-border/30 last:border-0 group"
+                    >
+                      <div className={cn(
+                        "h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm",
+                        isDraft ? "bg-amber-500/10 text-amber-600" : 
+                        isEmail ? "bg-blue-500/10 text-blue-600" : 
+                        "bg-emerald-500/10 text-emerald-600"
                       )}>
-                        {activity.channel}
-                      </span>
-                    </div>
-                  </DropdownMenuItem>
-                ))
+                        {isDraft ? <Activity className="w-5 h-5" /> : 
+                         isEmail ? <Mail className="w-5 h-5" /> : 
+                         <Activity className="w-5 h-5" />}
+                      </div>
+                      
+                      <div className="flex flex-col gap-1 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">
+                            {activity.customerName}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground font-bold whitespace-nowrap">
+                            {(() => {
+                              const d = new Date(activity.timestamp);
+                              return isNaN(d.getTime()) ? 'Recently' : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            })()}
+                          </span>
+                        </div>
+                        
+                        <p className="text-[12px] text-muted-foreground font-medium leading-relaxed line-clamp-2">
+                          {activity.message}
+                        </p>
+                        
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className={cn(
+                            "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border",
+                            isDraft ? "bg-amber-500/5 text-amber-700 border-amber-200/50" : 
+                            isEmail ? "bg-blue-500/5 text-blue-700 border-blue-200/50" : 
+                            "bg-emerald-500/5 text-emerald-700 border-emerald-200/50"
+                          )}>
+                            {activity.channel}
+                          </span>
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                  );
+                })
               ) : (
-                <div className="p-8 text-center">
-                  <p className="text-xs text-muted-foreground font-semibold italic">No recent activity</p>
+                <div className="py-12 flex flex-col items-center justify-center text-center px-6">
+                  <div className="h-12 w-12 bg-muted/50 rounded-2xl flex items-center justify-center mb-4">
+                    <Bell className="w-6 h-6 text-muted-foreground/40" />
+                  </div>
+                  <p className="text-sm font-bold text-foreground">All caught up!</p>
+                  <p className="text-xs text-muted-foreground mt-1 font-medium">No new notifications in your collection engine.</p>
                 </div>
               )}
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => router.push('/activity')}
-              className="rounded-lg justify-center py-2 text-[11px] font-bold text-primary hover:bg-primary/5 transition-colors cursor-pointer"
+              className="rounded-xl justify-center py-3 text-xs font-bold text-primary hover:bg-primary/5 transition-all cursor-pointer m-1"
             >
-              View all activities
+              View Full Activity Log
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
         <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="ghost" className="p-1 pl-4 gap-4 h-12 rounded-lg hover:bg-muted/50 transition-all group" />}>
+          <DropdownMenuTrigger render={
+            <Button variant="ghost" className="p-1 pl-4 gap-4 h-12 rounded-lg hover:bg-muted/50 transition-all group focus-visible:ring-0" />
+          }>
             <Avatar className="h-9 w-9 rounded-full border border-border">
               <AvatarImage src={`https://ui-avatars.com/api/?name=${userEmail?.split('@')[0] || data?.settings?.managerEmails?.split(',')[0]?.split('@')[0] || 'Admin'}&background=3b82f6&color=fff`} alt="User" />
               <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
