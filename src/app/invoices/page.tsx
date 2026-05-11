@@ -157,6 +157,12 @@ const EditableStageCell = ({
   );
 };
 
+const isValidDate = (date: any) => {
+  if (!date) return false;
+  const d = new Date(date);
+  return d instanceof Date && !isNaN(d.getTime());
+};
+
 const EditableDateCell = ({
   value,
   onSave,
@@ -175,20 +181,39 @@ const EditableDateCell = ({
   emptyText?: string
 }) => {
   const [isEditing, setIsEditing] = React.useState(false);
-  const [tempDate, setTempDate] = React.useState(value ? new Date(value).toISOString().slice(0, 16) : '');
+  const [tempDate, setTempDate] = React.useState(() => {
+    if (!value) return '';
+    const d = new Date(value);
+    return !isNaN(d.getTime()) ? d.toISOString().slice(0, 16) : '';
+  });
 
   // Update tempDate when value changes externally
   React.useEffect(() => {
     if (value) {
-      setTempDate(new Date(value).toISOString().slice(0, 16));
+      const d = new Date(value);
+      if (!isNaN(d.getTime())) {
+        setTempDate(d.toISOString().slice(0, 16));
+      } else {
+        setTempDate('');
+      }
     } else {
       setTempDate('');
     }
   }, [value]);
 
   const handleSave = async () => {
-    await onSave(tempDate ? new Date(tempDate).toISOString() : null);
-    setIsEditing(false);
+    if (!tempDate) {
+      await onSave(null);
+      setIsEditing(false);
+      return;
+    }
+    const d = new Date(tempDate);
+    if (!isNaN(d.getTime())) {
+      await onSave(d.toISOString());
+      setIsEditing(false);
+    } else {
+      toast.error("Invalid date selected");
+    }
   };
 
   if (!value) return (
@@ -307,8 +332,11 @@ export default function InvoicesPage() {
           : (invoice.startFollowups ?? settings?.followupStartDelayDays ?? 0);
 
         const issueDate = parseISO(invoice.issueDate);
-        const startDate = addDays(issueDate, Number(newOffset));
-        const formattedStartDate = startDate.toISOString().split('T')[0];
+        const offsetVal = Number(newOffset);
+        if (!isNaN(offsetVal) && !isNaN(issueDate.getTime())) {
+          const startDate = addDays(issueDate, offsetVal);
+          const formattedStartDate = startDate.toISOString().split('T')[0];
+        }
       }
 
       // Update local state to reflect change immediately
@@ -986,11 +1014,17 @@ export default function InvoicesPage() {
       // Calculate absolute followup start date for n8n
       const issueDateVal = formData.get('issue_date');
       const issueDate = issueDateVal ? new Date(String(issueDateVal)) : new Date();
-      const startOffset = payload.start_followups === ''
+      const rawOffset = payload.start_followups;
+      let startOffset = (rawOffset === '' || rawOffset === null)
         ? (settings?.followupStartDelayDays ?? 0)
-        : Number(payload.start_followups);
-      const startDate = addDays(issueDate, startOffset);
-      const formattedStartDate = startDate.toISOString().split('T')[0];
+        : Number(rawOffset);
+      
+      if (startOffset < 0) startOffset = 0; // Prevent negative values
+
+      if (!isNaN(issueDate.getTime()) && !isNaN(Number(startOffset))) {
+        const startDate = addDays(issueDate, Number(startOffset));
+        const formattedStartDate = startDate.toISOString().split('T')[0];
+      }
       setIsCreateModalOpen(false);
 
       // Refresh the list
@@ -1088,6 +1122,8 @@ export default function InvoicesPage() {
                         id="amount"
                         name="amount"
                         type="number"
+                        min="0"
+                        step="any"
                         placeholder="0.00"
                         className="h-11 rounded-xl font-mono"
                         required
@@ -1185,7 +1221,8 @@ export default function InvoicesPage() {
                         id="start_followups"
                         name="start_followups"
                         type="number"
-                        placeholder={`${settings?.followupStartDelayDays ?? 0}`}
+                        min="0"
+                        placeholder={`${settings?.followupStartDelayDays || 0}`}
                         className="h-10 text-xs font-semibold text-center rounded-xl"
                       />
                     </div>
@@ -1319,9 +1356,14 @@ export default function InvoicesPage() {
                   const stage = formData.get('currentStage');
                   const nextDate = formData.get('nextActionAt');
 
-                  const startFollowups = val === '' ? null : parseInt(String(val));
-                  const currentStage = stage === '' ? undefined : parseInt(String(stage));
-                  const nextActionAt = nextDate === '' ? undefined : new Date(String(nextDate));
+                  const startFollowupsRaw = val === '' ? null : parseInt(String(val));
+                  const startFollowups = isNaN(Number(startFollowupsRaw)) ? null : Math.max(0, startFollowupsRaw as number);
+                  
+                  const currentStageRaw = stage === '' ? undefined : parseInt(String(stage));
+                  const currentStage = isNaN(Number(currentStageRaw)) ? undefined : Math.max(0, currentStageRaw as number);
+
+                  const nextActionAtRaw = nextDate === '' ? undefined : new Date(String(nextDate));
+                  const nextActionAt = (nextActionAtRaw && !isNaN(nextActionAtRaw.getTime())) ? nextActionAtRaw : undefined;
 
                   if (editingInvoice) {
                     await updateInvoice(editingInvoice.id, {
@@ -1342,6 +1384,7 @@ export default function InvoicesPage() {
                         <Input
                           name="startFollowups"
                           type="number"
+                          min="0"
                           defaultValue={editingInvoice?.startFollowups ?? ''}
                           placeholder={String(settings?.followupStartDelayDays ?? 0)}
                           className="w-20 h-10 text-center font-bold rounded-xl border-border bg-background"
