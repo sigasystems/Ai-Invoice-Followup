@@ -15,6 +15,9 @@ import { AuthGuard } from "@/components/shared/auth-guard";
 
 import { SidebarProvider } from "@/components/layout/sidebar-provider";
 
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -35,6 +38,8 @@ export default function RootLayout({
             </SidebarProvider>
           </AuthGuard>
           <Toaster richColors position="top-right" closeButton />
+          <SpeedInsights />
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>
