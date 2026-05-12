@@ -31,7 +31,7 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
         "relative flex h-8 w-8 items-center justify-center rounded-full ring-1 shadow-xs transition-all",
         activity.channel === 'Draft Created'
           ? "bg-orange-500/10 ring-orange-200 text-orange-600 scale-110"
-          : "bg-neutral-50 ring-neutral-200 text-primary"
+          : "bg-red-50 ring-neutral-200 text-primary"
       )}>
         <Icon className="h-4 w-4" />
         {activity.channel === 'Draft Created' && (
@@ -55,7 +55,7 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
         </div>
         <div className="mt-1 flex items-center gap-x-2">
           <p className="text-sm leading-6 text-muted-foreground">{activity.message}</p>
-          <StatusBadge status={activity.status} className="border-none bg-transparent h-auto py-0 px-0 shadow-none text-[12px]" />
+          <StatusBadge status={activity.status} className="border-none bg-transparent h-auto shadow-none text-xs p-0.5 px-1 dark:text-primary"  />
         </div>
         
         <div className="mt-2 flex flex-wrap items-center gap-2">

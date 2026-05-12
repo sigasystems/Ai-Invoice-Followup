@@ -220,14 +220,14 @@ function CollectionJourney({
       </div>
 
       {/* Stage label */}
-      <span className="text-[11px] font-bold text-neutral-900 dark:text-neutral-100 whitespace-nowrap shrink-0">
+      <span className="text-[11px] font-bold text-neutral-900 dark:text-neutral-100 whitespace-nowrap shrink-0 tracking-tight">
         {currentStage}/{totalSteps}
       </span>
 
       {/* Status pill */}
       <span
         className={cn(
-          'text-[10px] font-bold px-1.5 py-0.5 rounded-lg whitespace-nowrap shrink-0 tracking-wide',
+          'text-[10px] font-bold px-2 py-0.5 rounded-lg whitespace-nowrap shrink-0 tracking-widest uppercase',
           statusColor
         )}
       >
@@ -236,7 +236,7 @@ function CollectionJourney({
 
       {/* Escalation tag */}
       {escalationReached && (
-        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-orange-50 text-orange-600 tracking-wide shrink-0">
+        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-orange-500/10 text-orange-600 tracking-widest uppercase shrink-0">
           Esc
         </span>
       )}
@@ -260,16 +260,16 @@ function StatCard({
   iconCls: string;
 }) {
   return (
-    <div className="rounded-lg border border-border/50 bg-white dark:bg-neutral-900 p-5 flex items-center gap-4 shadow-sm hover:shadow-lg transition-all duration-300">
-      <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center shrink-0 shadow-sm', iconCls)}>
-        <Icon className="h-5 w-5" />
+    <div className="rounded-2xl border border-border/60 bg-white dark:bg-neutral-900 p-5 flex items-center gap-4 shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-500 group">
+      <div className={cn('h-11 w-11 rounded-xl flex items-center justify-center shrink-0 shadow-sm transition-transform duration-500 group-hover:scale-110', iconCls)}>
+        <Icon className="h-5.5 w-5.5" />
       </div>
       <div className="min-w-0">
-        <p className="text-[11px] font-bold text-muted-foreground/60 tracking-wider leading-none">
+        <p className="text-[10px] font-bold text-muted-foreground/50 tracking-[0.15em] uppercase leading-none">
           {label}
         </p>
-        <p className="text-xl font-bold text-foreground leading-tight mt-1.5">{value}</p>
-        <p className="text-[11px] font-medium text-muted-foreground/50 leading-none mt-1">{sub}</p>
+        <p className="text-xl font-semibold text-foreground tracking-tight leading-tight mt-1.5">{value}</p>
+        <p className="text-[11px] font-medium text-muted-foreground/40 leading-none mt-1">{sub}</p>
       </div>
     </div>
   );
@@ -283,13 +283,13 @@ function SortHeader({ column, label }: { column: any; label: string }) {
     <button
       type="button"
       onClick={column.getToggleSortingHandler()}
-      className="flex items-center gap-1.5 text-[11px] font-bold tracking-wider text-muted-foreground/60 hover:text-foreground transition-colors group cursor-pointer"
+      className="flex items-center gap-1.5 text-xs font-semibold tracking-tight text-muted-foreground/60 hover:text-foreground transition-colors group cursor-pointer"
     >
       {label}
       <ArrowUpDown
         className={cn(
           'h-3 w-3 transition-opacity',
-          isSorted ? 'text-blue-500 opacity-100' : 'opacity-30 group-hover:opacity-60'
+          isSorted ? 'text-primary opacity-100' : 'opacity-20 group-hover:opacity-60'
         )}
       />
     </button>
@@ -319,10 +319,10 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
               {getInitials(c.name)}
             </div>
             <div className="min-w-0">
-              <p className="font-semibold text-sm group-hover:text-blue-600 transition-colors truncate">
+              <p className="font-semibold text-[14px] text-foreground group-hover:text-primary transition-colors truncate tracking-tight">
                 {c.name}
               </p>
-              <p className="text-[11px]  truncate">{c.email}</p>
+              <p className="text-[11px] font-medium text-muted-foreground/60 truncate mt-0.5">{c.email}</p>
             </div>
           </Link>
         );
@@ -339,8 +339,8 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
         return (
           <div className="w-24">
             <div className="flex justify-between mb-1.5">
-              <span className={cn('text-xs font-bold', scoreColor(rate))}>{rate}%</span>
-              <span className="text-[11px] ">{invoices} inv</span>
+              <span className={cn('text-xs font-semibold tracking-tight', scoreColor(rate))}>{rate}%</span>
+              <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest">{invoices} inv</span>
             </div>
             <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
               <div
@@ -357,7 +357,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
     {
       id: 'collectionJourney',
       header: () => (
-        <span className="text-[11px] font-bold text-muted-foreground/60 tracking-wider">
+        <span className="text-xs font-semibold text-muted-foreground/60 tracking-tight">
           Journey
         </span>
       ),
@@ -378,7 +378,7 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
             ) : (
               <TrendingDown className={cn('h-3 w-3', scoreColor(s))} />
             )}
-            <span className={cn('text-sm font-bold', scoreColor(s))}>{s}</span>
+            <span className={cn('text-sm font-semibold tracking-tight', scoreColor(s))}>{s}</span>
           </div>
         );
       },
@@ -419,8 +419,8 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
           <div className="text-right">
             <span
               className={cn(
-                'text-sm font-bold',
-                amt > 0 ? 'text-red-500' : 'text-emerald-600'
+                'text-sm font-semibold tracking-tight',
+                amt > 0 ? 'text-rose-600' : 'text-emerald-600'
               )}
             >
               {fmt(amt)}
@@ -438,18 +438,16 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
         const c = row.original;
         return (
           <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="opacity-100 sm:opacity-0 sm:group-hover/row:opacity-100 focus:opacity-100 transition-opacity hover:bg-slate-100"
-                >
-                  <MoreHorizontal className="h-4 w-4" />
-                  <span className="sr-only">Actions</span>
-                </Button>
-              }
-            />
+            <DropdownMenuTrigger >
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="opacity-100 sm:opacity-0 sm:group-hover/row:opacity-100 focus:opacity-100 transition-opacity hover:bg-slate-100"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">Actions</span>
+              </Button>
+            </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
               className="rounded-xl  shadow-lg p-1 w-44 "
@@ -650,12 +648,12 @@ export default function CustomersPage() {
               {/* Label */}
               <div className="flex items-center gap-2 shrink-0">
                 <Zap className="h-4 w-4 text-amber-500" />
-                <span className="text-sm font-bold text-foreground">
+                <span className="text-xs font-bold text-foreground tracking-widest uppercase">
                   Escalation Ladder
                 </span>
                 {ladder.length === 0 && (
-                  <span className="text-[11px]  italic">
-                    (defaults — configure in Settings)
+                  <span className="text-[10px] font-medium text-muted-foreground/50 tracking-tight">
+                    (using system defaults)
                   </span>
                 )}
               </div>
@@ -761,8 +759,8 @@ export default function CustomersPage() {
           <DialogContent className="rounded-2xl max-w-2xl border-border bg-card shadow-2xl p-0 overflow-hidden">
             <div className="p-8 bg-linear-to-br from-primary/5 via-transparent to-transparent">
               <DialogHeader className="space-y-1 mb-8 text-left">
-                <DialogTitle className="text-2xl font-bold">Issue New Invoice</DialogTitle>
-                <DialogDescription className="font-medium">Creating a billing record for {prefilledCustomer?.name || 'this customer'}.</DialogDescription>
+                <DialogTitle className="text-2xl font-bold tracking-tight text-foreground">Issue New Invoice</DialogTitle>
+                <DialogDescription className="text-sm font-medium text-muted-foreground">Creating a billing record for {prefilledCustomer?.name || 'this customer'}.</DialogDescription>
               </DialogHeader>
 
               <form onSubmit={handleCreateInvoice} className="space-y-6">
@@ -809,9 +807,9 @@ export default function CustomersPage() {
                   </div>
                 </div>
 
-                <DialogFooter className="pt-4">
-                  <Button type="button" variant="outline" onClick={() => setIsInvoiceModalOpen(false)} className="rounded-xl h-12 px-6">Cancel</Button>
-                  <Button type="submit" className="rounded-xl h-12 px-8 bg-primary font-bold shadow-lg shadow-primary/20">Issue Invoice</Button>
+                <DialogFooter className="pt-6 sm:flex-row gap-3">
+                  <Button type="button" variant="ghost" onClick={() => setIsInvoiceModalOpen(false)} className="flex-1 rounded-xl h-12 font-semibold">Cancel</Button>
+                  <Button type="submit" className="flex-1 rounded-xl h-12 bg-primary font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform">Issue Invoice</Button>
                 </DialogFooter>
               </form>
             </div>

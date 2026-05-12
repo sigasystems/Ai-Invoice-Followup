@@ -501,10 +501,10 @@ export default function InvoicesPage() {
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 hover:bg-transparent font-bold text-xs"
+          className="p-0 hover:bg-transparent font-semibold text-xs tracking-tight"
         >
           Amount (₹)
-          <ArrowUpDown className="ml-2 h-3 w-3" />
+          <ArrowUpDown className="ml-2 h-3 w-3 opacity-50" />
         </Button>
       ),
       cell: ({ row }) => {
@@ -514,7 +514,7 @@ export default function InvoicesPage() {
           currency: 'INR',
           maximumFractionDigits: 0,
         }).format(amount);
-        return <span className="font-bold text-foreground">{formatted}</span>;
+        return <span className="font-semibold text-foreground tracking-tight">{formatted}</span>;
       },
     },
     {
@@ -523,19 +523,28 @@ export default function InvoicesPage() {
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 hover:bg-transparent font-bold text-xs"
+          className="p-0 hover:bg-transparent font-semibold text-xs tracking-tight"
         >
           Issue Date
-          <ArrowUpDown className="ml-2 h-3 w-3" />
+          <ArrowUpDown className="ml-2 h-3 w-3 opacity-50" />
         </Button>
       ),
       cell: ({ row }) => (
-        <span className="text-muted-foreground font-medium">{new Date(row.getValue('issueDate')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+        <span className="text-muted-foreground font-medium text-[12px]">{new Date(row.getValue('issueDate')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
       ),
     },
     {
       accessorKey: 'startFollowups',
-      header: 'Follow-up',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0 hover:bg-transparent font-semibold text-xs tracking-tight"
+        >
+          Follow-up
+          <ArrowUpDown className="ml-2 h-3 w-3 opacity-50" />
+        </Button>
+      ),
       cell: ({ row }) => {
         const isOverride = row.original.startFollowups !== null;
         const offset = isOverride ? Number(row.original.startFollowups) : (settings?.followupStartDelayDays ?? 0);
@@ -552,21 +561,21 @@ export default function InvoicesPage() {
         const formattedFollowupDate = startDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
 
         return (
-          <div className="flex items-center gap-2" title={isOverride ? `Manually overridden to ${offset} days` : `Using global default of ${offset} days`}>
+          <div className="flex items-center gap-2.5" title={isOverride ? `Manually overridden to ${offset} days` : `Using global default of ${offset} days`}>
             <div className={cn(
-              "p-1.5 rounded-lg transition-all duration-300",
-              isPastOrToday ? "bg-emerald-500/10 text-emerald-500" : "bg-indigo-500/10 text-indigo-500 border border-indigo-500/10"
+              "p-2 rounded-lg transition-all duration-300",
+              isPastOrToday ? "bg-emerald-500/10 text-emerald-500 shadow-xs" : "bg-indigo-500/10 text-indigo-500 border border-indigo-500/10 shadow-xs"
             )}>
               {isOverride ? <Filter className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
             </div>
             <div className="flex flex-col">
               <span className={cn(
-                "text-[10px] font-bold leading-none mb-0.5 whitespace-nowrap",
+                "text-[10px] font-bold tracking-wider uppercase leading-none mb-1",
                 isOverride ? "text-amber-600" : "text-indigo-500"
               )}>
-                {isOverride ? `Override (+${offset}d)` : `Default (+${offset}d)`}
+                {isOverride ? `Override` : `Default`}
               </span>
-              <span className="text-[11px] font-bold text-foreground leading-tight">
+              <span className="text-[11px] font-semibold text-foreground leading-tight">
                 Starts {formattedFollowupDate}
               </span>
             </div>
@@ -580,14 +589,14 @@ export default function InvoicesPage() {
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 hover:bg-transparent font-bold text-xs"
+          className="p-0 hover:bg-transparent font-semibold text-xs tracking-tight"
         >
           Due Date
-          <ArrowUpDown className="ml-2 h-3 w-3" />
+          <ArrowUpDown className="ml-2 h-3 w-3 opacity-50" />
         </Button>
       ),
       cell: ({ row }) => (
-        <span className="text-muted-foreground font-medium">
+        <span className="text-muted-foreground font-medium text-[12px]">
           {row.getValue('dueDate')
             ? new Date(row.getValue('dueDate')).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
             : '-'}
@@ -600,10 +609,10 @@ export default function InvoicesPage() {
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 hover:bg-transparent font-bold text-xs"
+          className="p-0 hover:bg-transparent font-semibold text-xs tracking-tight"
         >
           Status
-          <ArrowUpDown className="ml-2 h-3 w-3" />
+          <ArrowUpDown className="ml-2 h-3 w-3 opacity-50" />
         </Button>
       ),
       cell: ({ row }) => {
@@ -626,7 +635,16 @@ export default function InvoicesPage() {
     },
     {
       accessorKey: 'lastSentAt',
-      header: 'Last Automation',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0 hover:bg-transparent font-semibold text-xs tracking-tight"
+        >
+          Last Automation
+          <ArrowUpDown className="ml-2 h-3 w-3 opacity-50" />
+        </Button>
+      ),
       cell: ({ row }) => (
         <EditableDateCell
           value={row.original.lastSentAt}
@@ -644,7 +662,16 @@ export default function InvoicesPage() {
     },
     {
       accessorKey: 'daysOverdue',
-      header: 'Days Since Issue ',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0 hover:bg-transparent font-semibold text-xs tracking-tight"
+        >
+          Days Since Issue
+          <ArrowUpDown className="ml-2 h-3 w-3 opacity-50" />
+        </Button>
+      ),
       cell: ({ row }) => {
         const issueDate = new Date(row.original.issueDate);
         issueDate.setHours(0, 0, 0, 0);
@@ -655,7 +682,10 @@ export default function InvoicesPage() {
         const days = Math.max(0, Math.floor(diffTime / 86400000));
 
         return (
-          <span className={days > 15 ? "text-rose-600 font-bold" : "text-muted-foreground"}>
+          <span className={cn(
+            "text-[12px] font-medium transition-colors",
+            days > 15 ? "text-rose-600 font-bold" : "text-muted-foreground"
+          )}>
             {days}d
           </span>
         );
@@ -663,7 +693,16 @@ export default function InvoicesPage() {
     },
     {
       accessorKey: 'currentStage',
-      header: 'Automation Stage',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0 hover:bg-transparent font-semibold text-xs tracking-tight"
+        >
+          Automation Stage
+          <ArrowUpDown className="ml-2 h-3 w-3 opacity-50" />
+        </Button>
+      ),
       cell: ({ row }) => (
         <EditableStageCell
           value={row.original.currentStage || 0}
@@ -677,7 +716,16 @@ export default function InvoicesPage() {
     },
     {
       accessorKey: 'lifecycleDetails',
-      header: 'Progress & Timeline',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0 hover:bg-transparent font-semibold text-xs tracking-tight"
+        >
+          Progress & Timeline
+          <ArrowUpDown className="ml-2 h-3 w-3 opacity-50" />
+        </Button>
+      ),
       cell: ({ row }) => {
         const currentStage = row.original.currentStage || 0;
         const ladder = settings?.escalationLadder || [];
@@ -702,7 +750,6 @@ export default function InvoicesPage() {
           }
         }
 
-        // ✅ ESCALATION STATE
         if (isEscalated) {
           return (
             <div className="flex flex-col gap-2.5 py-1">
@@ -712,19 +759,19 @@ export default function InvoicesPage() {
                     key={i}
                     className={cn(
                       "h-1.5 flex-1 rounded-full transition-all duration-700",
-                      i <= currentStage ? "bg-red-500/50" : "bg-muted"
+                      i <= currentStage ? "bg-rose-500/50 shadow-[0_0_8px_rgba(244,63,94,0.2)]" : "bg-muted"
                     )}
                   />
                 ))}
               </div>
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-lg bg-red-500/10 text-red-600">
+                  <div className="p-1.5 rounded-lg bg-rose-500/10 text-rose-600 shadow-xs">
                     <BrainCircuit className="w-3.5 h-3.5" />
                   </div>
-                  <span className="text-[12px] font-bold tracking-[0.05em] text-red-600">Escalated to Manager</span>
+                  <span className="text-[11px] font-bold tracking-widest text-rose-600 uppercase">Escalated to Manager</span>
                 </div>
-                <span className="text-[11px] font-bold text-red-500 ml-6">All automation stages completed</span>
+                <span className="text-[10px] font-semibold text-rose-500/80 ml-7 tracking-tight">All automation stages completed</span>
               </div>
             </div>
           );
@@ -751,14 +798,14 @@ export default function InvoicesPage() {
             </div>
 
             <div className="flex flex-col">
-              <span className={cn("text-[12px] font-bold tracking-[0.05em]", isPaid ? "text-emerald-500" : "text-foreground")}>
+              <span className={cn("text-[12px] font-semibold tracking-tight", isPaid ? "text-emerald-500" : "text-foreground")}>
                 {isPaid ? 'Collection Successful' : currentStep?.label || `Stage ${currentStage}`}
               </span>
 
               {!isPaid && (
-                <span className="text-[12px] font-bold text-muted-foreground flex items-center gap-1.5">
-                  <BrainCircuit className="w-3.5 h-3.5 text-primary opacity-70" />
-                  AI Tone: <span className="text-primary italic">{currentStep?.tone || 'Neutral'}</span>
+                <span className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                  <BrainCircuit className="w-3.5 h-3.5 text-primary/60" />
+                  AI Tone: <span className="text-primary font-semibold italic">{currentStep?.tone || 'Neutral'}</span>
                 </span>
               )}
 
@@ -828,9 +875,11 @@ export default function InvoicesPage() {
       cell: ({ row }) => {
         return (
           <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="ghost" className="h-8 w-8 p-0 rounded-lg hover:bg-accent" />}>
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+            <DropdownMenuTrigger >
+              <Button variant="ghost" className="h-8 w-8 p-0 rounded-lg hover:bg-accent">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-xl border-border shadow-xl p-1 w-48 bg-popover text-popover-foreground">
               <DropdownMenuGroup>
@@ -1074,19 +1123,21 @@ export default function InvoicesPage() {
             Export
           </Button> */}
           <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-            <DialogTrigger render={<Button variant="default" size="sm" className="h-10" />}>
-              <Plus className="w-4 h-4 mr-2" />
-              New Invoice
+            <DialogTrigger >
+              <Button variant="default" size="sm" className="h-10 rounded-xl font-semibold shadow-lg shadow-primary/20">
+                <Plus className="w-4 h-4 mr-2" />
+                New Invoice
+              </Button>
             </DialogTrigger>
             <DialogContent className="max-w-3xl p-0 overflow-hidden rounded-lg border border-border bg-card shadow-2xl">
 
               {/* Header */}
               <div className="px-8 pt-8 pb-6 bg-linear-to-br from-primary/5 via-transparent to-transparent">
                 <DialogHeader className="space-y-1 text-left">
-                  <DialogTitle className="text-2xl font-bold text-foreground">
+                  <DialogTitle className="text-2xl font-bold tracking-tight text-foreground">
                     Create New Invoice
                   </DialogTitle>
-                  <DialogDescription className="text-sm text-muted-foreground">
+                  <DialogDescription className="text-sm font-medium text-muted-foreground">
                     Add invoice details and configure automated follow-ups.
                   </DialogDescription>
                 </DialogHeader>
@@ -1115,7 +1166,7 @@ export default function InvoicesPage() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label htmlFor="amount" className="text-xs font-medium text-muted-foreground">
+                      <Label htmlFor="amount" className="text- font-medium text-muted-foreground">
                         Amount (₹)
                       </Label>
                       <Input
@@ -1270,16 +1321,16 @@ export default function InvoicesPage() {
       <div className="space-y-4 mb-8">
         {/* Row 1: Primary Tabs & Inline Sorts */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex items-center gap-1 p-1 bg-muted/50 rounded-lg w-fit border border-border/50">
+          <div className="flex items-center gap-1.5 p-1.5 bg-muted/30 rounded-xl w-fit border border-border/40 backdrop-blur-sm">
             {['All', 'Pending', 'Overdue', 'Paid'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  "px-6 py-2 rounded-md text-xs font-bold transition-all",
+                  "px-5 py-1.5 rounded-lg text-xs font-bold transition-all duration-300",
                   activeTab === tab
-                    ? "bg-white dark:bg-neutral-800 text-primary shadow-sm ring-1 ring-black/5"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/50 dark:hover:bg-neutral-800/50"
+                    ? "bg-white dark:bg-neutral-800 text-primary shadow-lg shadow-neutral-200/50 dark:shadow-none ring-1 ring-black/5"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/40 dark:hover:bg-neutral-800/40"
                 )}
               >
                 {tab}
@@ -1288,13 +1339,13 @@ export default function InvoicesPage() {
           </div>
 
           <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 no-scrollbar">
-            <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest mr-2 whitespace-nowrap">Sort by</span>
+            <span className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.2em] mr-2 whitespace-nowrap">Sort by</span>
             <Button
               variant={activeTab === 'Newest' ? 'default' : 'outline'}
               size="sm"
               className={cn(
-                "text-[11px] font-bold rounded-lg h-9 gap-2",
-                activeTab === 'Newest' ? "bg-primary text-white" : "border-border/60 bg-card text-neutral-900 dark:text-neutral-100"
+                "text-[11px] font-semibold rounded-lg h-9 gap-2 transition-all duration-300",
+                activeTab === 'Newest' ? "bg-primary text-white shadow-md shadow-primary/20 border-primary" : "border-border/60 bg-card text-muted-foreground hover:text-foreground"
               )}
               onClick={() => {
                 const sorted = [...filteredInvoices].sort((a, b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());

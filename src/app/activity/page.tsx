@@ -128,16 +128,22 @@ export default function ActivityPage() {
    const stats = React.useMemo(() => {
       const emailCount = activities.filter((a) => a.channel === 'Email').length;
       const draftingCount = activities.filter((a) => a.channel === 'Draft Created').length;
-      const totalOutreach = emailCount + draftingCount;
-      const efficiency = totalOutreach > 0 ? Math.round((emailCount / totalOutreach) * 100) : 0;
+      const waCount = activities.filter((a) => a.channel === 'WhatsApp').length;
+      const smsCount = activities.filter((a) => a.channel === 'SMS').length;
+      
+      const totalSuccessful = emailCount + waCount + smsCount;
+      const totalPlanned = totalSuccessful + draftingCount;
+      
+      // Efficiency = Successful Actions / Total Attempted Actions
+      const efficiency = totalPlanned > 0 ? Math.round((totalSuccessful / totalPlanned) * 100) : 0;
 
       return {
          Email: emailCount,
-         WhatsApp: activities.filter((a) => a.channel === 'WhatsApp').length,
-         SMS: activities.filter((a) => a.channel === 'SMS').length,
+         WhatsApp: waCount,
+         SMS: smsCount,
          Drafts: draftingCount,
-         totalOutreach,
-         efficiency: efficiency || 85
+         totalOutreach: totalPlanned,
+         efficiency: efficiency 
       };
    }, [activities]);
 
@@ -196,7 +202,7 @@ export default function ActivityPage() {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
                         <Input
                            placeholder="Search engine logs..."
-                           className="pl-11 h-12 bg-card border-border rounded-lg focus-visible:ring-primary shadow-sm font-medium"
+                           className="pl-10 h-10 shadow-sm font-medium"
                            value={search}
                            onChange={(e) => setSearch(e.target.value)}
                         />
@@ -286,7 +292,7 @@ export default function ActivityPage() {
                   <div className="absolute top-0 right-0 p-6 opacity-10">
                      <Sparkles className="h-20 w-20" />
                   </div>
-                  <h4 className="text-[12px] font-bold text-indigo-100/70 tracking-widest mb-10">AI performance index</h4>
+                  <h4 className="text-[12px] font-bold text-indigo-100/70 tracking-widest mb-10 uppercase">AI Automation Index</h4>
 
                   <div className="space-y-10">
                      <div>
@@ -298,8 +304,8 @@ export default function ActivityPage() {
                               <TrendingDown className="h-8 w-8 text-rose-400 drop-shadow-sm" />
                            )}
                         </div>
-                        <p className="text-[11px] font-bold text-indigo-100/60 tracking-widest leading-none">
-                           {stats.efficiency > 90 ? 'High automation impact' : 'Monitoring efficiency'}
+                        <p className="text-[11px] font-bold text-indigo-100/60 tracking-widest leading-none uppercase">
+                           {stats.efficiency >= 80 ? 'Optimal Automation' : stats.efficiency >= 50 ? 'Steady Monitoring' : 'Manual Review Required'}
                         </p>
                      </div>
 

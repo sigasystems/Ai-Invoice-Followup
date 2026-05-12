@@ -3,10 +3,11 @@
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { PageHeader } from '@/components/shared/page-header';
 import { Button } from '@/components/ui/button';
+import { DownloadAppCard } from '@/components/shared/download-app-card';
 import {
   Mail, Zap, TrendingUp, AlertCircle, Clock,
   IndianRupee, Download, ArrowRight, ArrowUpRight,
-  CheckCircle2,
+  CheckCircle2, Smartphone
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import * as React from 'react';
@@ -361,6 +362,8 @@ export default function DashboardPage() {
         <KpiCard title="Over Due's" value={overdueCount.toString()} pill="Overdue" positive={false} icon={AlertCircle} delay={0.2} />
         <KpiCard title="Goal this month" value={`${recoveryRate}%`} pill="Efficiency" positive={true} icon={Clock} delay={0.24} />
       </div>
+
+      {/* <DownloadAppCard /> */}
 
       <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-3 gap-5 mb-5">
         <FadeUp delay={0.28} className="xl:col-span-2">

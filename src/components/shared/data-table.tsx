@@ -227,6 +227,7 @@ export function DataTable<TData, TValue>({
             } />
 
             <DropdownMenuContent align="end" className="w-48 rounded-xl p-1 shadow-2xl border-border/40">
+            <DropdownMenuGroup>
               <DropdownMenuLabel className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest px-2 py-2">Toggle Columns</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <div className="max-h-[300px] overflow-auto">
@@ -243,6 +244,7 @@ export function DataTable<TData, TValue>({
                     </DropdownMenuCheckboxItem>
                   ))}
               </div>
+            </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
