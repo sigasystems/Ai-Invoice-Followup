@@ -10,7 +10,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { status, startFollowups, hasPendingDraft, gmailDraftId, currentStage, nextActionAt, lastSentAt, lastSentStage } = body;
+    const { status, startFollowups, hasPendingDraft, gmailDraftId, currentStage, nextActionAt, lastSentAt, lastSentStage, initialTriggerAt } = body;
 
     // Build update data object
     const updateData: any = {};
@@ -73,28 +73,45 @@ export async function PATCH(
       updateData.nextActionAt = nextActionAt === null ? null : new Date(String(nextActionAt));
     }
 
+    if (initialTriggerAt !== undefined) {
+      updateData.initialTriggerAt = initialTriggerAt === null ? null : new Date(String(initialTriggerAt));
+    }
+
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ error: 'No data to update' }, { status: 400 });
     }
 
     let updatedInvoice;
     
+    const performUpdate = async (data: any) => {
+      try {
+        return await prisma.invoice.update({
+          where: { id: id },
+          data,
+        });
+      } catch (e) {
+        return await prisma.invoice.update({
+          where: { invoice_number: id },
+          data,
+        });
+      }
+    };
+
     try {
-      // Fetch current state to compute new dates if needed
+      // Fetch current state
       const current = await prisma.invoice.findFirst({
         where: { OR: [{ id: id }, { invoice_number: id }] }
       });
 
       if (current && (updateData.startFollowups !== undefined)) {
-        const issueDate = current.issueDate;
-        
         let effectiveOffset = updateData.startFollowups;
         if (effectiveOffset === null) {
           const globalSettings = await prisma.globalSetting.findUnique({ where: { id: 'global_config' } });
           effectiveOffset = globalSettings?.followupStartDelayDays ?? 0;
         }
 
-        const newFollowupStartDate = addDays(startOfDay(issueDate), effectiveOffset);
+        const baseDate = current.dueDate || current.issueDate;
+        const newFollowupStartDate = addDays(startOfDay(baseDate), effectiveOffset);
         updateData.followupStartDate = newFollowupStartDate;
 
         // If it's still at stage 0 and hasn't sent anything, update nextActionAt
@@ -103,26 +120,10 @@ export async function PATCH(
         }
       }
 
-      // First attempt: Update by Primary ID (CUID/UUID)
-      updatedInvoice = await prisma.invoice.update({
-        where: { id: id },
-        data: updateData,
-      });
-    } catch (e) {
-      // Fallback: Attempt to update by Invoice Number
-      try {
-        updatedInvoice = await prisma.invoice.update({
-          where: { invoice_number: id },
-          data: updateData,
-        });
-      } catch (innerError: any) {
-         console.error('Update Invoice Final Error:', innerError.message);
-         return NextResponse.json({ 
-           error: 'Invoice not found in database', 
-           attempted_id: id,
-           details: innerError.message 
-         }, { status: 404 });
-      }
+      updatedInvoice = await performUpdate(updateData);
+    } catch (dbError: any) {
+      console.error("DB Error during PATCH:", dbError.message);
+      throw dbError;
     }
 
     return NextResponse.json(updatedInvoice);

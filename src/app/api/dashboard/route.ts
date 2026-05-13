@@ -56,6 +56,8 @@ export async function GET() {
       tone: (inv.tones && inv.tones.length > 0) ? inv.tones[inv.tones.length - 1] : 'Neutral',
       reminder_stages: inv.reminder_stages,
       tones: inv.tones,
+      ladderSequence: inv.ladderSequence,
+      initialTriggerAt: inv.initialTriggerAt,
       hasPendingDraft: inv.hasPendingDraft,
       gmailDraftId: inv.gmailDraftId,
     }));

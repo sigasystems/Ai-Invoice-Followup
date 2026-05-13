@@ -63,47 +63,66 @@ export async function POST(request: Request) {
         },
       });
 
+      // ✅ 3. Get current ladder sequence (e.g., "1, 2, 5")
+      const settings = await prisma.globalSetting.findUnique({ where: { id: 'global_config' } });
+      const ladder = (settings?.escalationLadder as any[]) || [];
+      let ladderSequence = ladder.map(l => (l.delayDays ?? l)).join(', ');
+      
+      // Fallback if settings are empty
+      if (!ladderSequence) {
+        ladderSequence = "1, 2, 5";
+      }
+      
+      console.log(`[Sync] Assigning ladder sequence: ${ladderSequence} to invoice ${invoiceNumber}`);
+
       // 3. Compute follow-up dates (Using actual time instead of resetting to midnight)
-      const followupStartDate = addDays(issueDate, effectiveOffset);
+      const followupStartDate = addDays(dueDate, effectiveOffset);
       const nextActionAt = followupStartDate;
 
       // 4. Upsert Invoice
       const existingInvoice = await prisma.invoice.findUnique({ where: { invoice_number: invoiceNumber } });
       const willHaveDraft = item.has_pending_draft ?? item.hasPendingDraft ?? false;
 
+      // ✅ 4. Prepare Data (Safe mode: prevents crash if column doesn't exist yet)
+      const invoiceData: any = {
+        amount,
+        dueDate,
+        issueDate,
+        status,
+        notes,
+        startFollowups,
+        followupStartDate,
+        initialTriggerAt: followupStartDate, // Set anchor to the first follow-up date
+        ladderSequence, 
+        hasPendingDraft: item.has_pending_draft ?? item.hasPendingDraft ?? false,
+        gmailDraftId: item.gmail_draft_id ?? item.gmailDraftId ?? null,
+        customerId: customer.id
+      };
+
+      const createData = {
+        ...invoiceData,
+        invoice_number: invoiceNumber,
+        nextActionAt,
+        currentStage: 0,
+      };
+
+      // ✅ 4. Upsert Invoice
       const invoice = await prisma.invoice.upsert({
         where: { invoice_number: invoiceNumber },
         update: {
-          amount,
-          dueDate,
-          issueDate,
-          status,
-          notes,
-          startFollowups,
-          followupStartDate,
-          // Only update nextActionAt if it was null or if we're explicitly resetting? 
-          // User said "On Invoice Create: Set nextActionAt = followupStartDate"
-          // For updates, we might want to be careful not to overwrite a scheduled action unless necessary.
-          // But usually sync means "match what's provided".
+          ...invoiceData,
           hasPendingDraft: item.has_pending_draft ?? item.hasPendingDraft ?? undefined,
           gmailDraftId: item.gmail_draft_id ?? item.gmailDraftId ?? undefined,
-          customerId: customer.id
-        },
+        } as any,
         create: {
+          ...createData,
           invoice_number: invoiceNumber,
-          amount,
-          dueDate,
-          issueDate,
-          status,
-          notes,
-          startFollowups,
-          followupStartDate,
+          nextActionAt,
           currentStage: 0,
-          nextActionAt: followupStartDate,
           hasPendingDraft: item.has_pending_draft ?? item.hasPendingDraft ?? false,
           gmailDraftId: item.gmail_draft_id ?? item.gmailDraftId ?? null,
           customerId: customer.id
-        },
+        } as any,
       });
 
       // 4. ✅ Log Activity if a draft is newly created or updated

@@ -81,7 +81,8 @@ export async function POST(request: Request) {
       });
 
       for (const inv of defaultInvoices) {
-        const newStartDate = addDays(startOfDay(inv.issueDate), newDelay);
+        const baseDate = inv.dueDate || inv.issueDate;
+        const newStartDate = addDays(startOfDay(baseDate), newDelay);
         
         await prisma.invoice.update({
           where: { id: inv.id },
@@ -89,10 +90,20 @@ export async function POST(request: Request) {
             followupStartDate: newStartDate,
             // Also update nextActionAt if it hasn't started yet
             nextActionAt: inv.currentStage === 0 && !inv.lastSentAt ? newStartDate : undefined
-          }
+          } 
         });
       }
-      console.log(`Dynamic Update: Recalculated dates for ${defaultInvoices.length} standard invoices.`);
+    }
+
+    // ✅ If escalation ladder changed, update the static ladderSequence for all invoices
+    if (configData.escalationLadder) {
+      const ladder = (configData.escalationLadder as any[]) || [];
+      const ladderSequence = ladder.map(l => (l.delayDays ?? l)).join(', ');
+      
+      await prisma.invoice.updateMany({
+        data: { ladderSequence } as any
+      });
+      console.log("Dynamic Update: Updated ladder sequence string for all invoices.");
     }
 
     return NextResponse.json(setting);

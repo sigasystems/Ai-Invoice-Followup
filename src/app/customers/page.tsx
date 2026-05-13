@@ -438,15 +438,15 @@ function buildColumns(ladder: LadderStep[]): ColumnDef<Customer>[] {
         const c = row.original;
         return (
           <DropdownMenu>
-            <DropdownMenuTrigger >
+            <DropdownMenuTrigger render={
               <Button
                 variant="ghost"
                 size="icon-sm"
                 className="opacity-100 sm:opacity-0 sm:group-hover/row:opacity-100 focus:opacity-100 transition-opacity hover:bg-slate-100"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">Actions</span>
-              </Button>
+              />
+            }>
+              <MoreHorizontal className="h-4 w-4" />
+              <span className="sr-only">Actions</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"

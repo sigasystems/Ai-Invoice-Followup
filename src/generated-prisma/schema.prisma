@@ -31,15 +31,15 @@ model Invoice {
   invoice_number String @unique
   amount         Float
 
-  // ⚠️ dueDate kept only for display/reference (NOT used in logic)
+  // ✅ Main driver for follow-up logic (starts X days after dueDate)
   dueDate DateTime?
 
-  // ✅ Main driver for follow-up logic
+  // Issue date for reference
   issueDate DateTime
 
   status InvoiceStatus @default(PENDING)
 
-  // Follow-up config (days AFTER issueDate)
+  // Follow-up config (days AFTER dueDate)
   // Null means use GlobalSetting.followupStartDelayDays
   startFollowups Int?
 
@@ -52,6 +52,7 @@ model Invoice {
   lastSentAt    DateTime?
   lastSentStage Int?
 
+  initialTriggerAt DateTime? 
   notes String?
 
   // History (audit trail)
@@ -59,6 +60,9 @@ model Invoice {
   reminder_dates  DateTime[]
   tones           String[]
 
+  // Static record of the ladder used (e.g., "1, 2, 5")
+  ladderSequence String?
+  
   hasPendingDraft Boolean @default(false)
   gmailDraftId    String?
 

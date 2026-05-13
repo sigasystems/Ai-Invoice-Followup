@@ -2273,7 +2273,9 @@ export namespace Prisma {
     nextActionAt: Date | null
     lastSentAt: Date | null
     lastSentStage: number | null
+    initialTriggerAt: Date | null
     notes: string | null
+    ladderSequence: string | null
     hasPendingDraft: boolean | null
     gmailDraftId: string | null
     customerId: string | null
@@ -2294,7 +2296,9 @@ export namespace Prisma {
     nextActionAt: Date | null
     lastSentAt: Date | null
     lastSentStage: number | null
+    initialTriggerAt: Date | null
     notes: string | null
+    ladderSequence: string | null
     hasPendingDraft: boolean | null
     gmailDraftId: string | null
     customerId: string | null
@@ -2315,10 +2319,12 @@ export namespace Prisma {
     nextActionAt: number
     lastSentAt: number
     lastSentStage: number
+    initialTriggerAt: number
     notes: number
     reminder_stages: number
     reminder_dates: number
     tones: number
+    ladderSequence: number
     hasPendingDraft: number
     gmailDraftId: number
     customerId: number
@@ -2357,7 +2363,9 @@ export namespace Prisma {
     nextActionAt?: true
     lastSentAt?: true
     lastSentStage?: true
+    initialTriggerAt?: true
     notes?: true
+    ladderSequence?: true
     hasPendingDraft?: true
     gmailDraftId?: true
     customerId?: true
@@ -2378,7 +2386,9 @@ export namespace Prisma {
     nextActionAt?: true
     lastSentAt?: true
     lastSentStage?: true
+    initialTriggerAt?: true
     notes?: true
+    ladderSequence?: true
     hasPendingDraft?: true
     gmailDraftId?: true
     customerId?: true
@@ -2399,10 +2409,12 @@ export namespace Prisma {
     nextActionAt?: true
     lastSentAt?: true
     lastSentStage?: true
+    initialTriggerAt?: true
     notes?: true
     reminder_stages?: true
     reminder_dates?: true
     tones?: true
+    ladderSequence?: true
     hasPendingDraft?: true
     gmailDraftId?: true
     customerId?: true
@@ -2510,10 +2522,12 @@ export namespace Prisma {
     nextActionAt: Date | null
     lastSentAt: Date | null
     lastSentStage: number | null
+    initialTriggerAt: Date | null
     notes: string | null
     reminder_stages: number[]
     reminder_dates: Date[]
     tones: string[]
+    ladderSequence: string | null
     hasPendingDraft: boolean
     gmailDraftId: string | null
     customerId: string
@@ -2553,10 +2567,12 @@ export namespace Prisma {
     nextActionAt?: boolean
     lastSentAt?: boolean
     lastSentStage?: boolean
+    initialTriggerAt?: boolean
     notes?: boolean
     reminder_stages?: boolean
     reminder_dates?: boolean
     tones?: boolean
+    ladderSequence?: boolean
     hasPendingDraft?: boolean
     gmailDraftId?: boolean
     customerId?: boolean
@@ -2580,10 +2596,12 @@ export namespace Prisma {
     nextActionAt?: boolean
     lastSentAt?: boolean
     lastSentStage?: boolean
+    initialTriggerAt?: boolean
     notes?: boolean
     reminder_stages?: boolean
     reminder_dates?: boolean
     tones?: boolean
+    ladderSequence?: boolean
     hasPendingDraft?: boolean
     gmailDraftId?: boolean
     customerId?: boolean
@@ -2617,10 +2635,12 @@ export namespace Prisma {
       nextActionAt: Date | null
       lastSentAt: Date | null
       lastSentStage: number | null
+      initialTriggerAt: Date | null
       notes: string | null
       reminder_stages: number[]
       reminder_dates: Date[]
       tones: string[]
+      ladderSequence: string | null
       hasPendingDraft: boolean
       gmailDraftId: string | null
       customerId: string
@@ -3035,10 +3055,12 @@ export namespace Prisma {
     readonly nextActionAt: FieldRef<"Invoice", 'DateTime'>
     readonly lastSentAt: FieldRef<"Invoice", 'DateTime'>
     readonly lastSentStage: FieldRef<"Invoice", 'Int'>
+    readonly initialTriggerAt: FieldRef<"Invoice", 'DateTime'>
     readonly notes: FieldRef<"Invoice", 'String'>
     readonly reminder_stages: FieldRef<"Invoice", 'Int[]'>
     readonly reminder_dates: FieldRef<"Invoice", 'DateTime[]'>
     readonly tones: FieldRef<"Invoice", 'String[]'>
+    readonly ladderSequence: FieldRef<"Invoice", 'String'>
     readonly hasPendingDraft: FieldRef<"Invoice", 'Boolean'>
     readonly gmailDraftId: FieldRef<"Invoice", 'String'>
     readonly customerId: FieldRef<"Invoice", 'String'>
@@ -6307,10 +6329,12 @@ export namespace Prisma {
     nextActionAt: 'nextActionAt',
     lastSentAt: 'lastSentAt',
     lastSentStage: 'lastSentStage',
+    initialTriggerAt: 'initialTriggerAt',
     notes: 'notes',
     reminder_stages: 'reminder_stages',
     reminder_dates: 'reminder_dates',
     tones: 'tones',
+    ladderSequence: 'ladderSequence',
     hasPendingDraft: 'hasPendingDraft',
     gmailDraftId: 'gmailDraftId',
     customerId: 'customerId',
@@ -6585,10 +6609,12 @@ export namespace Prisma {
     nextActionAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     lastSentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     lastSentStage?: IntNullableFilter<"Invoice"> | number | null
+    initialTriggerAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     notes?: StringNullableFilter<"Invoice"> | string | null
     reminder_stages?: IntNullableListFilter<"Invoice">
     reminder_dates?: DateTimeNullableListFilter<"Invoice">
     tones?: StringNullableListFilter<"Invoice">
+    ladderSequence?: StringNullableFilter<"Invoice"> | string | null
     hasPendingDraft?: BoolFilter<"Invoice"> | boolean
     gmailDraftId?: StringNullableFilter<"Invoice"> | string | null
     customerId?: StringFilter<"Invoice"> | string
@@ -6611,10 +6637,12 @@ export namespace Prisma {
     nextActionAt?: SortOrderInput | SortOrder
     lastSentAt?: SortOrderInput | SortOrder
     lastSentStage?: SortOrderInput | SortOrder
+    initialTriggerAt?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     reminder_stages?: SortOrder
     reminder_dates?: SortOrder
     tones?: SortOrder
+    ladderSequence?: SortOrderInput | SortOrder
     hasPendingDraft?: SortOrder
     gmailDraftId?: SortOrderInput | SortOrder
     customerId?: SortOrder
@@ -6640,10 +6668,12 @@ export namespace Prisma {
     nextActionAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     lastSentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     lastSentStage?: IntNullableFilter<"Invoice"> | number | null
+    initialTriggerAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     notes?: StringNullableFilter<"Invoice"> | string | null
     reminder_stages?: IntNullableListFilter<"Invoice">
     reminder_dates?: DateTimeNullableListFilter<"Invoice">
     tones?: StringNullableListFilter<"Invoice">
+    ladderSequence?: StringNullableFilter<"Invoice"> | string | null
     hasPendingDraft?: BoolFilter<"Invoice"> | boolean
     gmailDraftId?: StringNullableFilter<"Invoice"> | string | null
     customerId?: StringFilter<"Invoice"> | string
@@ -6666,10 +6696,12 @@ export namespace Prisma {
     nextActionAt?: SortOrderInput | SortOrder
     lastSentAt?: SortOrderInput | SortOrder
     lastSentStage?: SortOrderInput | SortOrder
+    initialTriggerAt?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     reminder_stages?: SortOrder
     reminder_dates?: SortOrder
     tones?: SortOrder
+    ladderSequence?: SortOrderInput | SortOrder
     hasPendingDraft?: SortOrder
     gmailDraftId?: SortOrderInput | SortOrder
     customerId?: SortOrder
@@ -6698,10 +6730,12 @@ export namespace Prisma {
     nextActionAt?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
     lastSentAt?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
     lastSentStage?: IntNullableWithAggregatesFilter<"Invoice"> | number | null
+    initialTriggerAt?: DateTimeNullableWithAggregatesFilter<"Invoice"> | Date | string | null
     notes?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
     reminder_stages?: IntNullableListFilter<"Invoice">
     reminder_dates?: DateTimeNullableListFilter<"Invoice">
     tones?: StringNullableListFilter<"Invoice">
+    ladderSequence?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
     hasPendingDraft?: BoolWithAggregatesFilter<"Invoice"> | boolean
     gmailDraftId?: StringNullableWithAggregatesFilter<"Invoice"> | string | null
     customerId?: StringWithAggregatesFilter<"Invoice"> | string
@@ -7042,10 +7076,12 @@ export namespace Prisma {
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null
+    initialTriggerAt?: Date | string | null
     notes?: string | null
     reminder_stages?: InvoiceCreatereminder_stagesInput | number[]
     reminder_dates?: InvoiceCreatereminder_datesInput | Date[] | string[]
     tones?: InvoiceCreatetonesInput | string[]
+    ladderSequence?: string | null
     hasPendingDraft?: boolean
     gmailDraftId?: string | null
     createdAt?: Date | string
@@ -7067,10 +7103,12 @@ export namespace Prisma {
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null
+    initialTriggerAt?: Date | string | null
     notes?: string | null
     reminder_stages?: InvoiceCreatereminder_stagesInput | number[]
     reminder_dates?: InvoiceCreatereminder_datesInput | Date[] | string[]
     tones?: InvoiceCreatetonesInput | string[]
+    ladderSequence?: string | null
     hasPendingDraft?: boolean
     gmailDraftId?: string | null
     customerId: string
@@ -7092,10 +7130,12 @@ export namespace Prisma {
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentStage?: NullableIntFieldUpdateOperationsInput | number | null
+    initialTriggerAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     reminder_stages?: InvoiceUpdatereminder_stagesInput | number[]
     reminder_dates?: InvoiceUpdatereminder_datesInput | Date[] | string[]
     tones?: InvoiceUpdatetonesInput | string[]
+    ladderSequence?: NullableStringFieldUpdateOperationsInput | string | null
     hasPendingDraft?: BoolFieldUpdateOperationsInput | boolean
     gmailDraftId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7117,10 +7157,12 @@ export namespace Prisma {
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentStage?: NullableIntFieldUpdateOperationsInput | number | null
+    initialTriggerAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     reminder_stages?: InvoiceUpdatereminder_stagesInput | number[]
     reminder_dates?: InvoiceUpdatereminder_datesInput | Date[] | string[]
     tones?: InvoiceUpdatetonesInput | string[]
+    ladderSequence?: NullableStringFieldUpdateOperationsInput | string | null
     hasPendingDraft?: BoolFieldUpdateOperationsInput | boolean
     gmailDraftId?: NullableStringFieldUpdateOperationsInput | string | null
     customerId?: StringFieldUpdateOperationsInput | string
@@ -7142,10 +7184,12 @@ export namespace Prisma {
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null
+    initialTriggerAt?: Date | string | null
     notes?: string | null
     reminder_stages?: InvoiceCreatereminder_stagesInput | number[]
     reminder_dates?: InvoiceCreatereminder_datesInput | Date[] | string[]
     tones?: InvoiceCreatetonesInput | string[]
+    ladderSequence?: string | null
     hasPendingDraft?: boolean
     gmailDraftId?: string | null
     customerId: string
@@ -7166,10 +7210,12 @@ export namespace Prisma {
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentStage?: NullableIntFieldUpdateOperationsInput | number | null
+    initialTriggerAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     reminder_stages?: InvoiceUpdatereminder_stagesInput | number[]
     reminder_dates?: InvoiceUpdatereminder_datesInput | Date[] | string[]
     tones?: InvoiceUpdatetonesInput | string[]
+    ladderSequence?: NullableStringFieldUpdateOperationsInput | string | null
     hasPendingDraft?: BoolFieldUpdateOperationsInput | boolean
     gmailDraftId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7189,10 +7235,12 @@ export namespace Prisma {
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentStage?: NullableIntFieldUpdateOperationsInput | number | null
+    initialTriggerAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     reminder_stages?: InvoiceUpdatereminder_stagesInput | number[]
     reminder_dates?: InvoiceUpdatereminder_datesInput | Date[] | string[]
     tones?: InvoiceUpdatetonesInput | string[]
+    ladderSequence?: NullableStringFieldUpdateOperationsInput | string | null
     hasPendingDraft?: BoolFieldUpdateOperationsInput | boolean
     gmailDraftId?: NullableStringFieldUpdateOperationsInput | string | null
     customerId?: StringFieldUpdateOperationsInput | string
@@ -7730,10 +7778,12 @@ export namespace Prisma {
     nextActionAt?: SortOrder
     lastSentAt?: SortOrder
     lastSentStage?: SortOrder
+    initialTriggerAt?: SortOrder
     notes?: SortOrder
     reminder_stages?: SortOrder
     reminder_dates?: SortOrder
     tones?: SortOrder
+    ladderSequence?: SortOrder
     hasPendingDraft?: SortOrder
     gmailDraftId?: SortOrder
     customerId?: SortOrder
@@ -7762,7 +7812,9 @@ export namespace Prisma {
     nextActionAt?: SortOrder
     lastSentAt?: SortOrder
     lastSentStage?: SortOrder
+    initialTriggerAt?: SortOrder
     notes?: SortOrder
+    ladderSequence?: SortOrder
     hasPendingDraft?: SortOrder
     gmailDraftId?: SortOrder
     customerId?: SortOrder
@@ -7783,7 +7835,9 @@ export namespace Prisma {
     nextActionAt?: SortOrder
     lastSentAt?: SortOrder
     lastSentStage?: SortOrder
+    initialTriggerAt?: SortOrder
     notes?: SortOrder
+    ladderSequence?: SortOrder
     hasPendingDraft?: SortOrder
     gmailDraftId?: SortOrder
     customerId?: SortOrder
@@ -8516,10 +8570,12 @@ export namespace Prisma {
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null
+    initialTriggerAt?: Date | string | null
     notes?: string | null
     reminder_stages?: InvoiceCreatereminder_stagesInput | number[]
     reminder_dates?: InvoiceCreatereminder_datesInput | Date[] | string[]
     tones?: InvoiceCreatetonesInput | string[]
+    ladderSequence?: string | null
     hasPendingDraft?: boolean
     gmailDraftId?: string | null
     createdAt?: Date | string
@@ -8540,10 +8596,12 @@ export namespace Prisma {
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null
+    initialTriggerAt?: Date | string | null
     notes?: string | null
     reminder_stages?: InvoiceCreatereminder_stagesInput | number[]
     reminder_dates?: InvoiceCreatereminder_datesInput | Date[] | string[]
     tones?: InvoiceCreatetonesInput | string[]
+    ladderSequence?: string | null
     hasPendingDraft?: boolean
     gmailDraftId?: string | null
     createdAt?: Date | string
@@ -8593,10 +8651,12 @@ export namespace Prisma {
     nextActionAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     lastSentAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     lastSentStage?: IntNullableFilter<"Invoice"> | number | null
+    initialTriggerAt?: DateTimeNullableFilter<"Invoice"> | Date | string | null
     notes?: StringNullableFilter<"Invoice"> | string | null
     reminder_stages?: IntNullableListFilter<"Invoice">
     reminder_dates?: DateTimeNullableListFilter<"Invoice">
     tones?: StringNullableListFilter<"Invoice">
+    ladderSequence?: StringNullableFilter<"Invoice"> | string | null
     hasPendingDraft?: BoolFilter<"Invoice"> | boolean
     gmailDraftId?: StringNullableFilter<"Invoice"> | string | null
     customerId?: StringFilter<"Invoice"> | string
@@ -8730,10 +8790,12 @@ export namespace Prisma {
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null
+    initialTriggerAt?: Date | string | null
     notes?: string | null
     reminder_stages?: InvoiceCreatereminder_stagesInput | number[]
     reminder_dates?: InvoiceCreatereminder_datesInput | Date[] | string[]
     tones?: InvoiceCreatetonesInput | string[]
+    ladderSequence?: string | null
     hasPendingDraft?: boolean
     gmailDraftId?: string | null
     createdAt?: Date | string
@@ -8754,10 +8816,12 @@ export namespace Prisma {
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null
+    initialTriggerAt?: Date | string | null
     notes?: string | null
     reminder_stages?: InvoiceCreatereminder_stagesInput | number[]
     reminder_dates?: InvoiceCreatereminder_datesInput | Date[] | string[]
     tones?: InvoiceCreatetonesInput | string[]
+    ladderSequence?: string | null
     hasPendingDraft?: boolean
     gmailDraftId?: string | null
     customerId: string
@@ -8794,10 +8858,12 @@ export namespace Prisma {
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentStage?: NullableIntFieldUpdateOperationsInput | number | null
+    initialTriggerAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     reminder_stages?: InvoiceUpdatereminder_stagesInput | number[]
     reminder_dates?: InvoiceUpdatereminder_datesInput | Date[] | string[]
     tones?: InvoiceUpdatetonesInput | string[]
+    ladderSequence?: NullableStringFieldUpdateOperationsInput | string | null
     hasPendingDraft?: BoolFieldUpdateOperationsInput | boolean
     gmailDraftId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -8818,10 +8884,12 @@ export namespace Prisma {
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentStage?: NullableIntFieldUpdateOperationsInput | number | null
+    initialTriggerAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     reminder_stages?: InvoiceUpdatereminder_stagesInput | number[]
     reminder_dates?: InvoiceUpdatereminder_datesInput | Date[] | string[]
     tones?: InvoiceUpdatetonesInput | string[]
+    ladderSequence?: NullableStringFieldUpdateOperationsInput | string | null
     hasPendingDraft?: BoolFieldUpdateOperationsInput | boolean
     gmailDraftId?: NullableStringFieldUpdateOperationsInput | string | null
     customerId?: StringFieldUpdateOperationsInput | string
@@ -8842,10 +8910,12 @@ export namespace Prisma {
     nextActionAt?: Date | string | null
     lastSentAt?: Date | string | null
     lastSentStage?: number | null
+    initialTriggerAt?: Date | string | null
     notes?: string | null
     reminder_stages?: InvoiceCreatereminder_stagesInput | number[]
     reminder_dates?: InvoiceCreatereminder_datesInput | Date[] | string[]
     tones?: InvoiceCreatetonesInput | string[]
+    ladderSequence?: string | null
     hasPendingDraft?: boolean
     gmailDraftId?: string | null
     createdAt?: Date | string
@@ -8865,10 +8935,12 @@ export namespace Prisma {
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentStage?: NullableIntFieldUpdateOperationsInput | number | null
+    initialTriggerAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     reminder_stages?: InvoiceUpdatereminder_stagesInput | number[]
     reminder_dates?: InvoiceUpdatereminder_datesInput | Date[] | string[]
     tones?: InvoiceUpdatetonesInput | string[]
+    ladderSequence?: NullableStringFieldUpdateOperationsInput | string | null
     hasPendingDraft?: BoolFieldUpdateOperationsInput | boolean
     gmailDraftId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -8889,10 +8961,12 @@ export namespace Prisma {
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentStage?: NullableIntFieldUpdateOperationsInput | number | null
+    initialTriggerAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     reminder_stages?: InvoiceUpdatereminder_stagesInput | number[]
     reminder_dates?: InvoiceUpdatereminder_datesInput | Date[] | string[]
     tones?: InvoiceUpdatetonesInput | string[]
+    ladderSequence?: NullableStringFieldUpdateOperationsInput | string | null
     hasPendingDraft?: BoolFieldUpdateOperationsInput | boolean
     gmailDraftId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -8913,10 +8987,12 @@ export namespace Prisma {
     nextActionAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     lastSentStage?: NullableIntFieldUpdateOperationsInput | number | null
+    initialTriggerAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     reminder_stages?: InvoiceUpdatereminder_stagesInput | number[]
     reminder_dates?: InvoiceUpdatereminder_datesInput | Date[] | string[]
     tones?: InvoiceUpdatetonesInput | string[]
+    ladderSequence?: NullableStringFieldUpdateOperationsInput | string | null
     hasPendingDraft?: BoolFieldUpdateOperationsInput | boolean
     gmailDraftId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

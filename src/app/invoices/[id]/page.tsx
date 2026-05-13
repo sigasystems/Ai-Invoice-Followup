@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/shared/page-header"
 import { StatusBadge } from "@/components/shared/status-badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { IndianRupee, ArrowLeft, Send, Download, Mail, MessageSquare, History, BrainCircuit, Clock, Zap } from "lucide-react"
+import { IndianRupee, ArrowLeft, Send, Download, Mail, MessageSquare, History, BrainCircuit, Clock, Zap, ChevronRight } from "lucide-react"
 import { fetchInvoices, fetchSettings } from "@/lib/api"
 import { Invoice, GlobalSetting } from "@/types"
 import { toast } from "sonner"
@@ -239,9 +239,20 @@ export default function InvoiceDetailPage() {
                            <p className="text-[10px] font-bold text-muted-foreground/60 tracking-wider">Status duration</p>
                            <p className="text-base font-bold text-neutral-900 dark:text-neutral-100">{invoice.issueDate ? differenceInCalendarDays(new Date(), new Date(invoice.issueDate)) : 0} days active</p>
                         </div>
-                        <div className="p-8 space-y-1.5">
-                           <p className="text-[10px] font-bold text-muted-foreground/60 tracking-wider">Last automation step</p>
-                           <p className="text-base font-bold text-neutral-900 dark:text-neutral-100">Stage {lastSentStageValue !== null ? lastSentStageValue : 'None'}</p>
+                        <div className="p-8 space-y-1.5 bg-primary/5">
+                           <p className="text-[10px] font-bold text-primary tracking-wider uppercase">Escalation Ladder</p>
+                           <p className="text-base font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+                              {(() => {
+                                 const sequence = (invoice as any).ladderSequence || settings?.escalationLadder?.map((s: any) => s.delayDays).join(', ');
+                                 if (!sequence) return 'Default';
+                                 return sequence.split(',').map((d: string, i: number) => (
+                                    <React.Fragment key={i}>
+                                       <span>{d.trim()}d</span>
+                                       {i < sequence.split(',').length - 1 && <ChevronRight className="w-3 h-3 text-muted-foreground/30" />}
+                                    </React.Fragment>
+                                 ));
+                              })()}
+                           </p>
                         </div>
                      </div>
                   </Card>

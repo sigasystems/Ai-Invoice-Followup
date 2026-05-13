@@ -331,11 +331,13 @@ export default function InvoicesPage() {
           ? (updates.startFollowups ?? settings?.followupStartDelayDays ?? 0)
           : (invoice.startFollowups ?? settings?.followupStartDelayDays ?? 0);
 
-        const issueDate = parseISO(invoice.issueDate);
-        const offsetVal = Number(newOffset);
-        if (!isNaN(offsetVal) && !isNaN(issueDate.getTime())) {
-          const startDate = addDays(issueDate, offsetVal);
-          const formattedStartDate = startDate.toISOString().split('T')[0];
+        if (invoice.dueDate) {
+          const dueDate = parseISO(invoice.dueDate);
+          const offsetVal = Number(newOffset);
+          if (!isNaN(offsetVal) && !isNaN(dueDate.getTime())) {
+            const startDate = addDays(dueDate, offsetVal);
+            const formattedStartDate = startDate.toISOString().split('T')[0];
+          }
         }
       }
 
@@ -548,13 +550,13 @@ export default function InvoicesPage() {
       cell: ({ row }) => {
         const isOverride = row.original.startFollowups !== null;
         const offset = isOverride ? Number(row.original.startFollowups) : (settings?.followupStartDelayDays ?? 0);
-        const issueDateString = row.original.issueDate;
+        const dueDateString = row.original.dueDate;
+        
+        if (!dueDateString) return <span className="text-muted-foreground text-[12px]">No Due Date</span>;
 
-        if (!issueDateString) return <span className="text-muted-foreground text-[12px]">No Date</span>;
-
-        // ✅ Logic: [Issue Date] + [Offset]
-        const issueDate = parseISO(issueDateString);
-        const startDate = addDays(issueDate, offset);
+        // ✅ Logic: [Due Date] + [Offset]
+        const dueDate = parseISO(dueDateString);
+        const startDate = addDays(dueDate, offset);
 
         const today = startOfDay(new Date());
         const isPastOrToday = isBefore(startDate, today) || startDate.getTime() === today.getTime();
@@ -688,6 +690,44 @@ export default function InvoicesPage() {
           )}>
             {days}d
           </span>
+        );
+      },
+    },
+    {
+      accessorKey: 'ladderSequence',
+      header: 'Ladder Steps',
+      cell: ({ row }) => {
+        // Use the static sequence from DB if available, otherwise fallback to global ladder
+        const dbSequence = (row.original as any).ladderSequence;
+        const ladder = dbSequence 
+          ? dbSequence.split(',').map((d: string) => ({ delayDays: d.trim() }))
+          : (settings?.escalationLadder || []);
+        
+        if (!ladder || ladder.length === 0) {
+          return <span className="text-[10px] text-muted-foreground/40 italic font-medium">Pending...</span>;
+        }
+
+        const currentStage = row.original.currentStage || 0;
+        const isPaid = row.original.status === 'Paid';
+        
+        return (
+          <div className="flex items-center gap-1.5 py-1">
+            {ladder.slice(0, 4).map((step: any, i: number) => (
+              <div 
+                key={i}
+                title={`Stage ${i+1}: ${step.tone || 'Neutral'} tone after ${step.delayDays} days`}
+                className={cn(
+                  "px-2 py-0.5 rounded text-[10px] font-bold border transition-all duration-300",
+                  !isPaid && currentStage === i 
+                    ? "bg-indigo-600 text-white border-indigo-600 shadow-sm ring-2 ring-indigo-500/20" 
+                    : "bg-muted/50 text-muted-foreground border-transparent opacity-60"
+                )}
+              >
+                {step.delayDays}d
+              </div>
+            ))}
+            {ladder.length > 4 && <span className="text-[10px] text-muted-foreground font-bold">...</span>}
+          </div>
         );
       },
     },
@@ -875,11 +915,9 @@ export default function InvoicesPage() {
       cell: ({ row }) => {
         return (
           <DropdownMenu>
-            <DropdownMenuTrigger >
-              <Button variant="ghost" className="h-8 w-8 p-0 rounded-lg hover:bg-accent">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
+            <DropdownMenuTrigger render={<Button variant="ghost" className="h-8 w-8 p-0 rounded-lg hover:bg-accent" />}>
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-xl border-border shadow-xl p-1 w-48 bg-popover text-popover-foreground">
               <DropdownMenuGroup>
@@ -1101,13 +1139,6 @@ export default function InvoicesPage() {
             onClick={() => {
               async function refresh() {
                 setLoading(true);
-
-                // 1. Trigger n8n to sync from Google Sheets
-                // await triggerN8nWorkflow('TRIGGER_SHEET_SYNC', {
-                //   requested_at: new Date().toISOString()
-                // });
-
-                // 2. Fetch updated data from DB
                 const data = await fetchInvoices();
                 setInvoices(data);
                 setLoading(false);
@@ -1123,12 +1154,10 @@ export default function InvoicesPage() {
             Export
           </Button> */}
           <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
-            <DialogTrigger >
-              <Button variant="default" size="sm" className="h-10 rounded-xl font-semibold shadow-lg shadow-primary/20">
-                <Plus className="w-4 h-4 mr-2" />
-                New Invoice
-              </Button>
-            </DialogTrigger>
+          <DialogTrigger render={<Button variant="default" size="sm" className="h-10 rounded-xl font-semibold shadow-lg shadow-primary/20" />}>
+            <Plus className="w-4 h-4 mr-2" />
+            New Invoice
+          </DialogTrigger>
             <DialogContent className="max-w-3xl p-0 overflow-hidden rounded-lg border border-border bg-card shadow-2xl">
 
               {/* Header */}

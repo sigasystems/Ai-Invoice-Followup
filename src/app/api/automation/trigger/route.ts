@@ -69,7 +69,6 @@ export async function POST(request: Request) {
     if (payload.invoiceId || payload.invoice_id || payload.customerId || payload.customer_id) {
       const invoiceId: string | null = payload.invoiceId ?? payload.invoice_id ?? null;
 
-      // Resolve customerId — either given directly or derived from the invoice
       const customerId: string | null =
         (payload.customerId ?? payload.customer_id) ??
         (invoiceId
@@ -82,7 +81,6 @@ export async function POST(request: Request) {
           : null);
 
       if (customerId) {
-        // Fetch customer (with all invoices for intelligence) and the specific invoice in parallel
         const [customer, invoice] = await Promise.all([
           prisma.customer.findUnique({
             where: { id: customerId },
@@ -94,7 +92,6 @@ export async function POST(request: Request) {
         ]);
 
         if (customer) {
-          // ── Customer Intelligence ─────────────────────────────────────
           const totalInvoices = customer.invoices.length;
           const paidInvoices  = customer.invoices.filter((i: any) => i.status === 'PAID');
           const overdueInvoices = customer.invoices.filter((i: any) => i.status === 'OVERDUE');
@@ -102,7 +99,6 @@ export async function POST(request: Request) {
             ? Math.round((paidInvoices.length / totalInvoices) * 100)
             : 0;
 
-          // At which stage did paid invoices resolve?
           const paidStages = paidInvoices
             .map((i: any) => i.currentStage)
             .filter((s: any) => s > 0);
@@ -110,7 +106,6 @@ export async function POST(request: Request) {
             ? Math.round(paidStages.reduce((a: number, b: number) => a + b, 0) / paidStages.length)
             : 0;
 
-          // Overdue ratio & avg delay
           const overdueCount = overdueInvoices.length;
           const now = new Date();
           const avgDelay = overdueCount > 0
@@ -122,7 +117,6 @@ export async function POST(request: Request) {
               )
             : 0;
 
-          // Behavior score (same formula as dashboard)
           const overdueRatio  = totalInvoices > 0 ? overdueCount / totalInvoices : 0;
           const delayPenalty  = Math.min(30, avgDelay);
           const behaviorScore = Math.min(
@@ -135,15 +129,12 @@ export async function POST(request: Request) {
             ),
           );
 
-          // ── Invoice Follow-Up Details ─────────────────────────────────
           let invoiceContext = null;
           if (invoice) {
-            const daysSinceIssue = Math.max(0, Math.floor((now.getTime() - new Date(invoice.issueDate).getTime()) / 86_400_000));
             const daysOverdue = invoice.dueDate 
               ? Math.max(0, Math.floor((now.getTime() - new Date(invoice.dueDate).getTime()) / 86_400_000))
               : 0;
 
-            // Full stage & tone history arrays from the DB
             const stageHistory: number[] = Array.isArray(invoice.reminder_stages)
               ? invoice.reminder_stages
               : [];
@@ -151,15 +142,10 @@ export async function POST(request: Request) {
               ? invoice.tones
               : [];
 
-            // Total reminders sent = length of history, or fallback to startFollowups
-            const totalReminders = stageHistory.length > 0
-              ? stageHistory.length
-              : invoice.startFollowups;
-
+            const totalReminders = stageHistory.length;
             const isFirstFollowUp = totalReminders === 0;
 
-            // Determine the NEXT stage using the escalation ladder
-            const nextStageIndex = invoice.currentStage; // current is 0-indexed offset
+            const nextStageIndex = invoice.currentStage;
             const nextLadderStep = escalationLadder[nextStageIndex] ?? null;
 
             invoiceContext = {
@@ -171,22 +157,18 @@ export async function POST(request: Request) {
               daysOverdue,
               hasPendingDraft: invoice.hasPendingDraft,
               gmailDraftId:   invoice.gmailDraftId,
-
-              // ── Follow-Up Tracking (the key fields n8n needs) ──────────────
               followUp: {
-                startFollowups:     invoice.startFollowups,   // days after issueDate
+                startFollowups:     invoice.startFollowups,
                 followupStartDate:  invoice.followupStartDate,
-                currentStage:       invoice.currentStage,     // which ladder step we're ON now
+                currentStage:       invoice.currentStage,
                 currentTone:        toneHistory[toneHistory.length - 1] ?? 'Neutral',
-                stageHistory,                                 // [1, 2, 3] — every stage ever sent
-                toneHistory,                                  // ['Gentle', 'Firm', 'Urgent'] — matching tones
+                stageHistory,
+                toneHistory,
                 lastSentAt:         invoice.lastSentAt,
                 lastSentStage:      invoice.lastSentStage,
                 nextActionAt:       invoice.nextActionAt,
-                totalReminders,                               // how many reminders have been sent total
-                isFirstFollowUp,                              // true if this is the very first reminder
-
-                // What n8n SHOULD do next based on the ladder
+                totalReminders,
+                isFirstFollowUp,
                 nextRecommendedStage: invoice.currentStage + 1,
                 nextRecommendedTone:  nextLadderStep?.tone   ?? 'Neutral',
                 nextRecommendedLabel: nextLadderStep?.label  ?? 'Follow-up',
@@ -215,36 +197,29 @@ export async function POST(request: Request) {
       }
     }
 
-    // ── 3. Validate webhook URL ───────────────────────────────────────────
     const webhookUrl = settings.writeWebhook;
-
     if (!webhookUrl ) {
       return NextResponse.json({ error: 'Webhook URL not configured in Settings' }, { status: 400 });
     }
 
-    // ── 4. Build & send enriched payload to n8n ───────────────────────────
     const invoice = context.invoice;
     const customer = context.customer;
 
-    // ── 3.5 Duplicate Prevention ──────────────────────────────────────────
     if (invoice?.followUp?.lastSentAt && isSameDay(new Date(invoice.followUp.lastSentAt), new Date())) {
       return NextResponse.json({ 
         error: 'Already sent today', 
-        details: 'A reminder has already been sent for this invoice today. Duplicate prevention is active.',
-        hint: 'You can only send one automated reminder per day per invoice.'
+        details: 'A reminder has already been sent for this invoice today.',
       }, { status: 429 });
     }
 
-    // ── 3.6 Start Eligibility Check (Don't send before followupStartDate) ──
     const today = new Date();
     today.setHours(0,0,0,0);
     
-    // We compute the effective start date (fallback to issueDate + startFollowups if missing)
     let effectiveStartDate = null;
     if (invoice?.followUp?.followupStartDate) {
       effectiveStartDate = new Date(invoice.followUp.followupStartDate);
-    } else if (invoice?.issueDate) {
-      effectiveStartDate = addDays(new Date(invoice.issueDate), invoice.followUp?.startFollowups || 0);
+    } else if (invoice?.dueDate) {
+      effectiveStartDate = addDays(new Date(invoice.dueDate), invoice.followUp?.startFollowups || 0);
     }
 
     if (effectiveStartDate) {
@@ -252,45 +227,33 @@ export async function POST(request: Request) {
       if (today < effectiveStartDate) {
         return NextResponse.json({ 
           error: 'Too early to send', 
-          details: `This invoice is scheduled to start follow-ups on ${effectiveStartDate.toLocaleDateString()}.`,
-          hint: 'Automation will begin once the startup offset (Issue Date + Follow-up days) is reached.'
+          details: `Scheduled to start on ${effectiveStartDate.toLocaleDateString()}.`,
         }, { status: 429 });
       }
     }
 
-    // ── 3.7 Determine actual tone from current stage ─────────────────────
     const currentStep = escalationLadder[invoice?.followUp?.currentStage ?? 0];
     const actualTone = currentStep?.tone ?? 'Neutral';
 
     const enrichedBody: any = {
       action,
       ...payload,
-      
-      // ⚡ Root-level fields for easy n8n access
       invoice_id:    invoice?.id ?? payload.invoice_id ?? payload.invoiceId,
       client_name:   customer?.name ?? payload.client_name ?? payload.customer_name,
       client_email:  customer?.email ?? payload.client_email ?? payload.customer_email,
       amount:        invoice?.amount ?? payload.amount,
       due_date:      invoice?.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : payload.due_date,
       status:        invoice?.status ?? payload.status,
-      
-      // 🔄 Follow-up status at root
-      startFollowup: invoice?.followUp?.startFollowups ?? payload.startFollowup ?? payload.startFollowups ?? 0,
+      startFollowup: invoice?.followUp?.startFollowups ?? payload.startFollowup ?? 0,
       reminder_stage: invoice?.followUp?.currentStage ?? payload.reminder_stage ?? 0,
       current_tone:   actualTone,
       escalation_contact: currentStep?.escalationContact || null,
-
-      // Deep context still available if needed
       context,
-
-      // Global rules / config
       config: {
-        escalationLadder:    escalationLadder,
-        smartEscalation:     settings.smartEscalation,
-        createDraftsOnly:    settings.createDraftsOnly,
-        beforeDueReminder:   settings.beforeDueReminder,
+        escalationLadder,
+        smartEscalation: settings.smartEscalation,
+        createDraftsOnly: settings.createDraftsOnly,
       },
-
       triggered_at: new Date().toISOString(),
       source: 'PayPilot',
     };
@@ -302,55 +265,27 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      let errorText = await response.text();
-      
-      // Improve 404 error explanation for the user
-      if (response.status === 404) {
-        console.error(`[n8n trigger] 404 Error: The webhook URL might be incorrect or n8n workflow is not active.`);
-        console.error(`[n8n trigger] Attempted URL: ${webhookUrl}`);
-        
-        let message = `n8n responded with 404: The webhook "${action}" is not found.`;
-        
-        if (webhookUrl.includes('/webhook-test/')) {
-          message = "n8n Test Webhook error: You must click 'Execute Workflow' in n8n before triggering this, OR use the Production URL (/webhook/) and activate the workflow.";
-        } else if (!webhookUrl.includes('/webhook/')) {
-           message = "Invalid n8n URL: Webhook URLs should typically contain '/webhook/' or '/webhook-test/'.";
-        }
-
-        return NextResponse.json(
-          { 
-            error: 'Webhook Not Found', 
-            details: message,
-            hint: "Check if the n8n workflow is Active or if you are using a Test URL without clicking 'Execute' first."
-          },
-          { status: 404 }
-        );
-      }
-
-      throw new Error(`n8n responded with ${response.status}: ${errorText}`);
+      const errorText = await response.text();
+      return NextResponse.json({ error: 'Webhook Error', details: errorText }, { status: response.status });
     }
 
-    const result = await response.json().catch(() => ({ status: 'ok' }));
-
-    // ── 5. Update DB after successful send ────────────────────────────────
+    // ── 5. Update DB (Master State) ───────────────────────────────────────
+    let stage = 0;
     if (action === 'trigger-reminder' && invoice?.id) {
-      const stage = invoice.followUp.currentStage;
+      stage = invoice.followUp.currentStage;
       const nextStage = stage + 1;
-      
       let nextActionAt = null;
       let nextStageVal = stage;
 
       if (nextStage < escalationLadder.length) {
         const nextStep = escalationLadder[nextStage];
-        const offset = nextStep.offset ?? nextStep.delayDays ?? 0;
-        
-        // Use effective start date as the base for calculating the next action if it's cumulative
-        const baseDate = effectiveStartDate || new Date();
-        nextActionAt = addDays(baseDate, offset);
+        const offset = nextStep.offset ?? nextStep.delayDays ?? 2;
+        const now = new Date();
+        nextActionAt = addDays(now, offset);
         nextStageVal = nextStage;
       }
 
-      await prisma.invoice.update({
+      const updatedInvoice = await prisma.invoice.update({
         where: { id: invoice.id },
         data: {
           lastSentAt: new Date(),
@@ -363,37 +298,40 @@ export async function POST(request: Request) {
         }
       });
 
-      // ── 6. RECORD THE ACTION IN ACTIVITY LOG ──
-      try {
-        await prisma.activity.create({
-          data: {
-            customerName: customer?.name || 'Unknown Client',
-            customerId:   customer?.id || null,
-            invoiceId:    invoice?.id || null,
-            channel:      'Automation Engine',
-            status:       'Sent to n8n',
-            message:      `Sent request to n8n for Stage ${stage} (${actualTone}) follow-up.`,
-            timestamp:    new Date(),
-          }
-        });
-      } catch (logError) {
-        console.error('[Trigger Log Error]', logError);
-      }
+      enrichedBody.currentStage = nextStageVal;
+      enrichedBody.nextActionAt = nextActionAt ? nextActionAt.toISOString() : null;
+      enrichedBody.lastSentAt = new Date().toISOString();
+      enrichedBody.reminder_stages = updatedInvoice.reminder_stages;
+      enrichedBody.reminder_dates = updatedInvoice.reminder_dates.map(d => d.toISOString());
+      enrichedBody.tones = updatedInvoice.tones;
     }
 
-    return NextResponse.json({ success: true , status: 'Triggered',message: `Triggered n8n workflow for Stage ${invoice?.followUp?.currentStage} (${actualTone}).` });
+    // ── 6. Activity Log ───────────────────────────────────────────────────
+    try {
+      await prisma.activity.create({
+        data: {
+          customerName: customer?.name || 'Unknown Client',
+          customerId:   customer?.id || null,
+          invoiceId:    invoice?.id || null,
+          channel:      'Automation Engine',
+          status:       'Sent to n8n',
+          message:      `Sent request to n8n for Stage ${stage} (${actualTone}) follow-up.`,
+          timestamp:    new Date(),
+        }
+      });
+    } catch (logError) {
+      console.error('[Trigger Log Error]', logError);
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      status: 'Triggered',
+      message: `Triggered n8n workflow for Stage ${stage} (${actualTone}).`,
+      nextActionAt: enrichedBody.nextActionAt 
+    });
 
   } catch (error: any) {
     console.error('[n8n trigger] Error:', error);
-    
-    // Fallback for non-404 errors or thrown errors
-    return NextResponse.json(
-      { 
-        error: 'Automation Bridge Error', 
-        details: error.message,
-        hint: "Ensure your n8n instance is running and the URL is correct in Settings."
-      },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: 'Internal Error', details: error.message }, { status: 500 });
   }
 }

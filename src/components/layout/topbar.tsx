@@ -166,17 +166,19 @@ export function Topbar() {
         <ModeToggle />
 
         <DropdownMenu>
-          <DropdownMenuTrigger >
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative h-11 w-11 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent group transition-all duration-300"
-            >
-              <Bell className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
-              {mounted && notifications > 0 && (
-                <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-primary ring-2 ring-white dark:ring-neutral-900 animate-pulse" />
-              )}
-            </Button>
+          <DropdownMenuTrigger 
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative h-11 w-11 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent group transition-all duration-300"
+              />
+            }
+          >
+            <Bell className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
+            {mounted && notifications > 0 && (
+              <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-primary ring-2 ring-white dark:ring-neutral-900 animate-pulse" />
+            )}
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-85 p-0 border-border shadow-2xl mt-3 bg-popover/95 backdrop-blur-xl z-50 overflow-hidden rounded-2xl">
             <DropdownMenuGroup>
@@ -288,9 +290,14 @@ export function Topbar() {
         </DropdownMenu>
 
         <DropdownMenu>
-          <DropdownMenuTrigger render={
-            <Button variant="ghost" className="p-1 pl-4 gap-4 h-12 rounded-lg hover:bg-muted/50 transition-all group focus-visible:ring-0" />
-          }>
+          <DropdownMenuTrigger
+            render={
+              <Button 
+                variant="ghost" 
+                className="p-1 pl-4 gap-4 h-12 rounded-lg hover:bg-muted/50 transition-all group focus-visible:ring-0" 
+              />
+            }
+          >
             <Avatar className="h-9 w-9 rounded-full border border-border">
               <AvatarImage src={`https://ui-avatars.com/api/?name=${userEmail?.split('@')[0] || data?.settings?.managerEmails?.split(',')[0]?.split('@')[0] || 'Admin'}&background=3b82f6&color=fff`} alt="User" />
               <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
