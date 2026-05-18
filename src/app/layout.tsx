@@ -1,47 +1,38 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { Toaster } from "@/components/ui/sonner"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "PayPilot | Smart Receivables Automation",
-  description: "Automate your billing and collection process with AI-driven follow-ups.",
-};
+  title: "PayPilot AI | Modern Invoice Automation",
+  description: "Automate your invoice follow-ups with AI-powered escalation logic.",
+}
 
-import { ThemeProvider } from "@/components/shared/theme-provider";
-import { Toaster } from "sonner";
-import { AuthGuard } from "@/components/shared/auth-guard";
-
-import { SidebarProvider } from "@/components/layout/sidebar-provider";
-
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Analytics } from "@vercel/analytics/react";
+import { ThemeProvider } from "@/components/theme-provider"
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen bg-background text-foreground transition-colors duration-300`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className} suppressHydrationWarning>
         <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
         >
-          <AuthGuard>
-            <SidebarProvider>
+            <TooltipProvider>
               {children}
-            </SidebarProvider>
-          </AuthGuard>
-          <Toaster richColors position="top-right" closeButton />
-          <SpeedInsights />
-          <Analytics />
+              <Toaster position="top-right" />
+            </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }

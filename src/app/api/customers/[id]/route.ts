@@ -1,27 +1,39 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
+    const session = await auth.api.getSession({ headers: req.headers });
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // We might need to delete related invoices first depending on Prisma schema
-    // But usually we can use deleteMany or rely on cascade deletes if configured.
-    // For now, let's just delete the customer.
-    
-    await prisma.customer.delete({
-      where: { id },
+    const customer = await prisma.customer.findUnique({
+        where: { id },
+        include: {
+            invoices: {
+                orderBy: { createdAt: "desc" },
+            },
+            activityLogs: {
+                orderBy: { timestamp: "desc" },
+            },
+        },
     });
 
-    return NextResponse.json({ message: 'Customer deleted successfully' });
-  } catch (error: any) {
-    console.error('Failed to delete customer:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete customer', details: error.message },
-      { status: 500 }
-    );
-  }
+    if (!customer) return NextResponse.json({ error: "Customer not found" }, { status: 404 });
+
+    return NextResponse.json(customer);
+}
+
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const session = await auth.api.getSession({ headers: req.headers });
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const body = await req.json();
+    const customer = await prisma.customer.update({
+        where: { id },
+        data: body,
+    });
+
+    return NextResponse.json(customer);
 }

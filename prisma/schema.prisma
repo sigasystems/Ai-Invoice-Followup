@@ -1,6 +1,8 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated-prisma"
 }
 
 datasource db {
@@ -9,114 +11,165 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  role          String    @default("admin")
+  sessions      Session[]
+  accounts      Account[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Customer {
+  id                  String     @id @default(cuid())
+  name                String
+  email               String     @unique
+  company             String?
+  unpaidAmount        Float      @default(0)
+  overdueCount        Int        @default(0)
+  avgPaymentDelay     Int        @default(0) // in days
+  riskLevel           RiskLevel  @default(LOW)
+  collectionScore     Int        @default(100) // 0-100
+  invoices            Invoice[]
+  activityLogs        ActivityLog[]
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Invoice {
+  id                     String          @id @default(cuid())
+  invoiceNumber          String          @unique
+  customerId             String
+  customer               Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  amount                 Float
+  currency               String          @default("INR")
+  issueDate              DateTime
+  dueDate                DateTime
+  followupStartAfterDays Int             @default(1)
+  currentStage           Int             @default(0) // 0: Neutral, 1: Firm, etc.
+  nextActionDate         DateTime?
+  lastFollowupSentAt     DateTime?
+  status                 InvoiceStatus   @default(PENDING)
+  notes                  String?
+  gmailDraftId           String?
+  followupLogs           FollowupLog[]
+  activityLogs           ActivityLog[]
+  aiMessages             AIMessage[]
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+}
+
 enum InvoiceStatus {
   PENDING
   PAID
   OVERDUE
+  CANCELLED
 }
 
-model Customer {
-  id        String    @id @default(uuid())
-  name      String
-  email     String    @unique
-  phone     String?
-  notes     String?
-  invoices  Invoice[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+model LadderStep {
+  id              String   @id @default(cuid())
+  delayDays       Int      // Days after due date
+  tone            Tone
+  escalationEmail String?  // Targeted escalation recipient
+  enabled         Boolean  @default(true)
+  order           Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
-model Invoice {
-  id             String @id @default(uuid())
-  invoice_number String @unique
-  amount         Float
-
-  // ✅ Main driver for follow-up logic (starts X days after dueDate)
-  dueDate DateTime?
-
-  // Issue date for reference
-  issueDate DateTime
-
-  status InvoiceStatus @default(PENDING)
-
-  // Follow-up config (days AFTER dueDate)
-  // Null means use GlobalSetting.followupStartDelayDays
-  startFollowups Int?
-
-  // Computed fields
-  followupStartDate DateTime?
-
-  // Execution control (automation engine)
-  currentStage  Int
-  nextActionAt  DateTime?
-  lastSentAt    DateTime?
-  lastSentStage Int?
-
-  initialTriggerAt DateTime? 
-  notes String?
-
-  // History (audit trail)
-  reminder_stages Int[]
-  reminder_dates  DateTime[]
-  tones           String[]
-
-  // Static record of the ladder used (e.g., "1, 2, 5")
-  ladderSequence String?
-  
-  hasPendingDraft Boolean @default(false)
-  gmailDraftId    String?
-
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id])
-
-  replies Reply[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum Tone {
+  NEUTRAL
+  POLITE
+  FIRM
+  URGENT
+  ESCALATION
 }
 
-model Reply {
-  id         String   @id @default(uuid())
-  invoiceId  String
-  invoice    Invoice  @relation(fields: [invoiceId], references: [id])
-  content    String
-  receivedAt DateTime @default(now())
-  sentiment  String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model FollowupLog {
+  id           String   @id @default(cuid())
+  invoiceId    String
+  invoice      Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  sentAt       DateTime @default(now())
+  stage        Int
+  tone         Tone
+  status       String   // "SUCCESS", "FAILED"
+  payload      Json?
+  error        String?
 }
 
-model GlobalSetting {
-  id                     String  @id @default("global_config")
-  beforeDueReminder      Boolean @default(true)
-  createDraftsOnly       Boolean @default(false)
-  escalationLadder       Json? // Array of { delayDays: number, tone: string, label: string }
-  smartEscalation        Boolean @default(true)
-  consentVerified        Boolean @default(true)
-  dataDeletion           Boolean @default(true)
-  readWebhook            String? @default("https://n8n.your-site.com/webhook/read-sheet")
-  writeWebhook           String? @default("https://n8n.your-site.com/webhook/send-reminder")
-  followupStartDelayDays Int     @default(0)
-  syncActivity           Boolean @default(true)
-  managerEmails          String? @default("manager@company.com, finance@company.com")
-  logSentiment           Boolean @default(true)
-
-  updatedAt DateTime @updatedAt
+model ActivityLog {
+  id          String   @id @default(cuid())
+  eventType   String   // "INVOICE_CREATED", "FOLLOWUP_SENT", "STATUS_CHANGED", etc.
+  description String
+  timestamp   DateTime @default(now())
+  invoiceId   String?
+  invoice     Invoice? @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
 }
 
-model Activity {
-  id           String   @id @default(uuid())
-  customerName String
-  channel      String // e.g., 'Email', 'Draft Created', 'WhatsApp'
-  status       String // e.g., 'Awaiting Review', 'Delivered', 'Sent'
-  message      String
-  draft_url    String?
-  timestamp    DateTime @default(now())
+model AIMessage {
+  id        String   @id @default(cuid())
+  invoiceId String
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  content   String
+  role      String   // "assistant", "user", "system"
+  timestamp DateTime @default(now())
+}
 
-  customerId String?
-  invoiceId  String?
 
+model AutomationSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

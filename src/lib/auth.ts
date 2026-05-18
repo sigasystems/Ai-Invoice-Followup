@@ -1,22 +1,21 @@
-export const login = (email?: string) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('isLoggedIn', 'true');
-    if (email) localStorage.setItem('userEmail', email);
-    window.dispatchEvent(new Event('auth-change'));
-  }
-};
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import prisma from "./prisma";
 
-export const logout = () => {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('isLoggedIn');
-    window.dispatchEvent(new Event('auth-change'));
-    window.location.href = '/auth/login';
-  }
-};
-
-export const isAuthenticated = () => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('isLoggedIn') === 'true';
-  }
-  return false;
-};
+export const auth = betterAuth({
+    database: prismaAdapter(prisma, {
+        provider: "postgresql",
+    }),
+    baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+    emailAndPassword: {
+        enabled: true,
+    },
+    user: {
+        additionalFields: {
+            role: {
+                type: "string",
+                defaultValue: "admin",
+            },
+        },
+    },
+});

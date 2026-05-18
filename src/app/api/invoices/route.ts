@@ -1,176 +1,112 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { addDays, startOfDay } from 'date-fns';
-import { InvoiceStatus } from '@/generated-prisma';
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
-/**
- * API for n8n or Postman to sync invoices from Google Sheets
- * POST /api/invoices
- */
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    
-    // Support both direct object or array of objects
-    const items = Array.isArray(body) ? body : [body];
-    const results = [];
+export async function GET(req: Request) {
+    const session = await auth.api.getSession({ headers: req.headers });
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // Fetch Global Settings ONCE for efficiency
-    const globalSettings = await prisma.globalSetting.findUnique({ where: { id: 'global_config' } });
-    const globalDelay = globalSettings?.followupStartDelayDays ?? 0;
+    const { searchParams } = new URL(req.url);
+    const customerId = searchParams.get("customerId");
+    const status = searchParams.get("status");
 
-    for (const item of items) {
-      // 1. Map incoming fields (flexible naming for n8n/GSheet)
-      const invoiceNumber = item.invoice_id || item.invoice_number || item.id;
-      const clientName = item.client_name || item.customer_name;
-      const clientEmail = item.client_email || item.customer_email;
-      const clientPhone = item.client_phone || item.customer_phone;
-      const amount = parseFloat(item.amount) || 0;
-      const dueDate = new Date(item.due_date || item.dueDate);
-      const issueDate = new Date(item.issue_date || item.issueDate || new Date());
-      const statusStr = (item.status || 'PENDING').toUpperCase();
-      const notes = item.notes || '';
-      
-      
-      // Supporting both n8n internal naming and GSheet legacy naming
-      const startFollowupsRaw = item.start_followups ?? item["Start Followups"];
-      const startFollowups = (startFollowupsRaw !== undefined && startFollowupsRaw !== null && startFollowupsRaw !== '') ? parseInt(String(startFollowupsRaw)) : null;
+    const [invoices, steps] = await Promise.all([
+        prisma.invoice.findMany({
+            where: {
+                ...(customerId && { customerId }),
+                ...(status && { status: status as any }),
+            },
+            include: {
+                customer: true,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+        }),
+        prisma.ladderStep.findMany({
+            where: { enabled: true },
+            orderBy: { order: "asc" }
+        })
+    ]);
 
-      const effectiveOffset = startFollowups !== null ? startFollowups : globalDelay;
+    const enrichedInvoices = invoices.map((invoice: any) => {
+        const nextStep = steps[invoice.currentStage];
+        let expectedTone = null;
 
-      // Validate required fields
-      if (!invoiceNumber || !clientEmail || !clientName) {
-         results.push({ id: invoiceNumber, success: false, error: 'Missing required fields (id, email, name)' });
-         continue;
-      }
-
-      // Convert status to Enum
-      let status: InvoiceStatus = InvoiceStatus.PENDING;
-      if (statusStr === 'PAID') status = InvoiceStatus.PAID;
-      if (statusStr === 'OVERDUE') status = InvoiceStatus.OVERDUE;
-
-      // 2. Upsert Customer first
-      const customer = await prisma.customer.upsert({
-        where: { email: clientEmail },
-        update: {
-          name: clientName,
-          phone: clientPhone ? String(clientPhone) : undefined,
-        },
-        create: {
-          name: clientName,
-          email: clientEmail,
-          phone: clientPhone ? String(clientPhone) : undefined,
-        },
-      });
-
-      // ✅ 3. Get current ladder sequence (e.g., "1, 2, 5")
-      const settings = await prisma.globalSetting.findUnique({ where: { id: 'global_config' } });
-      const ladder = (settings?.escalationLadder as any[]) || [];
-      let ladderSequence = ladder.map(l => (l.delayDays ?? l)).join(', ');
-      
-      // Fallback if settings are empty
-      if (!ladderSequence) {
-        ladderSequence = "1, 2, 5";
-      }
-      
-      console.log(`[Sync] Assigning ladder sequence: ${ladderSequence} to invoice ${invoiceNumber}`);
-
-      // 3. Compute follow-up dates (Using actual time instead of resetting to midnight)
-      const followupStartDate = addDays(dueDate, effectiveOffset);
-      const nextActionAt = followupStartDate;
-
-      // 4. Upsert Invoice
-      const existingInvoice = await prisma.invoice.findUnique({ where: { invoice_number: invoiceNumber } });
-      const willHaveDraft = item.has_pending_draft ?? item.hasPendingDraft ?? false;
-
-      // ✅ 4. Prepare Data (Safe mode: prevents crash if column doesn't exist yet)
-      const invoiceData: any = {
-        amount,
-        dueDate,
-        issueDate,
-        status,
-        notes,
-        startFollowups,
-        followupStartDate,
-        initialTriggerAt: followupStartDate, // Set anchor to the first follow-up date
-        ladderSequence, 
-        hasPendingDraft: item.has_pending_draft ?? item.hasPendingDraft ?? false,
-        gmailDraftId: item.gmail_draft_id ?? item.gmailDraftId ?? null,
-        customerId: customer.id
-      };
-
-      const createData = {
-        ...invoiceData,
-        invoice_number: invoiceNumber,
-        nextActionAt,
-        currentStage: 0,
-      };
-
-      // ✅ 4. Upsert Invoice
-      const invoice = await prisma.invoice.upsert({
-        where: { invoice_number: invoiceNumber },
-        update: {
-          ...invoiceData,
-          hasPendingDraft: item.has_pending_draft ?? item.hasPendingDraft ?? undefined,
-          gmailDraftId: item.gmail_draft_id ?? item.gmailDraftId ?? undefined,
-        } as any,
-        create: {
-          ...createData,
-          invoice_number: invoiceNumber,
-          nextActionAt,
-          currentStage: 0,
-          hasPendingDraft: item.has_pending_draft ?? item.hasPendingDraft ?? false,
-          gmailDraftId: item.gmail_draft_id ?? item.gmailDraftId ?? null,
-          customerId: customer.id
-        } as any,
-      });
-
-      // 4. ✅ Log Activity if a draft is newly created or updated
-      if (willHaveDraft && (!existingInvoice || !existingInvoice.hasPendingDraft)) {
-        if ((prisma as any).activity) {
-          await (prisma as any).activity.create({
-            data: {
-              customerName: customer.name,
-              customerId: customer.id,
-              invoiceId: invoice.id,
-              channel: 'Draft Created',
-              status: 'Awaiting Review',
-              message: `AI drafted a collection reminder for Invoice ${invoice.invoice_number}.`,
-            }
-          });
+        if (nextStep) {
+            expectedTone = nextStep.tone;
         }
-      }
 
-      results.push({ id: invoiceNumber, success: true, db_id: invoice.id });
+        let calculatedNextDate = invoice.nextActionDate;
+        if (!calculatedNextDate && nextStep && (invoice.status === "OVERDUE" || invoice.status === "PENDING")) {
+            const dueDate = new Date(invoice.dueDate);
+            const delay = invoice.currentStage === 0
+                ? (invoice.followupStartAfterDays ?? nextStep.delayDays)
+                : nextStep.delayDays;
+            calculatedNextDate = new Date(dueDate.getTime() + (delay * 24 * 60 * 60 * 1000));
+        }
 
-    }
-
-    return NextResponse.json({ 
-      message: `Processed ${items.length} records`, 
-      results 
+        return {
+            ...invoice,
+            rawNextActionDate: invoice.nextActionDate,
+            nextActionDate: calculatedNextDate,
+            expectedTone
+        };
     });
 
-  } catch (error: any) {
-    console.error('Invoice Sync Error:', error);
-    return NextResponse.json({ 
-      error: 'Failed to process invoices', 
-      details: error.message 
-    }, { status: 500 });
-  }
+    return NextResponse.json(enrichedInvoices);
 }
 
-/**
- * GET /api/invoices
- * Lists all invoices with customer details
- */
-export async function GET() {
-  try {
-    const invoices = await prisma.invoice.findMany({
-      include: { customer: true },
-      orderBy: { createdAt: 'desc' }
-    });
-    return NextResponse.json(invoices);
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 });
-  }
+export async function POST(req: Request) {
+    const session = await auth.api.getSession({ headers: req.headers });
+    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    try {
+        const body = await req.json();
+        const { invoiceNumber, customerId, amount, currency, issueDate, dueDate, followupStartAfterDays, notes, nextActionDate } = body;
+
+        let startDays = followupStartAfterDays;
+        if (startDays === undefined || startDays === null) {
+            const startDaysSetting = await prisma.automationSetting.findUnique({
+                where: { key: "DEFAULT_FOLLOWUP_START_DAYS" }
+            });
+            startDays = startDaysSetting ? parseInt(startDaysSetting.value) : 1;
+        }
+
+        const invoiceExists = await prisma.invoice.findUnique({
+            where: { invoiceNumber }
+        });
+        if (invoiceExists) {
+            return NextResponse.json({ error: `Invoice number "${invoiceNumber}" is already in use. Please enter a unique invoice number.` }, { status: 400 });
+        }
+
+        const invoice = await prisma.invoice.create({
+            data: {
+                invoiceNumber,
+                customerId,
+                amount,
+                currency,
+                issueDate: new Date(issueDate),
+                dueDate: new Date(dueDate),
+                followupStartAfterDays: startDays,
+                notes,
+                nextActionDate: nextActionDate ? new Date(nextActionDate) : undefined,
+            },
+        });
+
+        // Log activity
+        await prisma.activityLog.create({
+            data: {
+                eventType: "INVOICE_CREATED",
+                description: `Invoice ${invoiceNumber} created for amount ${amount} ${currency || "INR"}`,
+                invoiceId: invoice.id,
+                customerId: customerId,
+            },
+        });
+
+        return NextResponse.json(invoice);
+    } catch (error: any) {
+        console.error("Failed to create invoice:", error);
+        return NextResponse.json({ error: error.message || "Failed to create invoice" }, { status: 500 });
+    }
 }
